@@ -23,7 +23,7 @@ mpesa:
     stk-pass-key: 5de58b84e52e7422e15d913bf7cbf3439a0516cf9835ba4cd3f77090ac68f8b9
     stk-push-short-code: 4113681
     stk-push-request-url: https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest
-    stk-push-request-callback-url: https://lakeatts.co.ke:8443/cfms/mobile-money/stk-transaction-result
+    stk-push-request-callback-url: https://second-jewel-production.up.railway.app/mobile-money/stk-transaction-result
     api-reversal-url: https://api.safaricom.co.ke/mpesa/reversal/v1/request
     reversal-result-url: https://second-jewel-production.up.railway.app/mobile-money/transaction-reversal-result
     tax-remittance-url: https://api.safaricom.co.ke/mpesa/b2b/v1/remittax
