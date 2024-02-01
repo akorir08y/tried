@@ -53,7 +53,7 @@ public class HelperUtility {
             Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
             byte[] input = initiatorPassword.getBytes();
 
-            Resource resource = new ClassPathResource("SandboxCertificate.cer");
+            Resource resource = new ClassPathResource("ProductionCertificate.cer");
             InputStream inputStream = resource.getInputStream();
 
             FileInputStream file = new FileInputStream(resource.getFile());
