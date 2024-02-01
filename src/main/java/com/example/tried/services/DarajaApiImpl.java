@@ -61,20 +61,17 @@ public class DarajaApiImpl implements DarajaApi {
                 ("%s:%s",mpesaConfiguration.getConsumerKey(),mpesaConfiguration.getConsumerSecret()));
         System.out.println("Base64 Encoded Credentials: "+ encodedCredentials);
 
-        String encodedCredentials1 = "cFJZcjZ6anEwaThMMXp6d1FETUxwWkIzeVBDa2hNc2M6UmYyMkJmWm9nMHFRR2xWOQ==";
-
         // Request Building using OkHttp
         Request request = new Request.Builder()
                 .url(String.format("%s?grant_type=%s",mpesaConfiguration.getOauthEndpoint(),
                         mpesaConfiguration.getGrantType()))
                 .method("GET", null)
-                .addHeader(AUTHORIZATION_HEADER_STRING, String.format("%s %s", BASIC_AUTH_STRING, encodedCredentials1))
+                .addHeader(AUTHORIZATION_HEADER_STRING, String.format("%s %s", BASIC_AUTH_STRING, encodedCredentials))
                 .addHeader(CACHE_CONTROL_HEADER,CACHE_CONTROL_HEADER_VALUE)
                 .build();
 
         // Response Generation using OkHttp
-
-
+        
         try {
             Response response = okHttpClient.newCall(request).execute();
             System.out.println("Response: "+ response.peekBody(Long.MAX_VALUE).string());
