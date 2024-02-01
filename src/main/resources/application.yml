@@ -7,13 +7,13 @@ mpesa:
     oauth-endpoint: https://api.safaricom.co.ke/oauth/v1/generate
     short-code: 600997
     response-type: Completed
-    confirmation-url: https://lakeatts-business-production.up.railway.app/mobile-money/confirmation
-    validation-url: https://lakeatts-business-production.up.railway.app/mobile-money/validation
+    confirmation-url: https://second-jewel-production.up.railway.app/mobile-money/confirmation
+    validation-url: https://second-jewel-production.up.railway.app/mobile-money/validation
     register-url-endpoint: https://api.safaricom.co.ke/mpesa/c2b/v1/registerurl
     simulate-transaction-endpoint: https://api.safaricom.co.ke/mpesa/c2b/v1/simulate
     b2c-transaction-endpoint: https://api.safaricom.co.ke/mpesa/b2c/v1/paymentrequest
-    b2c-result-url: https://lakeatts-business-production.up.railway.app/mobile-money/transaction-result
-    b2c-queue-timeout-url: https://lakeatts-business-production.up.railway.app/mobile-money/b2c-queue-timeout
+    b2c-result-url: https://second-jewel-production.up.railway.app/mobile-money/transaction-result
+    b2c-queue-timeout-url: https://second-jewel-production.up.railway.app/mobile-money/b2c-queue-timeout
     b2c-initiator-name: testapi
     b2c-initiator-password: Safaricom999!*!
     transaction-result-url: https://api.safaricom.co.ke/mpesa/transactionstatus/v1/query
@@ -23,11 +23,11 @@ mpesa:
     stk-pass-key: 5de58b84e52e7422e15d913bf7cbf3439a0516cf9835ba4cd3f77090ac68f8b9
     stk-push-short-code: 4113681
     stk-push-request-url: https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest
-    stk-push-request-callback-url: https://lakeatts-business-production.up.railway.app/mobile-money/stk-transaction-result
+    stk-push-request-callback-url: https://second-jewel-production.up.railway.app/mobile-money/stk-transaction-result
     api-reversal-url: https://api.safaricom.co.ke/mpesa/reversal/v1/request
-    reversal-result-url: https://lakeatts-business-production.up.railway.app/mobile-money/transaction-reversal-result
+    reversal-result-url: https://second-jewel-production.up.railway.app/mobile-money/transaction-reversal-result
     tax-remittance-url: https://api.safaricom.co.ke/mpesa/b2b/v1/remittax
-    tax-remittance-result-url: https://lakeatts-business-production.up.railway.app/mobile-money/tax-transaction-result
+    tax-remittance-result-url: https://second-jewel-production.up.railway.app/mobile-money/tax-transaction-result
     qr-code-url: https://api.safaricom.co.ke/mpesa/qrcode/v1/generate
 
 
