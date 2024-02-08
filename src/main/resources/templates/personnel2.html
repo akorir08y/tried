@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Home</title>
+
+    <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css}" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- ==== Stylesheets and Javascript Files ==== -->
+    <link th:rel="stylesheet" th:href="@{/css/dark.css}" type="text/css">
+    <link th:rel="stylesheet" th:href="@{/css/dashboard.css}" type="text/css">
+    <link th:rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css}" type="text/css">
+
+
+</head>
+<body>
+
+
+<div class="topnav" id="nav_header">
+    <h1 class="header">Welcome As a Member</h1>
+</div>
+<div class="topnav" id="sub_header">
+    <a class="active" data-bs-toggle="modal" href="#exampleModalToggle" role="button">
+        <i class="bi bi-door-open" style="margin-right:10px;font-size:18px"></i>
+        Personnel Login
+
+    </a>
+    <a th:href="@{/authenticate/login}" class="split">
+        Logout
+        <i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:18px"></i>
+    </a>
+    <a th:href="@{/authenticate/profile}" class="split">
+        Profile
+        <i class="bi bi-person-circle" style="margin-left:10px;font-size:18px"></i>
+    </a>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-2">
+            <div class="d-flex flex-column flex-shrink-0 p-3 bg-light" id="sidebar">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"></a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a th:href="@{/authenticate/personnel2}" class="nav-link link-dark">
+                            <i class="bi bi-house-door"  style="margin-right: 20px;"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link link-dark">
+                            <i class="bi bi-speedometer2"  style="margin-right: 20px;"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/authenticate/settings}" class="nav-link link-dark">
+                            <i class="bi bi-gear"  style="margin-right: 20px;"></i>
+                            Settings
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/authenticate/statement}" class="nav-link link-dark">
+                            <i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
+                            Account Statements
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link link-dark">
+                            <i class="bi bi-cash-stack" style="margin-right: 20px;"></i>
+                            Offerings
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div id="mobile_number" style="display:none"></div>
+            <div id="content1">
+                <div class="row">
+                    <div class="col-6">
+                        <a th:href="@{/authenticate/settings}" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
+                            <div class="d-flex w-50 justify-content-between">
+                                <h5 class="mb-1">Settings</h5>
+                            </div>
+                            <small>Related to Member Settings</small>
+                        </a>
+                        <a onclick="viewPayrollItems()" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
+                            <div class="d-flex w-50 justify-content-between">
+                                <h5 class="mb-1">View Offering Statements</h5>
+                            </div>
+                            <small>Related to Offering Statements</small>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a th:href="@{/authenticate/profile}" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
+                            <div class="d-flex w-50 justify-content-between">
+                                <h5 class="mb-1">View Your Profile</h5>
+                            </div>
+                            <small>Related to Profile Information</small>
+                        </a>
+                        <a th:href="@{/authenticate/settings}" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
+                            <div class="d-flex w-50 justify-content-between">
+                                <h5 class="mb-1">Transfer to Another Church</h5>
+                            </div>
+                            <small>Related to Church Transfer</small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="mt-5 p-4 bg-dark text-white text-center" id="footer">
+    <p>Lakeatts Solutions Limited</p>
+</div>
+
+<div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <h5 style="text-align:center;margin-top:15px;">Personnel Login</h5>
+            <hr>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-body">
+                <div class="responseDiv"></div>
+                <form method="post" action="/cfms/authenticate/auth-personnel" id="myForm">
+                    <div class="mb-1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                            <input type="text" placeholder="Username" class="login_input" id="username" name="username">
+                        </div>
+                    </div>
+                    <div class="mb-1">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input type="password" class="password_input" id="password" name="password" placeholder="Password">
+                            <span class="input-group-text">
+									<i class="bi bi-eye-slash" id="togglePassword" onclick="passwordVisibility()"></i>
+								</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <button type="button" class="button1" style='width:130px;border-radius:10px;margin-right:7px;' onclick="personnelLogin()">Login</button>
+                <button class="button1" style='width:130px;border-radius:10px;margin-left:7px;' href="#exampleModalToggle3" data-bs-toggle="modal" id="sign-up">Reset Password</button>
+                <br>
+            </div>
+            <div id="otp_id" style="display:none;">
+                <h5 style="text-align:center;margin-top:15px;">OTP Verification</h5>
+                <input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone_number" disabled>
+                <hr>
+                <div class="otp-field">
+                    <div id="otp-field12">
+                        <input type="text" id="ist" maxlength="1" onkeyup="clickEvent(this,'sec')"/>
+                        <input type="text" id="sec" maxlength="1" onkeyup="clickEvent(this,'third')"/>
+                        <input type="text" id="third" maxlength="1" onkeyup="clickEvent(this,'forth')"/>
+                        <input type="text" id="forth" maxlength="1"/>
+                    </div>
+                </div>
+                <div id="time" style="font-size:16px;font-weight: bold;text-align:center;"></div>
+                <hr>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <button type="button" class="button1" onclick="sendPersonnelOTP()" id="send_otp_button">Send OTP</button>
+                    <button type="button" class="button1" onclick="confirmPersonnelOTP()" id="send_otp_button1">Verify OTP</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalToggle3" aria-hidden="true" aria-labelledby="exampleModalToggleLabel3" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <h5 style="text-align:center;margin-top:15px;">OTP Verification</h5>
+            <hr>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            <div class="modal-body">
+                <div class="responseDiv"></div>
+                <hr>
+                <ul class="list-group">
+                    <li class="list-group-item" id="sendCode1" onclick="sendPersonnelResetOTP()" style="font-size:14px;"></li>
+                </ul>
+                <input type="hidden" placeholder="2547.." maxlength="12" name="username" id="phone_number1">
+                <hr>
+                <div class="otp-field">
+                    <div id="otp-field11">
+                        <input type="text" id="ist1" maxlength="1" onkeyup="clickEvent(this,'sec1')"/>
+                        <input type="text" id="sec1" maxlength="1" onkeyup="clickEvent(this,'third1')"/>
+                        <input type="text" id="third1" maxlength="1" onkeyup="clickEvent(this,'forth1')"/>
+                        <input type="text" id="forth1" maxlength="1"/>
+                    </div>
+                </div>
+                <div id="time1" style="font-size:16px;font-weight: bold;text-align:center;"></div>
+
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmPersonnelResetOTP()" style='border-radius:10px;' id="verify1" class="button1" type="button">Verify OTP</button>
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalToggle4" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+                <h5 class="header">Reset Password</h5>
+                <hr>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-body">
+                <div class="responseDiv"></div>
+                <hr>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                        <input type="text" placeholder="Username" maxlength="12" class="login_input" id="username2" name="username">
+
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="password_input" id="password2" name="password1" placeholder="Password">
+                        <span class="input-group-text"><i class="bi bi-eye-slash" id="togglePassword2" onclick="passwordVisibility2()"></i></span>
+                    </div>
+                    <button type="button" class="button1" style='border-radius:10px;' onclick="resetPersonnelPassword()">Reset Password</button>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script th:src="@{https://code.jquery.com/jquery-3.7.1.min.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js}" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script th:src="@{/js/dark.js}" type="text/javascript"></script>
+<script th:src="@{/js/form_personnel.js}" type="text/javascript"></script>
+<script th:src="@{/js/navigate.js}" type="text/javascript"></script>
+
+
+</body>
+</html>

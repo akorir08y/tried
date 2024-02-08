@@ -1,0 +1,201 @@
+// Changing the Color of the Page to Dark Theme
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 25px;
+  background-color: white;
+  color: black;
+  font-size: 6px;
+}
+
+.header{
+	font-size:16px;
+	text-align:center;
+	margin-top:12px;
+}
+
+.header1{
+	font-size:16px;
+	text-align:center;
+}
+
+.login_input{
+   padding-top: 4px;
+   padding-bottom: 4px;
+   background: #f1f1f1;
+   outline:none;
+   border:none;
+   font-size:14px;
+   border-radius:10px;
+   width:80%;
+}
+
+
+.login_input_non{
+   padding-top: 6px;
+   padding-bottom: 6px;
+   background: #f1f1f1;
+   font-size:14px;
+   outline:none;
+   border:none;
+   border-radius:10px;
+   width:100%;
+}
+
+.password_input{
+   padding: 2px;
+   background: #f1f1f1;
+   font-size:14px;
+   outline:none;
+   border:none;
+   border-radius:10px;
+   width:65%;
+}
+
+.login_input:focus{
+    border: 1px solid red;
+    box-shadow: 0 0 1px 1px red;
+}
+
+.login_input_non:focus{
+    border: 1px solid red;
+    box-shadow: 0 0 1px 1px red;
+}
+
+.password_input:focus{
+    border: 1px solid red;
+    box-shadow: 0 0 1px 1px red;
+}
+
+.btn{
+	font-size:14px;
+}
+
+a:link{
+	text-decoration: none;
+}
+
+/* Set a style for all buttons */
+.button {
+  background-color: #24478f;
+  color: white;
+  padding: 8px 14px;
+  margin: 10px 10px;
+  border: none;
+  width: 100%;
+  white-space: nowrap;
+  border-radius:10px;
+  opacity: 0.9;
+  font-size: 13px;
+}
+
+.btn-close{
+	position:absolute;
+	top:7px;
+	right:7px;
+	float:right;
+}
+
+/*
+.header-pane{
+	height:40px;
+	background-color: #24478f;
+	border-radius:10px;
+	/* background-image:linear-gradient(to bottom, rgba(36, 71, 143, 0), rgba(36, 71, 143, 1));
+	opacity: .3;
+}
+*/
+
+.button1 {
+  background-color: #24478f;
+  color: white;
+  padding: 4px 20px;
+  margin: 10px 10px;
+  border: none;
+  width: 90%;
+  white-space: nowrap;
+  border-radius:10px;
+  opacity: 0.9;
+  font-size: 12px;
+}
+
+.btn-group{
+	width:100%;
+}
+
+button:hover {
+  opacity:1;
+  background-color:#24478f;
+}
+
+/* Add padding to container elements */
+.container {
+  padding: 16px;
+}
+
+
+#OTP_Head{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.otp-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.otp-field input {
+  width: 20px;
+  font-size: 14px;
+  text-align: center;
+  border-radius: 5px;
+  display: inline-block;
+  margin: 2px;
+  color:black;
+  background: #f1f1f1;
+  border: 2px solid #55525c;
+  font-weight: bold;
+  outline: none;
+  transition: all 0.1s;
+}
+
+.otp-field input:focus {
+  border: 2px solid #a527ff;
+  box-shadow: 0 0 2px 2px #a527ff6a;
+}
+
+#togglePassword, #togglePassword1, #togglePassword2 {
+    font-size:18px;
+	color:black;
+	background-color: #f1f1f1;
+	margin-top:-4px;
+}
+
+
+.input-group-text{
+	background-color: #f1f1f1;
+	border:none;
+}
+
+.bi .bi-lock-fill{
+	font-size:18px;
+	color:black;
+	margin-top:-6px;
+	background-color: #f1f1f1;
+}
+
+
+.bi .bi-eye-slash{
+	font-size:18px;
+	color:black;
+	margin-top:-4px;
+	background-color: #f1f1f1;
+}
+
+.bi .bi-telephone{
+	font-size:18px;
+	color:black;
+	margin-top:-4px;
+	background-color: #f1f1f1;
+}

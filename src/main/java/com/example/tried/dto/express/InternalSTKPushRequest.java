@@ -11,4 +11,16 @@ public class InternalSTKPushRequest{
 
 	@JsonProperty("PhoneNumber")
 	private String phoneNumber;
+
+	@JsonProperty("invoice_id")
+	private int invoice_id;
+
+	@JsonProperty("institution_level")
+	private String institution_level;
+
+	@JsonProperty("institution_name")
+	private String institution_name;
+
+	@JsonProperty("institution_number")
+	private String institution_number;
 }

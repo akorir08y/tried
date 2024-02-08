@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Bootstrap 5 Website Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Jquery Script -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" type="text/css">
+  <link href="/cfms/css/dashboard.css" rel="stylesheet">
+  <link href="/cfms/css/dark.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="topnav" id="nav_header">
+	<h1 class="header">Welcome As a Member</h1>
+</div>
+<div class="topnav" id="sub_header">
+	<a class="active" data-bs-toggle="modal" href="#exampleModalToggle" role="button">
+		<i class="bi bi-door-open" style="margin-right:10px;font-size:18px"></i>
+		Personnel Login
+
+	</a>
+	<a href="#about" class="split">
+		Logout
+		<i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:18px"></i>
+	</a>
+	<a href="#content" class="split" onclick="fetch()">
+		Profile
+		<i class="bi bi-person-circle" style="margin-left:10px;font-size:18px"></i>
+	</a>
+</div>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm-2">
+			<div class="d-flex flex-column flex-shrink-0 p-3 bg-light" id="sidebar">
+				<a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"></a>
+				<hr>
+				<ul class="nav nav-pills flex-column mb-auto">
+					<li class="nav-item">
+						<a th:href="@{/authenticate/personnel2}" class="nav-link link-dark">
+							<i class="bi bi-house-door"  style="margin-right: 20px;"></i>
+							Home
+						</a>
+					</li>
+					<li>
+						<a href="#" class="nav-link link-dark">
+							<i class="bi bi-speedometer2"  style="margin-right: 20px;"></i>
+							Dashboard
+						</a>
+					</li>
+					<li>
+						<a th:href="@{/authenticate/settings}" class="nav-link link-dark">
+							<i class="bi bi-gear"  style="margin-right: 20px;"></i>
+							Settings
+						</a>
+					</li>
+					<li>
+						<a th:href="@{/authenticate/statement}" class="nav-link link-dark"> <!--th:onclick="offeringStatement()">-->
+							<i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
+							Account Statements
+						</a>
+					</li>
+					<li>
+						<a href="#" class="nav-link link-dark">
+							<i class="bi bi-cash-stack" style="margin-right: 20px;"></i>
+							Offerings
+						</a>
+					</li>
+				</ul>
+				<hr>
+
+			</div>
+		</div>
+		<div class="col-sm-10">
+
+				<h2 style="text-align:center;">Generate Account Statement</h2>
+				<hr>
+				<form action="" method="post" id="#myform">
+					<div class="row">
+						<div class="col-6">
+							<div class="input-group mb-3">
+								<input type="date" class="login_input" id="start_date" name="start_date" placeholder="Start Date">
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="input-group mb-3">
+								<input type="date" class="login_input" id="end_date" name="end_date" placeholder="End Date">
+							</div>
+
+						</div>
+						<button type="button" class="button2" onclick="generateOfferingStatement()">Generate Statement</button>
+					</div>
+				</form>
+				<hr>
+
+
+				<div class="list-group" id="content2">
+
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+<div class="mt-5 p-4 bg-dark text-white text-center" id="footer">
+	<p>Lakeatts Solutions Limited</p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>
+<script src="/cfms/js/navigate.js"></script>
+<script src="/cfms/js/generate.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

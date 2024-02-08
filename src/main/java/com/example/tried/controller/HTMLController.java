@@ -2,6 +2,7 @@ package com.example.tried.controller;
 
 
 import com.example.tried.config.MpesaConfiguration;
+import com.example.tried.dto.Movie;
 import com.example.tried.dto.c2b.SimulateC2BRequest;
 import com.example.tried.dto.express.InternalSTKPushRequest;
 import com.example.tried.services.DarajaApi;
@@ -76,5 +77,19 @@ public class HTMLController {
         darajaApi.simulateC2BTransaction(simulateC2BRequest);
 
         return "Paybill Payment Request has been Received Successfully";
+    }
+
+
+    @GetMapping(path="/movie")
+    public String getMovie(Model model, Model model2){
+        Movie movie = new Movie();
+        String name = "Arnold Schumer";
+        String phone = "254707981971";
+        String email = "andrewkorir08@gmail.com";
+        model.addAttribute("movie", movie);
+        model2.addAttribute("Name", name);
+        model2.addAttribute("Phone",phone);
+        model2.addAttribute("Email",email);
+        return "movie";
     }
 }

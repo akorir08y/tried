@@ -11,6 +11,7 @@ import com.example.tried.dto.c2b.SimulateC2BRequest;
 import com.example.tried.dto.c2b.SimulateC2BResponse;
 import com.example.tried.dto.express.ExternalSTKPushRequest;
 import com.example.tried.dto.express.InternalSTKPushRequest;
+import com.example.tried.dto.express.MpesaTransaction;
 import com.example.tried.dto.express.STKPushSyncResponse;
 import com.example.tried.dto.kra.InternalTaxRequest;
 import com.example.tried.dto.kra.TaxRemittanceRequest;
@@ -301,7 +302,6 @@ public class DarajaApiImpl implements DarajaApi {
 
         // STK Push Functional Definition
         ExternalSTKPushRequest externalSTKPushRequest = new ExternalSTKPushRequest();
-
         externalSTKPushRequest.setBusinessShortCode(mpesaConfiguration.getStkPushShortCode());
 
 
@@ -335,6 +335,7 @@ public class DarajaApiImpl implements DarajaApi {
                 .build();
 
         try {
+
             Response response = okHttpClient.newCall(request).execute();
             assert response.body() != null;
 

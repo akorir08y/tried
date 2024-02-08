@@ -46,3 +46,18 @@ spring:
       jdbc-url: jdbc:postgresql://localhost:5432/postgres
       password: admin
       username: postgres
+
+auth:
+  login:
+    auth_login_url: https://sdacfms.org:8443/sdacfmsWS/webresources/cfms/mobile/
+    cfms_data: https://sdacfms.org:8443/sdacfmsWS/webresources/cfms/data
+    financial_data: http://sdacfms.org:8080/sdacfmsWS/webresources/statements/v1/financial
+    sms_url: https://sdacfms.org:8443/sdacfmsWS/webresources/SMS/mobile/
+
+
+server:
+  servlet:
+    context-path: /cfms
+
+file:
+  upload-dir: ./../../cfms_media/
