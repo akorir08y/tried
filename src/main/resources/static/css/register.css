@@ -1,0 +1,33 @@
+#content1{
+	position: fixed;
+	left:10%;
+}
+
+.bi.bi-person{
+	background-color: #f1f1f1;
+	font-size:12px;
+}
+
+.bi.bi-envelope{
+	background-color: #f1f1f1;
+	font-size:12px;
+}
+
+.bi.bi-telephone{
+	background-color: #f1f1f1;
+	font-size:12px;
+}
+
+.bi.bi-buildings-fill{
+	background-color: #f1f1f1;
+	font-size:12px;
+}
+
+.bi.bi-houses-fill{
+	background-color: #f1f1f1;
+	font-size:12px;
+}
+
+.input.group.text{
+	background-color: #f1f1f1;
+}

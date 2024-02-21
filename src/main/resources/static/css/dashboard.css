@@ -1,16 +1,14 @@
-# scrolling content under the header
 html {
-  scroll-padding-top: 90px; /* height of sticky header */
+  scroll-padding-top: 90px;
 }
 
-
 h1,h2,h3,h4,h5,h6{
-	font-size: 14px;
+	font-size: 12px;
 	text-align:center;
 }
 
 p{
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .fakeimg {
@@ -23,7 +21,7 @@ p{
 	position:sticky;
 	top:0;
 	width:100%;
-	font-size:18px;
+	font-size:12px;
 	background-color: #24478f;
 }
 
@@ -31,7 +29,7 @@ p{
 	position:sticky;
 	top:30px;
 	width:100%;
-	font-size:14px;
+	font-size:12px;
 }
 
 #sub_nav{
@@ -52,17 +50,25 @@ a:hover{
 }
 
 .header{
-	font-size: 14px;
+	font-size: 12px;
 	text-align: center;
+	font-weight: bold;
 	color:white;
 	margin-top:10px;
+}
+
+.header1{
+	font-size: 12px;
+	text-align: center;
+	font-weight: bold;
+	margin-top: 15px;
 }
 
 #sidebar{
 	position:fixed;
 	top:95px;
 	left:10px;
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .topnav {
@@ -77,7 +83,7 @@ a:hover{
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .topnav a:hover {
@@ -98,11 +104,11 @@ a:hover{
 	height:40px;
 	margin-top:10px;
 	padding-bottom:10px;
-	font-size:14px;
+	font-size:12px;
 }
 
 #content{
-	font-size:14px;
+	font-size:12px;
 	z-index: -1;
 	position: sticky;
 	margin-bottom:10px;
@@ -113,6 +119,7 @@ a:hover{
 	padding:5px;
 	border-radius:7px;
 	background-color:#24478f;
+	font-size:12px;
 	color:white;
 }
 
@@ -129,10 +136,11 @@ a:hover{
 	opacity: 0.9;
 	font-size: 12px;
 	position:relative;
-	left:25%;
+	left:15%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	z-index: 3;
 }
 
 
@@ -144,15 +152,31 @@ a:hover{
 .nav-item{
 	background-color:#24478f;
 	color: white;
-	font-size:14px;
+	font-size:12px;
 	text-decoration: none;
 }
 
 .label_input{
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .form-check-label{
-	font-size: 14px;
+	font-size: 12px;
+}
+
+#content2{
+	z-index: -1;
+	position: sticky;
+	width: 100%;
+	padding-top: 15px;
+	padding-bottom: 30px;
+}
+
+.containers{
+	position:sticky;
+	top:90px;
+	z-index: 3;
+	background-color:white;
+	opacity:1.0;
 }
 

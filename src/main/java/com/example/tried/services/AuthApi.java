@@ -1,6 +1,14 @@
 package com.example.tried.services;
 
 
+import com.example.tried.auth.dashboard.ListMembers;
+import com.example.tried.auth.dashboard.ListMembersResponse;
+import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembers;
+import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembersResponse;
+import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccounts;
+import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccountsResponse;
+import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
+import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dto.*;
 import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
@@ -58,4 +66,20 @@ public interface AuthApi {
     // Request Church Details with Church Code
     public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails);
 
+
+    // Member Registration Update Details
+    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate);
+
+
+    // List Church Members
+    public ListMembersResponse getChurchMembers(ListMembers members);
+
+    // List Deactivated Church Members
+    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members);
+
+    // List Payment Accounts
+    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount);
+
+    // Get the Local Church Trust Fund Summary
+    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary);
 }

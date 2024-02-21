@@ -1,0 +1,62 @@
+.recentOrders table {
+  font-family: arial, sans-serif;
+  border-spacing: 10px;
+  border: none;
+  width: 100%;
+}
+
+.con{
+	width: 100%;
+    padding: 10px;
+    padding-top:10px;
+    border-radius:15px;
+    height:auto;
+    font-size: 14px;
+}
+
+.con1{
+	width: 100%;
+    padding: 10px;
+    padding-top:10px;
+    border-radius:15px;
+    height:auto;
+    font-size: 12px;
+}
+
+.left{
+	float:left;
+}
+
+.right{
+	float:right;
+}
+
+.second{
+	margin-top: 5px;
+}
+
+
+#myInput{
+	border:none;
+    padding:10px;
+    width:60%;
+    box-shadow: 10px 10px 5px lightblue;
+    border-radius: 10px;
+}
+
+
+#myInput1{
+	margin-top:10px;
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+    border-radius: 10px;
+}
+
+#myInput2{
+	margin-top:10px;
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+    border-radius: 10px;
+}

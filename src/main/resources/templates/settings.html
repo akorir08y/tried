@@ -20,7 +20,7 @@
 <body>
 
 <div class="topnav" id="nav_header">
-  <h1 class="header">Welcome As a Member</h1>
+  <h1 class="header" style="font-size:14px;">Welcome As a Member</h1>
 </div>
 
 <div class="topnav" id="sub_header">
@@ -29,11 +29,11 @@
   Personnel Login
   
   </a>
-  <a href="#about" class="split">
+  <a th:href="@{/authenticate/login}" class="split">
   Logout
   <i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:18px"></i>
   </a>
-  <a href="#content" class="split" onclick="fetch()">
+  <a th:href="@{profile(p=${Phone},q=${Pin})}" class="split">
   Profile
   <i class="bi bi-person-circle" style="margin-left:10px;font-size:18px"></i>
   </a>
@@ -47,29 +47,23 @@
 			<hr>
 			<ul class="nav nav-pills flex-column mb-auto">
 			  <li class="nav-item">
-				<a th:href="@{/authenticate/personnel2}" class="nav-link link-dark">
+				<a th:href="@{personnel(p=${Phone},q=${Pin})}" class="nav-link link-dark">
 				  <i class="bi bi-house-door"  style="margin-right: 20px;"></i>
 				  Home
 				</a>
 			  </li>
-			  <li>
-				<a href="#" class="nav-link link-dark">
-				  <i class="bi bi-speedometer2"  style="margin-right: 20px;"></i>
-				  Dashboard
-				</a>
-			  </li>
-			  <li>
-				<a th:href="@{/authenticate/settings}" class="nav-link link-dark" onclick="getSettings()">
-				  <i class="bi bi-gear"  style="margin-right: 20px;" ></i>
-				  Settings
-				</a>
-			  </li>
-			  <li>
-				<a th:href="@{/authenticate/statement}" class="nav-link link-dark">
-				  <i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
-				  Account Statements
-				</a>
-			  </li>
+				<li>
+					<a th:href="@{settings(p=${Phone},q=${Pin})}" class="nav-link link-dark">
+						<i class="bi bi-gear"  style="margin-right: 20px;"></i>
+						Settings
+					</a>
+				</li>
+				<li>
+					<a th:href="@{statement(p=${Phone},q=${Pin})}" class="nav-link link-dark">
+						<i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
+						Account Statements
+					</a>
+				</li>
 			  <li>
 				<a href="#" class="nav-link link-dark">
 				  <i class="bi bi-cash-stack" style="margin-right: 20px;"></i>
@@ -89,7 +83,7 @@
 			<a class="nav-link" href="#" onclick="getNavigation1()">Reset Pin</a>
 		  </li>
 		  <li class="nav-item">
-			<a class="nav-link" href="#content2" onclick="getNavigation()">Transfer to Church</a>
+			<a class="nav-link" href="#content3" onclick="getNavigation()">Transfer to Church</a>
 		  </li>
 		  <li class="nav-item">
 			<a class="nav-link" href="#">Request Support</a>
@@ -103,7 +97,7 @@
 		</ul>
 		</div>
 
-		
+		<input type="hidden" name="phone_number" id="phone" th:value="${Phone}">
 		<div id="content1">
 
 			<div id="otp_top" style="display:none;">
@@ -142,7 +136,6 @@
 						<hr>
                         <h5 style="text-align:center;margin-top:15px;">OTP Verification</h5>
 						<div class="responseDiv"></div>
-						<div class="responseDiv"></div>
                         <input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone_number" value="254707981971" disabled>
                         <hr>
                         <div class="otp-field">
@@ -163,7 +156,7 @@
 		</div>
 		
 		
-		<div id="content2" style="margin-top:10px;display:none;">
+		<div id="content3" style="margin-top:10px;display:none;">
 			<div class="responseDiv"></div>
 		
 			<h2 style="text-align:center;margin-top:15px;">Transfer Church</h2>

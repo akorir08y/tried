@@ -1,6 +1,14 @@
 package com.example.tried.services;
 
 
+import com.example.tried.auth.dashboard.ListMembers;
+import com.example.tried.auth.dashboard.ListMembersResponse;
+import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembers;
+import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembersResponse;
+import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccounts;
+import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccountsResponse;
+import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
+import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dto.*;
 import com.example.tried.auth.dto.Payload;
 import com.example.tried.auth.financial.MemberOffering;
@@ -207,7 +215,7 @@ public class AuthApiImpl implements AuthApi{
             Response response = client.newCall(request).execute();
             return objectMapper.readValue(response.body().string(),AuthMemberRegistrationResponse.class);
         } catch (IOException e) {
-            log.error(String.format("Could not Login the Personnel -> %s", e.getLocalizedMessage()));
+            log.error(String.format("Could not register the Member-> %s", e.getLocalizedMessage()));
             return null;
         }
     }
@@ -230,7 +238,7 @@ public class AuthApiImpl implements AuthApi{
             Response response = client.newCall(request).execute();
             return objectMapper.readValue(response.body().string(),AuthMemberRegistrationResponse.class);
         } catch (IOException e) {
-            log.error(String.format("Could not Login the Personnel -> %s", e.getLocalizedMessage()));
+            log.error(String.format("Could not update Registered Member -> %s", e.getLocalizedMessage()));
             return null;
         }
     }
@@ -423,7 +431,7 @@ public class AuthApiImpl implements AuthApi{
             Response response = client.newCall(request).execute();
             return objectMapper.readValue(response.body().string(),MemberTransferResponse.class);
         } catch (Exception e) {
-            log.error(String.format("Could not retrieve the Member Church Details -> %s", e.getLocalizedMessage()));
+            log.error(String.format("Could not facilitate Member Transfer Details -> %s", e.getLocalizedMessage()));
             try {
                 return objectMapper.readValue(e.getLocalizedMessage().toString(), MemberTransferResponse.class);
             } catch (JsonProcessingException ex) {
@@ -448,9 +456,135 @@ public class AuthApiImpl implements AuthApi{
             Response response = client.newCall(request).execute();
             return objectMapper.readValue(response.body().string(),RequestChurchDetailsWithCodeResponse.class);
         } catch (Exception e) {
-            log.error(String.format("Could not retrieve the Member Church Details -> %s", e.getLocalizedMessage()));
+            log.error(String.format("Could not retrieve the Member Church Details with Code -> %s", e.getLocalizedMessage()));
             try {
                 return objectMapper.readValue(e.getLocalizedMessage().toString(), RequestChurchDetailsWithCodeResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) {
+        registrationUpdate.setFunction("mobileRegistrationUpdates");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registrationUpdate)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),MemberRegisterUpdateResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not update the Member Details -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), MemberRegisterUpdateResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public ListMembersResponse getChurchMembers(ListMembers members) {
+        members.setFunction("getListOfChurchMembers");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(members)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),ListMembersResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get the Active Members -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), ListMembersResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) {
+        members.setFunction("mobileRequestDeactivatedMemberDetails");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(members)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),ListDeactivatedMembersResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), ListDeactivatedMembersResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) {
+        paymentAccount.setFunction("getLocalChurchPaymentAccounts");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(paymentAccount)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),LocalChurchPaymentAccountsResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchPaymentAccountsResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) {
+        trustFundSummary.setFunction("getLocalChurchTrustFundsSummary");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(trustFundSummary)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getTrust_funds_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),LocalChurchTrustFundSummaryResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTrustFundSummaryResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }

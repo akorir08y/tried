@@ -14,21 +14,21 @@
 <body>
 
 <div class="topnav" id="nav_header">
-	<h1 class="header">Welcome As a Member</h1>
+	<h1 class="header" style="font-size:14px;">Welcome As a Member</h1>
 </div>
 <div class="topnav" id="sub_header">
 	<a class="active" data-bs-toggle="modal" href="#exampleModalToggle" role="button">
-		<i class="bi bi-door-open" style="margin-right:10px;font-size:18px"></i>
+		<i class="bi bi-door-open" style="margin-right:10px;font-size:16px"></i>
 		Personnel Login
 
 	</a>
 	<a href="#about" class="split">
 		Logout
-		<i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:18px"></i>
+		<i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:16px"></i>
 	</a>
 	<a href="#content" class="split" onclick="fetch()">
 		Profile
-		<i class="bi bi-person-circle" style="margin-left:10px;font-size:18px"></i>
+		<i class="bi bi-person-circle" style="margin-left:10px;font-size:16px"></i>
 	</a>
 </div>
 
@@ -39,26 +39,20 @@
 				<a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"></a>
 				<hr>
 				<ul class="nav nav-pills flex-column mb-auto">
-					<li class="nav-item">
+					<li>
 						<a th:href="@{/authenticate/personnel2}" class="nav-link link-dark">
 							<i class="bi bi-house-door"  style="margin-right: 20px;"></i>
 							Home
 						</a>
 					</li>
 					<li>
-						<a href="#" class="nav-link link-dark">
-							<i class="bi bi-speedometer2"  style="margin-right: 20px;"></i>
-							Dashboard
-						</a>
-					</li>
-					<li>
-						<a th:href="@{/authenticate/settings}" class="nav-link link-dark">
+						<a th:href="@{settings(p=${Phone},q=${Pin})}" class="nav-link link-dark">
 							<i class="bi bi-gear"  style="margin-right: 20px;"></i>
 							Settings
 						</a>
 					</li>
 					<li>
-						<a th:href="@{/authenticate/statement}" class="nav-link link-dark"> <!--th:onclick="offeringStatement()">-->
+						<a th:href="@{statement(p=${Phone},q=${Pin})}" class="nav-link link-dark">
 							<i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
 							Account Statements
 						</a>
@@ -76,9 +70,13 @@
 		</div>
 		<div class="col-sm-10">
 
+			<div class="containers">
 				<h2 style="text-align:center;">Generate Account Statement</h2>
 				<hr>
-				<form action="" method="post" id="#myform">
+
+				<form action="/cfms/auth/off-statement" method="post" id="#myform">
+					<input type="hidden" id="phone" name="phone_number" th:value="${phone}">
+					<input type="hidden" id="pass" name="pin" th:value="${pin}">
 					<div class="row">
 						<div class="col-6">
 							<div class="input-group mb-3">
@@ -91,10 +89,15 @@
 							</div>
 
 						</div>
-						<button type="button" class="button2" onclick="generateOfferingStatement()">Generate Statement</button>
+						<div class="btn-group" role="group" aria-label="Basic example">
+							<button type="button" class="button2" onclick="generateOfferingStatement()" style="width:30%">Generate Statement</button>
+							<button type="submit" class="button2" style="width:30%">Export PDF</button>
+						</div>
 					</div>
 				</form>
 				<hr>
+			</div>
+
 
 
 				<div class="list-group" id="content2">
@@ -105,9 +108,20 @@
 		</div>
 	</div>
 
+
+
 <div class="mt-5 p-4 bg-dark text-white text-center" id="footer">
 	<p>Lakeatts Solutions Limited</p>
 </div>
+
+<script type="text/javascript">
+	 function preventBack() {
+         window.history.forward();
+     }
+
+     setTimeout("preventBack()", 0);
+	 window.onunload = function () { null };
+</script>
 
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.js"></script>

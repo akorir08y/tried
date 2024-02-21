@@ -28,16 +28,14 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.layout.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +76,7 @@ public class OfferingStatementService {
     AuthApi authApi;
 
     private PdfFontFactory pdfFontFactory;
+    // private PdfWriter pdfWriter;
 
     private final Path fileStorageLocation;
 
@@ -94,8 +93,7 @@ public class OfferingStatementService {
     }
 
 
-
-    public void createOfferingStatement(OfferStatement statement) throws FileNotFoundException {
+    public void createOfferingStatement(OfferStatement statement, HttpServletResponse OutputResponse) throws IOException {
 
         String PhoneNumber = statement.getPhone_number();
 
@@ -118,18 +116,6 @@ public class OfferingStatementService {
             e.printStackTrace();
         }
 
-        // Saving File to Computer
-        Path targetLocation = this.fileStorageLocation;
-        String Specific = targetLocation.toString() + "/invoices/";
-        File files = new File(Specific);
-
-        System.out.println("Specific: " + Specific);
-
-        if (!files.exists()){
-            files.mkdir();
-        }else{
-            System.out.println("Directory Already Exists");
-        }
 
         // Get the Member Details
         MemberProfile profile = new MemberProfile();
@@ -141,13 +127,8 @@ public class OfferingStatementService {
         // Get User Profile Information
         MemberProfileResponse response = authApi.getMemberDetails(profile);
 
-
-        File file = new File(files, response.getPayload().getMembershipNumber()+".pdf");
-
-
-
         // Generate the PDF
-        PdfWriter pdfWriter = new PdfWriter(new FileOutputStream(file));
+        PdfWriter pdfWriter = new PdfWriter(OutputResponse.getOutputStream());
         PdfDocument pdfDocument = new PdfDocument(pdfWriter);
         Document document = new Document(pdfDocument);
         pdfDocument.getDefaultPageSize();
@@ -199,57 +180,6 @@ public class OfferingStatementService {
 
     }
 
-
-    /*
-
-    private void addDataPage(Document document) throws Exception {
-        Paragraph dataList = new Paragraph();
-        Paragraph temp;
-
-        addEmptyLine(dataList, 2);
-
-        //church letterhead
-        addHeader(dataList);
-
-        //empty line
-        addEmptyLine(dataList, 1);
-
-        //title
-        temp = new Paragraph("Tithe & Offerings Statement", catFont);
-        temp.setAlignment(Element.ALIGN_CENTER);
-        dataList.add(temp);
-
-        addEmptyLine(dataList, 1);
-
-        addThickLine(dataList, 4f);
-
-        addEmptyLine(dataList, 1);
-
-        //user info
-        addData(dataList);
-
-        addEmptyLine(dataList, 1);
-
-        addThickLine(dataList, 4f);
-
-        addEmptyLine(dataList, 1);
-
-        //subtitle
-        temp = new Paragraph("Accounts Summary", catFont);
-        temp.setAlignment(Element.ALIGN_CENTER);
-        dataList.add(temp);
-
-        addEmptyLine(dataList, 2);
-
-        //statement
-        addRecords(dataList);
-
-        addEmptyLine(dataList, 5);
-
-        addFooter(dataList);
-
-        document.add(dataList);
-    }*/
 
     private void addImage(Table table){
         Resource res = resourceLoader.getResource("classpath:static/images/Logo.png");
@@ -622,6 +552,99 @@ public class OfferingStatementService {
                 .setMarginTop(5f)
                 .setBold()
                 .setBackgroundColor(Color.WHITE));
+    }
+
+
+    public ByteArrayInputStream generatePdfStream(OfferStatement statement) throws FileNotFoundException {
+        String PhoneNumber = statement.getPhone_number();
+
+        // Load Resource Fonts
+        Resource REGULAR = resourceLoader.getResource("classpath:fonts/trebuc.ttf");
+        Resource BOLD = resourceLoader.getResource("classpath:fonts/Trebuchet MS.ttf");
+        Resource ITALIC = resourceLoader.getResource("classpath:fonts/TrebuchetMSItalic.ttf");
+        Resource BOLDEN = resourceLoader.getResource("classpath:fonts/trebucbd.ttf");
+
+
+        // Start by doing Font
+
+        try {
+            System.out.println("Regular: "+ REGULAR);
+            font = PdfFontFactory.createFont(REGULAR.getFile().toString(), PdfEncodings.WINANSI);
+            bold = PdfFontFactory.createFont(BOLD.getFile().toString(), PdfEncodings.WINANSI);
+            italic = PdfFontFactory.createFont(ITALIC.getFile().toString(), PdfEncodings.WINANSI);
+            bolden = PdfFontFactory.createFont(BOLDEN.getFile().toString(), PdfEncodings.WINANSI);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+
+        // Get the Member Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + PhoneNumber);
+        profile.setProfilepayload(payload);
+
+        // Get User Profile Information
+        MemberProfileResponse response = authApi.getMemberDetails(profile);
+
+        //File file = new File(files, response.getPayload().getMembershipNumber()+".pdf");
+
+
+        // Generate the PDF
+        PdfWriter pdfWriter = new PdfWriter(outputStream);
+        PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+        Document document = new Document(pdfDocument);
+        pdfDocument.getDefaultPageSize();
+
+
+        // Adding Image
+        Table image = new Table(1);
+        addImage(image);
+
+        // Adding Header Data
+        Table table = new Table(1);
+        table.setBorder(Border.NO_BORDER);
+        addHeaderData(table,response,PhoneNumber);
+
+        // Horizontal Header
+        Table invoice_header = new Table(1);
+        addHorizontalLine(invoice_header);
+
+        // User Information Table
+        Table UserInfo = new Table(2);
+        userInformation(UserInfo,response,PhoneNumber, statement);
+
+        // Horizontal Footer
+        Table invoice_header2 = new Table(1);
+        addHorizontalFooter(invoice_header2);
+
+        // Account Summary Header
+        Table accounts = new Table(1);
+        accountSummary(accounts);
+
+        // Get the Offering Statement Data
+        Table statements = new Table(5);
+        getOfferingData(statements, statement, response);
+
+        // Account Summary Footer
+        Table footer = new Table(1);
+        accountSummaryFooter(footer, response);
+
+        document.add(image);
+        document.add(table);
+        document.add(invoice_header);
+        document.add(UserInfo);
+        document.add(invoice_header2);
+        document.add(accounts);
+        document.add(statements);
+        document.add(footer);
+        document.close();
+        System.out.println("PDF Created!");
+
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
 

@@ -53,6 +53,7 @@ auth:
     cfms_data: https://sdacfms.org:8443/sdacfmsWS/webresources/cfms/data
     financial_data: http://sdacfms.org:8080/sdacfmsWS/webresources/statements/v1/financial
     sms_url: https://sdacfms.org:8443/sdacfmsWS/webresources/SMS/mobile/
+    trust_funds_url: https://sdacfms.org:8443/sdacfmsWS/webresources/trustfunds/v1
 
 
 server:

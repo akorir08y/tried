@@ -16,7 +16,7 @@
 
 
 <div class="topnav" id="nav_header">
-    <h1 class="header">Welcome As a Member</h1>
+    <h1 class="header" style="font-size:14px;">Welcome As a Member</h1>
 </div>
 <div class="topnav" id="sub_header">
     <a class="active" data-bs-toggle="modal" href="#exampleModalToggle" role="button">
@@ -28,7 +28,7 @@
         Logout
         <i class="bi bi-box-arrow-right" style="margin-left:10px;font-size:18px"></i>
     </a>
-    <a th:href="@{/authenticate/profile}" class="split">
+    <a th:href="@{profile(p=${Phone},q=${Pin})}" class="split">
         Profile
         <i class="bi bi-person-circle" style="margin-left:10px;font-size:18px"></i>
     </a>
@@ -42,25 +42,19 @@
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a th:href="@{/authenticate/personnel2}" class="nav-link link-dark">
+                        <a th:href="@{/authenticate/personnel}" class="nav-link link-dark">
                             <i class="bi bi-house-door"  style="margin-right: 20px;"></i>
                             Home
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="nav-link link-dark">
-                            <i class="bi bi-speedometer2"  style="margin-right: 20px;"></i>
-                            Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a th:href="@{/authenticate/settings}" class="nav-link link-dark">
+                        <a th:href="@{settings(p=${Phone},q=${Pin})}" class="nav-link link-dark">
                             <i class="bi bi-gear"  style="margin-right: 20px;"></i>
                             Settings
                         </a>
                     </li>
                     <li>
-                        <a th:href="@{/authenticate/statement}" class="nav-link link-dark">
+                        <a th:href="@{statement(p=${Phone},q=${Pin})}" class="nav-link link-dark">
                             <i class="bi bi-clipboard-data" style="margin-right: 20px;"></i>
                             Account Statements
                         </a>
@@ -95,7 +89,7 @@
                         </a>
                     </div>
                     <div class="col-6">
-                        <a th:href="@{/authenticate/profile}" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
+                        <a th:href="@{profile(phone=${Phone})}" class="list-group-item list-group-item-action" style="margin-bottom:30px;background-color: #24478f;color:white;padding:10px 20px;">
                             <div class="d-flex w-50 justify-content-between">
                                 <h5 class="mb-1">View Your Profile</h5>
                             </div>
