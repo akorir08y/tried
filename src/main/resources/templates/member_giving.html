@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <title>Login Dashboard</title>
+  <link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
+  <link rel="stylesheet" type="text/css" href="/cfms/css/table_offering.css">
+  <style>
+
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="navigation">
+    <ul>
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+          <span class="icon" >Home</span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="log-in-outline"></ion-icon></span>
+          <span class="title">Personnel Login</span>
+        </a>
+      </li>
+      <!--
+      <li>
+      <a href="#">
+      <span class="icon"><ion-icon name="settings-outline"></ion-icon></span>
+      <span class="title">Settings</span>
+      </a>
+      </li>
+      -->
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+          <span class="title">Offerings</span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+          <span class="title">Profile</span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+          <span class="title">Support Options</span>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+          <span class="title">Sign Out</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <!-- main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="toggle">
+        <ion-icon name="menu-outline"></ion-icon>
+      </div>
+
+      <!-- Search -->
+      <div class="search">
+        <h1 style="font-size:16px;">Member Giving</h1>
+      </div>
+
+      <!-- userImg -->
+      <div class="user">
+        <img src="images/profile-2.jpg">
+      </div>
+    </div>
+
+
+    <!-- Order Details List -->
+    <div class="details">
+      <div class="recentOrders">
+        <div id="member_giving">
+          <div class="cardHeader">
+            <h2 style="text-align:center;">Giving Offerings</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table width="100%">
+            <thead>
+            <tr>
+              <td>Where to Contribute?</td>
+            </tr>
+            <tr>
+              <td><input class="form-check-input" type="radio" name="flexRadioDefault" id="home_church">
+                <label>
+                  Home Church
+                </label>
+              </td>
+              <td><input class="form-check-input" type="radio" name="flexRadioDefault" id="host_church">
+                <label class="form-check-label">
+                  Host Church
+                </label></td>
+            </tr>
+            <tr>
+              <td>Whom to Contribute For?</td>
+            </tr>
+            <tr>
+              <td><input class="form-check-input" type="radio" name="flexRadioDefault2" id="self">
+                <label>
+                  Self
+                </label></td>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault2" id="others">
+                <label class="form-check-label">
+                  Others
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+
+            <tr>
+              <td><button type="button" class="btn" onclick="myFunction()">Proceed</button></td>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="home_church_self" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">Giving Offerings</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tbody>
+            <tr>
+              <td><b> To: </b></td>
+              <td align="left"><input type="text" id="churchName" name="churchName" placeholder="Mamboleo Harvest"></td>
+              <td><b> For: </b></td>
+              <td><input type="text" id="member_name" name="member_name" placeholder="Andrew Keitany"></td>
+            </tr>
+            <tr>
+              <td colspan="4" style="padding-top:10px;"><b>Select Fund Type</b></td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault3" id="trust_funds">
+                <label class="form-check-label" for="trust_funds">
+                  Trust Funds
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="flexRadioDefault3" id="non_trust_funds">
+                <label class="form-check-label" for="non_trust_funds">
+                  Non Trust Funds
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault3" id="both_funds">
+                <label class="form-check-label" for="both_funds">
+                  Both Funds
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="flexRadioDefault3" id="special_trust_funds">
+                <label class="form-check-label" for="special_trust_funds">
+                  Special Trust Funds
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn" onclick="getFundAccount()">Proceed</button></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="church_code_section" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">Enter Host Church Code</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tbody>
+            <tr>
+              <td><input type="text" id="churchCode" name="churchCode" placeholder="Church Code" style="width:50%;"></td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn" onclick="getChurchCode()">Submit</button></tr>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="host_church_self" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">Giving Offerings</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tbody>
+            <tr>
+              <td><b> To: </b></td>
+              <td><input type="text" id="churchName1" name="churchName" placeholder="Mamboleo Harvest"></td>
+              <td><b> For: </b></td>
+              <td><input type="text" id="member_name1" name="member_name" placeholder="Self"></td>
+            </tr>
+            <tr>
+              <td colspan="4" style="padding-top:10px;"><b>As who would you like to give?</b></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="visiting_member">
+                <label class="form-check-label" for="visiting_member">
+                  Visiting Member
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:left;">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="guest">
+                <label class="form-check-label" for="guest">
+                  Guest
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="anonymous">
+                <label class="form-check-label" for="anonymous">
+                  Anonymous
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn">Confirm</button></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="home_church_others" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Giving Offerings</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tbody>
+            <tr>
+              <td><label class="label_input"><b> To: </b></label></td>
+              <td><input type="text" id="churchName2" name="churchName1" placeholder="Cfms" readonly></td>
+            </tr>
+            <tr>
+              <td colspan="2"><label class="label_input"><b>Select Others</b></label></td>
+            </tr>
+            <td>
+              <input class="form-check-input" type="radio" name="flexRadioDefault5" id="other_member" onclick="otherMember()">
+              <label class="form-check-label" for="trust_funds">
+                Other Member
+              </label>
+            </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault5" id="group" onclick="otherMember()">
+                <label class="form-check-label" for="non_trust_funds">
+                  Group
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault5" id="family" onclick="otherMember()">
+                <label class="form-check-label" for="both_funds">
+                  Family
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault5" id="department" onclick="otherMember()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Department
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault5" id="institution" onclick="otherMember()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Institution
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="label_input"><b>Identify Member by</b></label></td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault6" id="phone_number" onclick="showIdentifier()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Phone Number
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault6" id="cfms_id" onclick="showIdentifier()">
+                <label class="form-check-label" for="special_trust_funds">
+                  CFMS ID
+                </label>
+              </td>
+            </tr>
+            <tr id="identify_member_only" style="margin-top:10px;">
+              <td id="cfms_id_input" style="padding-top:10px;">
+                <label class="label_input" for="cfms_id_input"><b>Member CFMS ID(Case Specific)</b></label>
+                <input type="text" id="cfms_id_member" name="churchCode" placeholder="AB1234">
+              </td>
+              <td id="associated_phone_number" style="padding-top:10px;">
+                <label class="label_input" for="phone1"><b>Associated Phone Number</b></label>
+                <input type="text" id="phone1" name="churchCode" placeholder="+254" >
+              </td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn">Submit</button></td>
+            </tr>
+            </tbody>
+          </table>
+
+        </div>
+
+        <div id="host_church_others" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Giving Offerings</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tr>
+              <td><label class="label_input"><b> To: </b></label></td>
+              <td><input type="text" id="churchName3" name="churchName2" placeholder="Cfms" readonly></td>
+            </tr>
+            <tr>
+              <td colspan="2"><label class="label_input"><b>Select Others</b></label></td>
+            </tr>
+            <td>
+              <input class="form-check-input" type="radio" name="flexRadioDefault7" id="other_member1" onclick="otherMember()">
+              <label class="form-check-label" for="trust_funds">
+                Other Member
+              </label>
+            </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault7" id="group1" onclick="otherMember1()">
+                <label class="form-check-label" for="non_trust_funds">
+                  Group
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault7" id="family1" onclick="otherMember1()">
+                <label class="form-check-label" for="both_funds">
+                  Family
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault7" id="department1" onclick="otherMember1()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Department
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault7" id="institution1" onclick="otherMember1()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Institution
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td><label class="label_input"><b>Identify Member by</b></label></td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault8" id="phone_number1" onclick="showIdentifier1()">
+                <label class="form-check-label" for="special_trust_funds">
+                  Phone Number
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault8" id="cfms_id1" onclick="showIdentifier1()">
+                <label class="form-check-label" for="special_trust_funds">
+                  CFMS ID
+                </label>
+              </td>
+            </tr>
+            <tr id="identify_member_only1" style="margin-top:10px;">
+              <td id="cfms_id_input1" style="padding-top:10px;">
+                <label class="label_input" for="cfms_id1"><b>Member CFMS ID(Case Specific)</b></label>
+                <input type="text" id="cfms_id2" name="churchCode" placeholder="AB1234">
+              </td>
+              <td id="associated_phone_number1" style="padding-top:10px;">
+                <label class="label_input" for="phone1"><b>Associated Phone Number</b></label>
+                <input type="text" id="phone2" name="churchCode" placeholder="+254" >
+              </td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn">Submit</button></td>
+            </tr>
+          </table>
+
+        </div>
+        <div id="trust_funds_div">
+        </div>
+
+        <div id="payment_div" style="display:none;">
+
+          <table>
+            <tr>
+              <td colspan="4" style="padding-top:10px;"><b>Initiate Payment From:</b></td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number">
+                <label class="form-check-label" for="visiting_member">
+                  My Registered Number
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:left;">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number">
+                <label class="form-check-label" for="guest">
+                  My Other Number
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="other_number">
+                <label class="form-check-label" for="anonymous">
+                  Other Number
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td><br><p id="payment_line"></p></td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn" onclick="saveTrustFundSummary()">Confirm</button></td>
+            </tr>
+          </table>
+
+        </div>
+
+
+
+      </div>
+      <div class="recentCustomers">
+        <div class="cardHeader">
+          <h2 style="text-align:center;">Transfer to Church</h2>
+        </div>
+        <div class="responseDiv" style="display:none;"></div>
+        <table width="100%">
+          <thead>
+          <tr>
+            <td><b>Church Code</b></td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td width="100%"><input type="number" id="church_code" placeholder="Church Code" required></td>
+          </tr>
+          <tr>
+            <td><button type="button" class="btn" onclick="displayDetails()">Transfer Church</button></td>
+          </tr>
+          </tbody>
+        </table>
+        <div id="otp_id">
+          <hr>
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:15px;">Reset Pin</h2>
+          </div>
+          <div class="responseDiv2" style="display:none;"></div>
+          <input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone" value="254707981971">
+          <table width="100%">
+            <tr class="otp-field">
+              <td id="otp-field11" colspan="2" style="text-align:center;">
+                <input type="text" id="ist" maxlength="1" onkeyup="clickEvent(this,'sec')" style="width:13%">
+                <input type="text" id="sec" maxlength="1" onkeyup="clickEvent(this,'third')" style="width:13%">
+                <input type="text" id="third" maxlength="1" onkeyup="clickEvent(this,'forth')" style="width:13%">
+                <input type="text" id="forth" maxlength="1" style="width:13%">
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2"><span id="time"></span></td>
+            </tr>
+            <tr>
+              <td colspan="2"><hr></td>
+            </tr>
+            <tr>
+              <td>
+                <button type="button" class="btn" onclick="sendResetPinOTP()" id="send_otp_button">Send OTP</button>
+              </td>
+              <td style="text-align:right;">
+                <button type="button" class="btn" onclick="confirmResetPinOTP()" id="verify_button">Verify OTP</button>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <hr>
+        <div id="otp_top" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">Reset Pin</h2>
+          </div>
+          <table width="100%">
+            <form id="myForm" action="/cfms/authenticate/login">
+            <tbody>
+            <tr>
+              <td><b>Pin</b></td>
+            </tr>
+            <tr>
+              <td width="100%"><input type="password" id="pin" placeholder="Pin ***" required>
+                <ion-icon name="eye" class="eye-icon" id="toggle-password" onclick="passwordVisibility()"></ion-icon></td>
+            </tr>
+            <tr>
+              <td><b>Confirm Pin</b></td>
+            </tr>
+            <tr>
+              <td width="100%"><input type="password" id="confirm_pin" placeholder="Pin ***" required>
+                <ion-icon name="eye" class="eye-icon" id="toggle-password1" onclick="passwordVisibility1()"></ion-icon></td>
+            </tr>
+            <tr>
+              <td><button type="button" class="btn" onclick="resetPin()">Reset Pin</button></td>
+            </tr>
+            </tbody>
+            </form>
+          </table>
+          <hr>
+        </div>
+        <div id="about_app">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">About App</h2>
+          </div>
+          <table width="100%">
+            <tbody>
+            <tr>
+              <td><ion-icon name="aperture-outline" class="icons"></ion-icon></td>
+              <td><a href="" class="linkers">SDA CFMS</a></td>
+            </tr>
+            <tr>
+              <td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
+              <td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+            </tr>
+            <tr>
+              <td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
+              <td><a href="https://lakeatts.co.ke/data_privacy.html" class="linkers">Privacy Policy</a></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  </div>
+
+
+</div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/cfms/js/generate.js"></script>
+<script src="/cfms/js/member_giving.js"></script>
+
+<script type="text/javascript">
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+</script>
+</body>
+</html>

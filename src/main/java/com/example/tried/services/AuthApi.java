@@ -10,16 +10,23 @@ import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccountsRespon
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dto.*;
+import com.example.tried.auth.dto.Payload;
 import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
 import com.example.tried.auth.member.RequestChurchDetails;
 import com.example.tried.auth.member.RequestChurchDetailsResponse;
 import com.example.tried.auth.member.RequestChurchDetailsWithCode;
 import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelReset;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
 import com.example.tried.auth.personnel.PersonnelResetResponse;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.json.JSONObject;
 
 public interface AuthApi {
 
@@ -33,7 +40,7 @@ public interface AuthApi {
     AuthMemberResetResponse resetMemberPin(Payload payload);
 
     // Member Registration
-    AuthMemberRegistrationResponse registerMember(AuthMemberRegister register);
+    AuthMemberRegistrationResponse registerMember(MemberRegister register);
 
     // Member Registration Update
     AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register);
@@ -82,4 +89,21 @@ public interface AuthApi {
 
     // Get the Local Church Trust Fund Summary
     public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary);
+
+    // Mobile Initiate Home Church Payment
+    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment);
+
+    // Host Church Payment
+    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment);
+
+    // Mobile Receive Funds Live
+    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonParseException;
+
+
+    // MPESA STK Push Response
+    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest request);
+
+
+    // Transaction Tracing Summary Funds
+    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing);
 }

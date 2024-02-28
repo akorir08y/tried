@@ -10,5 +10,5 @@ public class MemberRegistrationUpdate{
 	private String function;
 
 	@JsonProperty("payload")
-	private Updatepayload updatepayload;
+	private AuthMemberRegister updatepayload;
 }

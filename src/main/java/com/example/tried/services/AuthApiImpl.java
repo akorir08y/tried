@@ -17,9 +17,13 @@ import com.example.tried.auth.member.RequestChurchDetails;
 import com.example.tried.auth.member.RequestChurchDetailsResponse;
 import com.example.tried.auth.member.RequestChurchDetailsWithCode;
 import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.personnel.*;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.example.tried.config.AuthConfiguration;
 import com.example.tried.utils.HelperUtility;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
@@ -28,6 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -192,7 +197,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberRegistrationResponse registerMember(AuthMemberRegister register) {
+    public AuthMemberRegistrationResponse registerMember(MemberRegister register) {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
         System.out.println("The Session Number is: " + session_number);
@@ -223,9 +228,9 @@ public class AuthApiImpl implements AuthApi{
     @Override
     public AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) {
 
-        MemberRegistration registration = new MemberRegistration();
+        MemberRegistrationUpdate registration = new MemberRegistrationUpdate();
         registration.setFunction("mobileRegistrationUpdates");
-        registration.setPayload(register);
+        registration.setUpdatepayload(register);
 
         //Request Body
         RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registration)));
@@ -582,7 +587,7 @@ public class AuthApiImpl implements AuthApi{
             Response response = client.newCall(request).execute();
             return objectMapper.readValue(response.body().string(),LocalChurchTrustFundSummaryResponse.class);
         } catch (Exception e) {
-            log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
+            log.error(String.format("Could not get the Local Church Trust Fund Summary -> %s", e.getLocalizedMessage()));
             try {
                 return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTrustFundSummaryResponse.class);
             } catch (JsonProcessingException ex) {
@@ -590,4 +595,146 @@ public class AuthApiImpl implements AuthApi{
             }
         }
     }
+
+    @Override
+    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) {
+        homePayment.setFunction("");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(homePayment)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),ChurchPaymentResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not complete Home Church Payment -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(),ChurchPaymentResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) {
+        hostChurchPayment.setFunction("mobileInitiateHostChurchPayment");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(hostChurchPayment)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),ChurchPaymentResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not complete Host Church Payment -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), ChurchPaymentResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonParseException {
+        giving.setFunction("mobileReceiveFunds");
+
+        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getTrustFunds());
+        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getNonTrustFunds());
+        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getSpecialTrustFunds());
+        System.out.println("Mobile Giving JSON: "+ HelperUtility.toJSON(giving));
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(giving)));
+
+        System.out.println("Request Body: " + body.toString());
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        System.out.println("Request: " + request);
+        System.out.println("Request: " + HelperUtility.toJSON(request));
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), MobileReceiveFundsResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not Send Mobile Receive Funds -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage(), MobileReceiveFundsResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest stkRequest) {
+        stkRequest.setChannel("M-PESA");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(stkRequest)));
+
+        System.out.println("Request Body: " + body.toString());
+        Request request = new Request.Builder()
+                .url(authConfiguration.getMpesa_stk_request_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), MpesaSTKRequestResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not Send Mobile Receive Funds -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), MpesaSTKRequestResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) {
+        transactionTracing.setFunction("getLocalChurchPaymentTraceReport");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(transactionTracing)));
+
+        System.out.println("Request Body: " + body.toString());
+        Request request = new Request.Builder()
+                .url(authConfiguration.getReports_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), LocalChurchTransactionTracingResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Transaction Tracing Report -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTransactionTracingResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+
 }

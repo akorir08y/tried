@@ -1,7 +1,9 @@
 package com.example.tried.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class AuthMemberRegistrationResponse{
 
 	@JsonProperty("sessionNumber")
@@ -12,4 +14,7 @@ public class AuthMemberRegistrationResponse{
 
 	@JsonProperty("status")
 	private int status;
+
+	@JsonProperty("state")
+	private String state;
 }

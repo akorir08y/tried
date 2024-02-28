@@ -1,13 +1,13 @@
-package com.example.tried.auth.dto;
+package com.example.tried.auth.member.giving;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class MemberRegistration{
+public class HostChurchPayment{
 
 	@JsonProperty("payload")
-	private MemberRegister payload;
+	private Gpayload gpayload;
 
 	@JsonProperty("function")
 	private String function;

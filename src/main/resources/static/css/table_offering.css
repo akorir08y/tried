@@ -1,0 +1,151 @@
+#home_church_others table tr,#host_church_self table tr,#home_church_self table tr, #host_church_others table tr,
+#trust_funds_div table tr, #payment_div table tr{
+	padding: 0px;
+}
+
+#home_church_others table td, #host_church_self table td,#home_church_self table td, #host_church_others table td,
+#trust_funds_div table td, #payment_div table td{
+	padding: 2px;
+}
+
+body{
+	font-size: 14px;
+}
+
+.eye-icon{
+    float:right;
+    font-size:23px;
+    margin-right:10px;
+    margin-top:-28px;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-spacing: 2px;
+  border: none;
+  width: 100%;
+}
+
+td, th {
+  text-align: left;
+  padding: 8px;
+}
+
+input[type=text],input[type=number],input[type=password],input[type=email],input[type=date]{
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+	background: #f1f1f1;
+    border-radius: 10px;
+	width:100%;
+}
+
+input[type=checkbox]{
+	border:none;
+    padding:10px;
+	margin: 10px;
+	height: 13px;
+	width: 13px;
+	font-size:10px;
+	background: #f1f1f1;
+}
+
+input[type=radio]{
+	border:none;
+    padding:10px;
+	margin: 10px;
+	height: 13px;
+	font-size:10px;
+	width: 13px;
+	background: #f1f1f1;
+}
+
+select{
+	border:none;
+    padding:10px;
+    width: 100%;
+    min-width: 15ch;
+    max-width: 30ch;
+	box-shadow: 10px 10px 5px lightblue;
+	background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.now{
+	border-radius: 10px;
+	font-size: 14px;
+}
+
+.con{
+	width: 100%;
+    padding: 10px;
+    box-shadow: 10px 10px 5px lightblue;
+    padding-top: 10px;
+    border-radius: 15px;
+    height:auto;
+}
+
+.con:focus{
+	background-color: #24478f;
+    color: white;
+}
+
+.con:hover{
+	background-color: #24478f;
+    color: white;
+}
+
+
+.left{
+	float:left;
+}
+
+.left-below{
+	float: left;
+	padding-top: 10px;
+}
+
+.right{
+	float: right;
+	text-align: right;
+}
+
+.second{
+	margin-top: 5px;
+	float:left;
+}
+
+.responseDiv{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+
+#time{
+	font-size:18px;
+	font-weight: bold;
+	text-align:center;
+}
+
+
+.otp-field input{
+	font-size: 14px;
+	font-weight: 600;
+}
+
+
+.right-blue{
+	float:right;
+	padding: 10px;
+	background-color: #24478f;
+	color: white;
+	border-radius:10px;
+	font-size:12px;
+}
+
+label{
+    font-size:12px;
+}

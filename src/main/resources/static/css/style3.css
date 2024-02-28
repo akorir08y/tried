@@ -22,6 +22,27 @@ min-height: 100vh;
 overflow-x: hidden;
 }
 
+h1,h2,h3,h4,h5,h6{
+	color: var(--blue);
+}
+
+.icons{
+	font-size:30px;
+	color: var(--blue);
+}
+
+.linkers{
+	position: relative;
+	padding: 10px 20px;
+	background: var(--white);
+	text-decoration: none;
+	color: var(--blue);
+	border-radius: 6px;
+	font-size:10px;
+	border: 2px solid var(--blue);
+	width:100%;
+}
+
 .container
 {
 position: relative;
@@ -233,8 +254,8 @@ font-size: 1.2em;
 
 .user{
 	position: relative;
-	min-width: 50px;
-	height: 50px;
+	min-width: 40px;
+	height: 40px;
 	border-radius: 50%;
 	overflow: hidden;
 	cursor: pointer;
@@ -256,14 +277,13 @@ font-size: 1.2em;
 	padding: 20px;
 	display: grid;
 	grid-template-columns: repeat(4,1fr);
-	font-size: 14px;
 	grid-gap: 30px;
 }
 
 .cardBox .card{
 	position: relative;
 	background: var(--white);
-	padding: 20px;
+	padding: 30px;
 	border-radius: 20px;
 	display: flex;
 	justify-content: space-between;
@@ -273,15 +293,15 @@ font-size: 1.2em;
 
 .cardBox .card .numbers{
 	position: relative;
-	font-weight: 600;
-    font-size: 1.1em;
+	font-weight: 500;
+	font-size: 2.5em;
 	color: var(--blue);
 }
 
 
 .cardbox .card .cardName{
 	color: var (--black2);
-	font-size: 14px;
+	font-size: 1.1em;
 	margin-top: 5px;
 }
 
@@ -320,9 +340,6 @@ font-size: 1.2em;
 	border-radius: 20px;
 }
 
-h1, h2, h3, h4, h5, h6, p{
-    font-size: 14px;
-}
 
 .details{
 	position: relative;
@@ -345,58 +362,37 @@ h1, h2, h3, h4, h5, h6, p{
 
 .cardHeader{
 	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
+	justify-content: center;
+	align-items: center;
 }
 
 .cardHeader h2{
 	font-weight: 600;
 	color: var(--blue);
-	font-size: 16px;
+	font-size: 14px;
 }
 
 .btn{
 	position: relative;
-	padding: 5px 10px;
+	padding: 10px 15px;
 	background: var(--blue);
 	text-decoration: none;
 	color: var(--white);
-	border-radius: 6px;
+	border:none;
 	font-size:12px;
-}
-
-.btn:focus, .btn:hover, .btn:active{
-	position: relative;
-	padding: 5px 10px;
-	background: var(--white);
-	text-decoration: none;
-	color: var(--black1);
 	border-radius: 6px;
 }
 
-
-.btn1{
-	position: relative;
-	padding: 5px 10px;
-	background: var(--blue);
-	text-decoration: none;
-	color: var(--white);
-	border-radius: 6px;
-	float: right;
-	font-size:10px;
+#myInput{
+	margin-top:10px;
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+    border-radius: 10px;
+    font-size:12px;
 }
 
-.btn1:focus, .btn1:hover, .btn1:active{
-	position: relative;
-	padding: 5px 10px;
-	background: var(--white);
-	text-decoration: none;
-	color: var(--black1);
-	border-radius: 6px;
-	float: right;
-}
-
-.details table{
+.details .table{
 	width: 100%;
 	border-collapse: collapse;
 	margin-top: 10px;
@@ -411,25 +407,61 @@ h1, h2, h3, h4, h5, h6, p{
 	border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 
+/*
 .details .recentOrders table tbody tr:hover{
 	background: var(--blue);
 	color: var(--white)
+}*/
+
+.details .recentOrders table input[type=text],input[type=password],input[type=number]{
+	border-radius:10px;
+	padding:10px;
+	background: #f1f1f1;
+	width:100%;
+	font-size:12px;
+	border:none;
+	box-shadow: 10px 10px 5px lightblue;
+}
+
+input[type=radio]{
+	font-size:10px;
+	margin: 10px;
+	background: #f1f1f1;
+	width: 14px;
+	height: 14px;
+}
+
+input[type=checkbox]{
+	font-size:10px;
+	margin: 10px;
+	background: #f1f1f1;
+	width: 14px;
+	height: 14px;
 }
 
 .details .recentOrders table tr td{
 	padding: 10px;
 }
 
+.details .recentOrders #statement tr td{
+	width: 100%;
+	padding: 10px;
+	box-shadow: 10px 10px 5px lightblue;
+	padding-top: 10px;
+	border-radius: 15px;
+	height:auto;
+}
+
 .details .recentOrders table tr td:last-child{
-	text-align: end;
+	text-align: left;
 }
 
 .details .recentOrders table tr td:nth-child(2){
-	text-align:end;
+	text-align:left;
 }
 
 .details .recentOrders table tr td:nth-child(3){
-	text-align:center;
+	text-align:left;
 }
 
 .status.delivered{
@@ -470,7 +502,7 @@ h1, h2, h3, h4, h5, h6, p{
 
 .recentCustomers{
 	position: relative;
-	min-height: auto;
+	min-height: 500px;
 	padding: 20px;
 	background: var(--white);
 	box-shadow: 0 7px 25px rgba(0,0,0,0.08);
@@ -495,10 +527,12 @@ h1, h2, h3, h4, h5, h6, p{
 	object-fit: cover;
 }
 
+/*
 .recentCustomers table tr:hover{
 	background: var(--blue);
 	color: var(--white);
 }
+*/
 
 .recentCustomers table tr td{
 	padding: 10px 8px;

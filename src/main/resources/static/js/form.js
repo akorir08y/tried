@@ -79,8 +79,8 @@ function sendRegisterOTP(){
     startRegisterOTP();
     // Enable the OTP Input Fields
 
-    var validator = $("#otp_reg").validate();
-    validator.form();
+    // var validator = $("#otp_reg").validate();
+    // validator.form();
 
 
     var otp_field12 = document.getElementById('otp-field13');
@@ -123,8 +123,8 @@ function sendRegisterOTP(){
 // Authenticate Registered Member Request(Client Side Way of Logging In)
 function AuthMemberRegister(){
 
-    var validator = $("#myForm2").validate();
-    validator.form();
+    // var validator = $("#myForm2").validate();
+    // validator.form();
 
     // Form data
 	var username = document.getElementById("fullname").value;
@@ -294,8 +294,8 @@ function startResetPinOTP() {
 function sendOTP(){
     startOTP();
     // Enable the OTP Input Fields
-    var validator = $("#otp_log").validate();
-    validator.form();
+    // var validator = $("#otp_log").validate();
+    // validator.form();
 
 
     var otp_field12 = document.getElementById('otp-field12');
@@ -431,11 +431,11 @@ function confirmOTP(){
                 console.log(response);
                 // var finalResponse = JSON.parse(response);
                 if(response === "OTP is valid!"){
-                    $(".responseDiv").html("<div class=\"alert alert-success\">OTP has been Verified</div>");
+                    $(".responseDiv").html("OTP has been Verified");
                     $(".responseDiv").fadeOut(3000);
                     sendToServer();
                 }else{
-                    $(".responseDiv").html("<div class=\"alert alert-danger\">Login Response : "+response+". Try Again</div>");
+                    $(".responseDiv").html(""+response+". Try Again</div>");
                     $(".responseDiv").fadeOut(3000);
                 }
             },
@@ -532,7 +532,9 @@ function registeredNumbers(){
 function checkChurch(){
 
     var phone = document.getElementById("phone").value;
-    var code = document.getElementById("church_code").value;
+    var code = document.getElementById("church_code_transfer").value;
+
+    console.log("Check Church Code: "+code);
 
     if (code.length == 5){
         const content = {
@@ -543,8 +545,9 @@ function checkChurch(){
         $.post(hosted_url + "/cfms/auth/check-status", content ,function(data, status){
            console.log(data);
            if(data != "Yes"){
-                $(".responseDiv").html("<div class=\"alert alert-danger\">"+data+"</div>");
-                $(".responseDiv").fadeOut(3000);
+                $(".responseDiv1").show();
+                $(".responseDiv1").html(""+data+"");
+                $(".responseDiv1").fadeOut(3000);
            }
         });
     }
@@ -561,17 +564,20 @@ function enableHeader(){
 function displayChurchName(){
     var phone = document.getElementById("phone").value;
     var code = document.getElementById("church_code").value;
+    var code2 = document.getElementById("church_code_transfer").value;
+
+    console.log("Check Church Code in Display: "+code);
 
     if (code.length == 5){
         const content = {
            phone_number: phone,
-           church_code: code
+           church_code: code2
         }
 
         $.post(hosted_url + "/cfms/auth/check-church", content ,function(data, status){
             console.log("Church Details: " +data)
             console.log("Church Name: " +data.churchName);
-            TransferChurch(data.churchName, phone, code, data.churchNumber);
+            TransferChurch(data.churchName, phone, code, code2);
         });
     }
 }
@@ -581,18 +587,20 @@ function TransferChurch(name,phone_number,code,code2){
 
     var content = {
         phone_number: phone_number,
-        church_code: code
+        church_code: code2
     }
     if(code != code2){
          if(confirm(statement) == true){
              $.post(hosted_url + "/cfms/auth/member-transfer", content ,function(data, status){
-                   $(".responseDiv").html("<div class=\"alert alert-success\">Transfer Successful</div>");
-                   $(".responseDiv").fadeOut(3000);
+                   $(".responseDiv1").show();
+                   $(".responseDiv1").html("Transfer Successful");
+                   $(".responseDiv1").fadeOut(3000);
              });
          }
     }else if(code === code2){
-        $(".responseDiv").html("<div class=\"alert alert-danger\">You are already Registered to this Church Code</div>");
-        $(".responseDiv").fadeOut(3000);
+        $(".responseDiv1").show();
+        $(".responseDiv1").html("You are already Registered to this Church Code");
+        $(".responseDiv1").fadeOut(3000);
     }
 }
 
@@ -729,8 +737,8 @@ function resetMemberPin(){
 function resetPin(){
 
     var username = document.getElementById("phone").value;
-	var password = document.getElementById("password1").value;
-    var confirm_password = document.getElementById("password2").value;
+	var password = document.getElementById("pin").value;
+    var confirm_password = document.getElementById("confirm_pin").value;
 
     if(confirm_password === password){
 
@@ -745,7 +753,7 @@ function resetPin(){
             success: function(response){
                 console.log(response);
                 // var finalResponse = JSON.parse(response);
-                $(".responseDiv").html("<div class=\"alert alert-success\">"+response.state+"</div>");
+                $(".responseDiv").html(""+response.state+"");
                 $(".responseDiv").fadeOut(3000);
                 logoutUser();
             },
@@ -755,7 +763,7 @@ function resetPin(){
 
         });
     }else{
-        $(".responseDiv").html("<div class=\"alert alert-danger\">The Pins entered do not Match</div>");
+        $(".responseDiv").html("The Pins entered do not Match");
         $(".responseDiv").fadeOut(3000);
     }
 }

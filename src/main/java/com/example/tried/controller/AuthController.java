@@ -1,31 +1,35 @@
 package com.example.tried.controller;
 
 
-import com.example.tried.auth.dashboard.ListMembers;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dashboard.trust_funds.TransactionsItem;
 import com.example.tried.auth.dto.*;
-import com.example.tried.auth.financial.MemberOffering;
-import com.example.tried.auth.financial.MemberOfferingResponse;
-import com.example.tried.auth.financial.OfferingAuthentication;
-import com.example.tried.auth.financial.OfferingPayload;
+import com.example.tried.auth.dto.Payload;
+import com.example.tried.auth.financial.*;
 import com.example.tried.auth.member.Churchpayload;
 import com.example.tried.auth.member.RequestChurchDetailsWithCode;
 import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.giving.*;
+import com.example.tried.auth.member.giving.FundDistribution;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.dto.account.OfferStatement;
-import com.example.tried.dto.c2b.RegisterUrlResponse;
 import com.example.tried.services.AuthApi;
 import com.example.tried.services.OfferingStatementService;
+import com.example.tried.services.reports.excel.TestExcelForm;
+import com.example.tried.services.reports.pdf.TransactionTracingSummary;
+import com.example.tried.services.reports.pdf.TrustFundSummary;
+import com.example.tried.services.reports.excel.TransactionTracingExcel;
+import com.example.tried.services.reports.excel.TrustFundSummaryExcel;
 import com.example.tried.utils.HelperUtility;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.commons.codec.binary.Base32;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -34,11 +38,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
-
-import static com.example.tried.utils.Constants.BEARER_AUTH_STRING;
-import static com.example.tried.utils.Constants.JSON_MEDIA_TYPE;
 
 @RestController
 @RequestMapping("/auth")
@@ -51,8 +56,16 @@ public class AuthController {
     @Autowired
     OfferingStatementService statementService;
 
+    @Autowired
+    TrustFundSummary trustFundSummary;
+
+    @Autowired
+    TransactionTracingSummary transactionTracingSummary;
+
+
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
+
 
     public AuthController(OkHttpClient okHttpClient, ObjectMapper objectMapper) {
         this.okHttpClient = okHttpClient;
@@ -79,7 +92,7 @@ public class AuthController {
 
     // Member Registration
     @PostMapping(path="/register", produces = "application/json")
-    public ResponseEntity<AuthMemberRegistrationResponse> RegisterNewMember(@RequestBody AuthMemberRegister registration){
+    public ResponseEntity<AuthMemberRegistrationResponse> RegisterNewMember(@RequestBody MemberRegister registration){
         return ResponseEntity.ok(authApi.registerMember(registration));
     }
 
@@ -87,7 +100,7 @@ public class AuthController {
     // Member Registration Update
     @PostMapping(path="/register-update", produces = "application/json")
     public ResponseEntity<AuthMemberRegistrationResponse>UpdateRegisteredMember(@RequestBody AuthMemberRegister registration){
-        return ResponseEntity.ok(authApi.registerMember(registration));
+        return ResponseEntity.ok(authApi.updateRegisterMember(registration));
     }
 
     // Reset the Member Pin
@@ -245,6 +258,7 @@ public class AuthController {
         transferpayload.setNewChurchCode(churchCode);
 
 
+
         // Member Transfer Payload
         MemberTransfer memberTransfer = new MemberTransfer();
         memberTransfer.setTransferpayload(transferpayload);
@@ -317,7 +331,7 @@ public class AuthController {
 
 
         // Update Payload
-        Updatepayload updatepayload = new Updatepayload();
+        AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(fullname);
         updatepayload.setEmail(email);
         updatepayload.setMobileNumber(phone);
@@ -325,7 +339,12 @@ public class AuthController {
         updatepayload.setPreferredLanguage(language);
         updatepayload.setPhoneNumberPrivacy(phone_number_privacy);
         updatepayload.setResidence(residence);
-        updatepayload.setPhoneOwner(phoneOwner);
+        if (phoneOwner == null) {
+            phoneOwner = false;
+            updatepayload.setPhoneOwner(phoneOwner);
+        }else{
+            updatepayload.setPhoneOwner(phoneOwner);
+        }
         if (churchMember == null) {
             churchMember = "false";
             updatepayload.setIsMember(churchMember);
@@ -345,7 +364,7 @@ public class AuthController {
         return responsed;
     }
 
-    @PostMapping("/off-statement")
+    @GetMapping("/off-statement")
     public String generateOfferingStatement(@RequestParam("phone_number") String phone_number,
                                             @RequestParam("start_date") String start_date,
                                             @RequestParam("end_date") String end_date,
@@ -380,7 +399,7 @@ public class AuthController {
         response.setContentType("application/pdf");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=users" + membershipNumber + ".pdf";
+        String headerValue = "attachment; filename=" + membershipNumber + ".pdf";
         response.setHeader(headerKey, headerValue);
 
         statementService.createOfferingStatement(statement,response);
@@ -558,6 +577,320 @@ public class AuthController {
         Integer total_month_transactions = total_transactions - total_zone;
         System.out.println("Transaction Size: "+ total_month_transactions);
         return totals;
-        // System.out.println("Transaction Results:")
+    }
+
+    @PostMapping("/home_church")
+    public ChurchPaymentResponse homeChurchPayment(@RequestParam("phone_number") String phone_number,
+                                                   @RequestParam("home_church") String home_church,
+                                                   @RequestParam("self") String self){
+        // Member Profile Information
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        // Member Payload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+
+        // Home Church Payment
+        HomeChurchPayment homeChurchPayment = new HomeChurchPayment();
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Payload
+        com.example.tried.auth.member.giving.HPayload payload = new com.example.tried.auth.member.giving.HPayload();
+        payload.setChurchCode(profile.getPayload().getChurchCode());
+        payload.setMembershipNumber(profile.getPayload().getMembershipNumber());
+        payload.setWhereContributing(home_church);
+        payload.setWhomToContribute(self);
+        payload.setMobileNumber(phone_number);
+        payload.setSessionNumber(String.valueOf(session_number));
+
+        homeChurchPayment.setPayload(payload);
+
+        ChurchPaymentResponse response = authApi.getHomeChurchPayment(homeChurchPayment);
+        return response;
+    }
+
+
+    @PostMapping("/host_church")
+    public ChurchPaymentResponse hostChurchPayment(@RequestParam("phone_number") String phone_number,
+                                                   @RequestParam("host_church") String host_church,
+                                                   @RequestParam("contribute") String contribute,
+                                                   @RequestParam("host_church_code") String host_church_code){
+        // Member Profile Information
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        // Member Payload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+
+        // Home Church Payment
+        HostChurchPayment hostChurchPayment = new HostChurchPayment();
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Payload
+        Gpayload payload = new Gpayload();
+        payload.setChurchCode(profile.getPayload().getChurchCode());
+        payload.setMembershipNumber(profile.getPayload().getMembershipNumber());
+        payload.setWhereContributing(host_church);
+        payload.setWhomToContribute(contribute);
+        payload.setMobileNumber(phone_number);
+        payload.setSessionNumber(String.valueOf(session_number));
+        payload.setHostChurchCode(host_church_code);
+
+        hostChurchPayment.setGpayload(payload);
+
+        ChurchPaymentResponse response = authApi.getHostChurchPayment(hostChurchPayment);
+        return response;
+    }
+
+
+    @PostMapping("/member_receive_funds")
+    public String receiveFunds(@RequestParam("phone_number") String phone_number,
+                                              @RequestParam("amount") int amount,
+                                              @RequestParam("church_code") String church_code,
+                                              @RequestParam("contribute") String contribute,
+                               @RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
+                               @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount,
+                               @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
+                               @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
+                               @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
+                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2
+                               ) throws JsonParseException {
+        // Member Profile Information
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        final int session_number1 = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Member Payload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+
+        // Request Mobile Church Details with Code
+        RequestChurchDetailsWithCode requestChurchDetailsWithCode = new RequestChurchDetailsWithCode();
+
+        Churchpayload churchpayload = new Churchpayload();
+        churchpayload.setSessionNumber(session_number);
+        churchpayload.setChurchCode(church_code);
+        churchpayload.setAccessNumber(phone_number);
+        churchpayload.setMobileServiceProvider("Safaricom");
+        requestChurchDetailsWithCode.setChurchpayload(churchpayload);
+
+        RequestChurchDetailsWithCodeResponse churchCodeResponse = authApi.getChurchCodeDetails(requestChurchDetailsWithCode);
+
+        // Get the Current Date Time
+        LocalDateTime myDateObj = LocalDateTime.now();
+        System.out.println("Before formatting: " + myDateObj);
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+        String formattedDate = myDateObj.format(myFormatObj);
+        System.out.println("After formatting: " + formattedDate);
+
+        MobileReceiveFundsGiving giving = new MobileReceiveFundsGiving();
+
+        RmPayload payload = new RmPayload();
+        payload.setSessionNumber(session_number);
+        payload.setChurchCode(profile.getPayload().getChurchCode());
+        payload.setContributingFor(contribute);
+        payload.setContributorType("Member");
+        payload.setReceiverId(profile.getPayload().getMembershipNumber());
+        payload.setReceiverName(profile.getPayload().getMemberName());
+        payload.setTotalAmount(amount);
+        payload.setMeansOfPayment("M-PESA");
+        payload.setCollectingParty("M-PESA");
+        payload.setContributorContact(phone_number);
+        payload.setContributorContactType("Phone Number");
+        payload.setContributorName(profile.getPayload().getMemberName());
+        payload.setContributingAs("Member");
+
+        HashMap<String, Integer> map1 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map2 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map3 = new HashMap<String, Integer>();
+
+        FundDistribution fundDistribution = new FundDistribution();
+
+        if(trust_funds != null) {
+            for(int i = 0; i < trust_funds.length;i++){
+                map1.put(trust_funds[i], fund_amount[i]);
+            }
+            fundDistribution.setTrustFunds(map1);
+        }else{
+            fundDistribution.setTrustFunds(map1);
+        }
+
+        if(non_trust_funds != null) {
+            for(int i = 0; i < non_trust_funds.length;i++){
+                map2.put(non_trust_funds[i], fund_amount1[i]);
+            }
+            fundDistribution.setNonTrustFunds(map2);
+        }else {
+            fundDistribution.setNonTrustFunds(map2);
+        }
+
+        if(special_trust_funds != null){
+            for(int i = 0; i < special_trust_funds.length;i++){
+                map3.put(special_trust_funds[i], fund_amount2[i]);
+            }
+            fundDistribution.setSpecialTrustFunds(map3);
+        }else {
+            fundDistribution.setSpecialTrustFunds(map3);
+        }
+
+        payload.setFundDistribution(fundDistribution);
+        giving.setPayload(payload);
+
+        MobileReceiveFundsResponse response = authApi.receiveMemberFunds(giving);
+        String cfmsTransactionId = response.getCfmsTransactionId();
+        String accountNumber = response.getAccountNumber();
+
+        MpesaSTKRequest request = new MpesaSTKRequest();
+        request.setAmount(amount);
+        request.setPhoneNumber(phone_number);
+        request.setCfmsTransactionId(cfmsTransactionId);
+        request.setAccountNumber(accountNumber);
+        request.setSessionNumber(String.valueOf(session_number1));
+
+
+
+        System.out.println("Mpesa Request Processing Right Now");
+        return "Now";
+    }
+
+    @GetMapping("/check-numbers")
+    public String checkNumbersSaved() throws JsonProcessingException {
+        JSONObject object = new JSONObject();
+        object.put("function", "mobileReceiveFunds");
+
+        // Payload
+        JSONObject payload = new JSONObject();
+        payload.put("sessionNumber", 9279849);
+        payload.put("churchCode", "29999");
+        payload.put("contributorType", "Member");
+        payload.put("contributorName", "Andrew Keitany");
+        payload.put("contributingAs", "Member");
+        payload.put("contributingFor", "Self");
+        payload.put("receiverId", "CN3196");
+        payload.put("receiverName", "Andrew Keitany");
+        payload.put("totalAmount", 5);
+        payload.put("meansOfPayment", "M-PESA");
+        payload.put("contributorContactType", "Phone Number");
+        payload.put("contributorContact", "254707981971");
+        payload.put("collectingParty", "M-PESA");
+
+        // HashMap
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+
+        // Trust Funds
+        JSONObject trustFunds = new JSONObject();
+        JSONObject nonTrustFunds = new JSONObject();
+        JSONObject specialTrustFunds = new JSONObject();
+
+        JSONObject fundsDistribution = new JSONObject();
+        fundsDistribution.put("trustFunds", trustFunds);
+        fundsDistribution.put("nonTrustFunds", nonTrustFunds);
+        fundsDistribution.put("specialTrustFunds", specialTrustFunds);
+        payload.put("fundDistribution", fundsDistribution);
+        object.put("payload", payload);
+        System.out.println("System Printed: "+object);
+        return "Saved";
+    }
+
+
+    @GetMapping("/trust_fund_summary")
+    public String getTrustFundSummary(HttpServletResponse response) throws IOException {
+        trustFundSummary.trustFundSummaryReport(response);
+        return "Trust Fund Summary Generated";
+    }
+
+
+    @GetMapping("/transactions_tracing_summary")
+    public String getTransactionTracingSummary(HttpServletResponse response) throws IOException {
+        transactionTracingSummary.transactionSummaryReport(response);
+        return "Trust Fund Summary Generated";
+    }
+
+
+    @GetMapping("/timers")
+    public String getTimers() throws JsonProcessingException {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("trustFunds", 1);
+        map.put("specialTrustFunds", 2);
+        JSONObject new_object = new JSONObject(map);
+        System.out.println("Object: " + new_object);
+        String jsonResult = objectMapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(map);
+        System.out.println(jsonResult);
+        return "Get the Timers";
+    }
+
+
+    @GetMapping("/timered")
+    public String getTimed(){
+        // Creating a list of strings
+        List<String> aList = Arrays.asList("Geeks", "for", "GeeksQuiz", "Geeks", "for",
+                "GeeksQuiz", "GFG", "GeeksforGeeks", "GFG");
+
+        // Creating a hash set using constructor
+        Set<String> hSet = new HashSet<String>(aList);
+
+        System.out.println("Created HashSet is");
+        for (String x : hSet)
+            System.out.println(x);
+
+
+        System.out.println("Created List is");
+        for (String x : aList)
+            System.out.println(x);
+        return "Set of Information";
+    }
+
+
+    @GetMapping("/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        // trustFundSummaryExcel.export(response);
+        TestExcelForm testExcelForm = new TestExcelForm();
+        testExcelForm.export(response);
+    }
+
+
+    @GetMapping("/export/transaction-tracing")
+    public void exportTransactionTracingDocument(HttpServletResponse response) throws IOException {
+        // Profile Information
+        String username = "mwakesho";
+        String password = "0389";
+
+        String start_date = "2024-1-1";
+        String end_date = "2024-1-31";
+
+        TransactionTracingExcel transactionTracingExcel = new TransactionTracingExcel();
+        transactionTracingExcel.export(response,start_date, end_date,username,password);
     }
 }

@@ -1,3 +1,5 @@
+var hosted_url = location.origin;
+
 function submitProfile(){
 
     var validator = $("#profile").validate();
@@ -5,12 +7,12 @@ function submitProfile(){
 
     var fullname = document.getElementById("fullname").value;
     var email = document.getElementById("email").value;
-    var phone = document.getElementById("mobileNumber1").value;
+    var phone = document.getElementById("phone").value;
     var pin = document.getElementById("pin").value;
-    var church_code = document.getElementById("churchCode").value;
-    var mobile_provider = document.getElementById("MobileProvider").value;
+    var church_code = document.getElementById("church_code").value;
+    var mobile_provider = document.getElementById("mobileprovider").value;
     var group = document.getElementById("church_group").value;
-    var mobile_provider1 = document.getElementById("mobileProvider1").value;
+    var mobile_provider1 = document.getElementById("mobileprovider1").value;
     var language = document.getElementById("preferredLanguage").value;
     var phone_privacy = document.getElementsByName("phone_number_privacy");
     var phone_privacy_value;
@@ -20,7 +22,7 @@ function submitProfile(){
       }
     }
     var phone_owner = document.getElementById("phoneOwner").value;
-    var church_member = document.getElementById("church_member").value;
+    var church_member = document.getElementById("churchMember").value;
     var other_phone = document.getElementById("otherPhoneNumber").value;
     var residence = document.getElementById("residence").value;
     var receipt_to = document.getElementsByName("receipt_to");
@@ -46,10 +48,13 @@ function submitProfile(){
     };
 
     console.log(profile_data);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 
     $.post(hosted_url + "/cfms/auth/saveProfile",profile_data ,function(data, status){
         if(data.status == 0){
-            $(".responseDiv").html("<div class=\"alert alert-success\">Profile Updated Successfully</div>");
+            $(".responseDiv").show();
+            $(".responseDiv").html("Profile Updated Successfully");
             $(".responseDiv").fadeOut(3000);
         }
     });

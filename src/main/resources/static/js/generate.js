@@ -2,14 +2,21 @@ var hosted_url = location.origin;
 
 function generateOfferingStatement(){
 
-    $("#myform").validate({
-      debug: true
-    });
 
     var phone = document.getElementById("phone").value;
     var pin = document.getElementById("pass").value;
     var start_date = document.getElementById("start_date").value;
     var end_date = document.getElementById("end_date").value;
+
+    if(start_date == null || end_date == null){
+        alert("Make Sure you input the start and end dates");
+        return false;
+    }
+
+    if (start_date >= end_date){
+        alert("The Start Date must predate the End date");
+        return false;
+    }
 
     var dates = {
         start_date: start_date,
@@ -23,24 +30,22 @@ function generateOfferingStatement(){
 
              let container = $("#content2");
              let html = new String("");
+             html += "<table id=\"statement\"><tbody id=\"myTable\">";
 
              $.each(data.payload.members, (i, statement) => {
                   console.log("Statement:" +statement);
-                  html += "<a href=\"#\" class=\"list-group-item list-group-item-action\">";
-                  html += "<div class=\"d-flex w-100 justify-content-between\">";
-                  html += "<h5 class=\"mb-1\">"+statement.narration+"</h5>";
-                  html += "<small class=\"amount\">"+statement.amountRefunded +"(Balance: "+ statement.balance + ")</small>";
-                  html += "</div>";
-                  html += "<p class=\"mb-1\" style=\"margin-top:10px;\">Receipt No: "+statement.receiptNumber+"</p>";
-                  html += "<small style=\"float:right;margin-top:-20px;font-size:12px;\">"+statement.transactionDate+"</small></a>";
+                  html += "<tr tabindex=\"0\"><td>";
+                  html += "<span class='left'>"+statement.narration+"</span>";
+                  html += "<span class='right-blue'>"+statement.amountRefunded +"(Balance: "+ statement.balance + ")</span><br><br>";
+                  html += "<span class='left-below'>Receipt No: "+statement.receiptNumber+"</span><br>";
+                  html += "<span class='right'>"+statement.transactionDate+"</span>";
+                  html += "</td></tr>";
              });
+             html += "</tbody></table>";
              container.html(html); //Append the table to the container element
 
         });
 }
-
-
-
 
 
 function exportStatement(){
@@ -61,4 +66,27 @@ function exportStatement(){
           $(".responseDiv").html("<div class=\"alert alert-success\">"+data+"</div>");
           $(".responseDiv").fadeOut(3000);
      });
+}
+
+function passwordVisibility(){
+	var x = document.getElementById("pin");
+	var icon = document.getElementById("toggle-password");
+
+	if (x.type === "password") {
+		x.type = "text";
+	} else {
+		x.type = "password";
+	}
+}
+
+
+function passwordVisibility1(){
+	var x = document.getElementById("confirm_pin");
+	var icon = document.getElementById("toggle-password1");
+
+	if (x.type === "password") {
+		x.type = "text";
+	} else {
+		x.type = "password";
+	}
 }

@@ -14,7 +14,6 @@ import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dashboard.trust_funds.Payload;
 import com.example.tried.auth.dashboard.trust_funds.TransactionsItem;
-import com.example.tried.auth.dates.DateRange;
 import com.example.tried.auth.dto.*;
 import com.example.tried.auth.enums.Receipt;
 import com.example.tried.auth.enums.SelectedLanguage;
@@ -24,7 +23,6 @@ import com.example.tried.auth.member.RequestChurchDetailsResponse;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
 import com.example.tried.services.AuthApi;
-import com.example.tried.services.TrustFundSummary;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.text.WordUtils;
@@ -39,9 +37,9 @@ import org.apache.commons.codec.binary.Base32;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/authenticate")
@@ -275,23 +273,24 @@ public class AuthControl {
     public String registerMember(@RequestParam("fullname") String fullname, @RequestParam("email") String email,
                                  @RequestParam("churchCode")String churchCode ,@RequestParam("phone") String phone,
                                  @RequestParam("phone_number_privacy")String phone_number_privacy, @RequestParam("language")String language,
-                                 @RequestParam("phoneOwner")Boolean phoneOwner, @RequestParam("churchMember")String churchMember,
+                                 @RequestParam("phoneOwner")Boolean phoneOwner, @RequestParam("church_member")String churchMember,
                                  @RequestParam("receipt_to") String receipt_to, @RequestParam("otherPhoneNumber") String otherPhoneNumber,
-                                 @RequestParam("residence")String residence){
+                                 @RequestParam("residence")String residence,@RequestParam("pin") String pin){
 
         // Member Registration
-        AuthMemberRegister register = new AuthMemberRegister();
-        register.setEmail(email);
+        MemberRegister register = new MemberRegister();
         register.setIsMember(churchMember);
         register.setResidence(residence);
         register.setFullNames(fullname);
         register.setPhoneNumberPrivacy(phone_number_privacy);
         register.setPhoneOwner(phoneOwner);
         register.setMobileNumber(phone);
+        register.setPin(pin);
         register.setPreferredLanguage(language);
-        register.setOtherPhoneNumber(otherPhoneNumber);
         register.setGivingReceiptedTo(receipt_to);
         register.setChurchCode(churchCode);
+        register.setAreas("");
+        register.setGroupName("");
 
 
         authApi.registerMember(register);
@@ -413,11 +412,6 @@ public class AuthControl {
         ListDeactivatedMembersResponse members1 = authApi.getDeactivatedMembers(listDeactivatedMembers);
 
 
-        // Deactivated Members List
-        List<com.example.tried.auth.dashboard.deactivated.MembersItem> membersList1 = members1.getMembers();
-        model2.addAttribute("listDeactivatedMembers", membersList1);
-        model2.addAttribute("deactivatedSize", membersList1.size());
-
         // Session Numbers
         final long rand1 = (int) ((Math.random() * 900000000) + 100000000);
         final int rand2 = (int) ((Math.random() * 9000000) + 1000000);
@@ -460,6 +454,7 @@ public class AuthControl {
         authentication1.setInstututionNumber(church_code);
         trustFundSummary.setAuthentication(authentication1);
 
+
         System.out.println("Local Church Trust Fund Summary: " + HelperUtility.toJSON(trustFundSummary));
 
         LocalChurchTrustFundSummaryResponse localChurchTrustFund = authApi.getLocalChurchTrustFundSummary(trustFundSummary);
@@ -492,13 +487,92 @@ public class AuthControl {
         model3.addAttribute("TotalAmount",  total_amount);
         model3.addAttribute("TotalAmountPaid",  total_amount_paid);
 
+
         String previousMonth = localdate.getMonth().minus(1).toString();
         model3.addAttribute("PreviousMonth", WordUtils.capitalize(previousMonth.toLowerCase()));
-        //model3.addAttribute("")
 
         // Get the Trust Fund Summary
-
         return "personnel_dashboard";
+    }
+
+
+    @GetMapping(path="/personnel-register")
+    public String getPersonnelRegistration(Model model, Model model2){
+        String username = "mwakesho";
+        String password = "0389";
+
+        // Session Numbers
+        final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Get the Login Details to get the Number of Church Members
+        // Login Credentials
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        // Get the Personnel Response
+        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
+
+        // Get the Number of Members in a Church
+        ListMembers members = new ListMembers();
+
+        // Personnel Details
+        String church_code = response.getPayload().getOrganisationNumber();
+        String church_name = response.getPayload().getOrganisationName();
+        String church_level = response.getPayload().getOrganisationLevel();
+        String personnel_name = response.getPayload().getPersonnelName();
+        String member_no = response.getPayload().getPersonnelCfmsNumber();
+
+        Dapayload dashboard = new Dapayload();
+        dashboard.setChurchName(church_name);
+        dashboard.setPassword(password);
+        dashboard.setUser(username);
+        dashboard.setChurchCode(church_code);
+
+        // Get Dashboard Information
+        members.setDapayload(dashboard);
+        ListMembersResponse dashboardResponse = authApi.getChurchMembers(members);
+
+        // Get the List of Local Church Members
+        List<MembersItem> membersList = dashboardResponse.getDarepayload().getMembers();
+
+        Set<MembersItem> unique =
+                new HashSet<MembersItem>(membersList);
+
+        model.addAttribute("Members", unique);
+        model.addAttribute("ChurchSize", unique.size());
+        System.out.println("Church Member List Size: "+ membersList.size());
+        System.out.println("Church Member Set Size: "+ unique.size());
+
+        // List Deactivated Church Members
+        ListDeactivatedMembers listDeactivatedMembers = new ListDeactivatedMembers();
+        Deapayload deapayload = new Deapayload();
+        deapayload.setChurchName(church_name);
+        deapayload.setChurchCode(church_code);
+
+        // Deactivated Members Authentication
+        Authentication authentication = new Authentication();
+        authentication.setSessionNumber(rand);
+        authentication.setPersonnelName(personnel_name);
+        authentication.setPassword(password);
+        authentication.setUser(username);
+        authentication.setInstitutionName(church_name);
+        authentication.setInstitutionLevel(church_level);
+        authentication.setInstitutionNumber(church_code);
+
+        listDeactivatedMembers.setDeapayload(deapayload);
+        listDeactivatedMembers.setAuthentication(authentication);
+        ListDeactivatedMembersResponse members1 = authApi.getDeactivatedMembers(listDeactivatedMembers);
+
+        // Deactivated Members List
+        List<com.example.tried.auth.dashboard.deactivated.MembersItem> membersList1 = members1.getMembers();
+
+        Set<com.example.tried.auth.dashboard.deactivated.MembersItem> hSet =
+                new HashSet<com.example.tried.auth.dashboard.deactivated.MembersItem>(membersList1);
+        model2.addAttribute("listDeactivatedMembers", hSet);
+        model2.addAttribute("deactivatedSize", hSet.size());
+
+        return "personnel_registration";
     }
 
 
@@ -507,4 +581,64 @@ public class AuthControl {
         return "movie";
     }
 
+
+    // New Interface Profile Information
+    @GetMapping("/profile2")
+    public String getProfileInformation(Model model){
+        String phoneNumber = "254707981971";
+        String pin = "1226";
+
+        System.out.println("Phone Number Retrieved using Post Request: "+phoneNumber);
+
+        // Get Profile Information
+        MemberProfile profiler = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phoneNumber);
+        profiler.setProfilepayload(payload);
+
+        // Profile Info
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+        String Fullname = profile.getPayload().getMemberName();
+        String ChurchCode = profile.getPayload().getChurchCode();
+        String Residence = profile.getPayload().getContributesAs();
+
+        // Request Church Details
+        RequestChurchDetails requestChurchDetails = new RequestChurchDetails();
+        requestChurchDetails.setChurchCode(profile.getPayload().getChurchCode());
+        requestChurchDetails.setMobileServiceProvider("Safaricom");
+        requestChurchDetails.setAccessNumber(phoneNumber);
+
+        // More Profile Info
+        RequestChurchDetailsResponse requestCode = authApi.getMemberChurchDetails(requestChurchDetails);
+        String group = requestCode.getGroups();
+        String otherPhoneNumber = requestCode.getOtherPhoneNumber();
+        String language = profile.getPayload().getPreferredLanguage();
+        //String phoneOwner = requestCode.get
+
+        // Member Details
+        model.addAttribute("fullName", Fullname);
+        model.addAttribute("mobileNumber", phoneNumber);
+        model.addAttribute("pin",pin);
+        model.addAttribute("churchCode", ChurchCode);
+        model.addAttribute("groupName", group);
+        model.addAttribute("otherPhoneNumber", otherPhoneNumber);
+        model.addAttribute("Selected", SelectedLanguage.values());
+        model.addAttribute("Telco", Telco.values());
+        model.addAttribute("Receipt", Receipt.values());
+        model.addAttribute("Language", language);
+        return "profile2";
+    }
+
+    // Get the Statement 2
+    @GetMapping("/statement2")
+    public String getOfferingStatement(){
+        return "statement2";
+    }
+
+
+    @GetMapping("/offering")
+    public String getMemberOffering(){
+        return "member_giving";
+    }
 }
