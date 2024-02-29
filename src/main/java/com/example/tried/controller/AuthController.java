@@ -13,14 +13,17 @@ import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.member.giving.FundDistribution;
 import com.example.tried.auth.personnel.*;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.services.AuthApi;
 import com.example.tried.services.OfferingStatementService;
+import com.example.tried.services.reports.excel.LocalNonTrustFundReportExcel;
 import com.example.tried.services.reports.excel.TestExcelForm;
+import com.example.tried.services.reports.pdf.LocalNonTrustFundReport;
 import com.example.tried.services.reports.pdf.TransactionTracingSummary;
 import com.example.tried.services.reports.pdf.TrustFundSummary;
 import com.example.tried.services.reports.excel.TransactionTracingExcel;
-import com.example.tried.services.reports.excel.TrustFundSummaryExcel;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,6 +61,9 @@ public class AuthController {
 
     @Autowired
     TrustFundSummary trustFundSummary;
+
+    @Autowired
+    LocalNonTrustFundReport testPDFSummary;
 
     @Autowired
     TransactionTracingSummary transactionTracingSummary;
@@ -511,15 +517,29 @@ public class AuthController {
     public List<TransactionsItem> getUSSDandCashSummary(){
         String username = "mwakesho";
         String password = "0389";
+        String phone_number = "254786439659";
 
         // Session Numbers
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        //Member Profile Information
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+
+        MemberProfileResponse details = authApi.getMemberDetails(memberProfile);
 
         // Get the Login Details to get the Number of Church Members
         // Login Credentials
         MemberPersonnel personnel = new MemberPersonnel();
         personnel.setUser(username);
         personnel.setPassword(password);
+        personnel.setChurchCode(details.getPayload().getChurchCode());
 
         // Get the Personnel Response
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
@@ -830,6 +850,59 @@ public class AuthController {
     }
 
 
+    @GetMapping("/non_trust_fund_summary")
+    public LocalChurchNonTrustSummaryResponse getNonTrustFundSummary() throws IOException {
+        String username = "mwakesho";
+        String password = "0389";
+        String phone_number = "254786439659";
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        // Get the Personnel Response
+        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
+
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setInstitutionNumber(response.getPayload().getOrganisationNumber());
+        authentication.setInstitutionLevel(response.getPayload().getOrganisationLevel());
+        authentication.setInstitutionName(response.getPayload().getOrganisationName());
+
+        // Dates
+        String start_date = "2024-1-1";
+        String end_date = "2024-1-31";
+
+        // Non Trust Fund Payload
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload.setChurchCode(response.getPayload().getOrganisationNumber());
+        payload.setGroup("Not Applicable");
+        payload.setChurchName(response.getPayload().getOrganisationName());
+        payload.setMeansOfPayment("Cash");
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload);
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+
+        String total_amount = response1.getTotalAmount();
+        Integer local_combined_offerings = response1.getNonTrpayload().getLocalChurchFunds()
+                .getLocalCombinedOfferings();
+        return response1;
+    }
+
+
     @GetMapping("/timers")
     public String getTimers() throws JsonProcessingException {
         Map<String, Integer> map = new HashMap<>();
@@ -844,6 +917,7 @@ public class AuthController {
     }
 
 
+    // Testing the Effectiveness of List and Set
     @GetMapping("/timered")
     public String getTimed(){
         // Creating a list of strings
@@ -886,6 +960,7 @@ public class AuthController {
         // Profile Information
         String username = "mwakesho";
         String password = "0389";
+        String phone_number = "254786439659";
 
         String start_date = "2024-1-1";
         String end_date = "2024-1-31";
@@ -893,4 +968,187 @@ public class AuthController {
         TransactionTracingExcel transactionTracingExcel = new TransactionTracingExcel();
         transactionTracingExcel.export(response,start_date, end_date,username,password);
     }
+
+
+    @GetMapping("/export/non_trust_fund")
+    public void exportNonTrustFundDocument(HttpServletResponse response) throws IOException {
+        // Profile Information
+        String username = "mwakesho";
+        String password = "0389";
+        String phone_number = "254786439659";
+
+        String start_date = "2024-1-1";
+        String end_date = "2024-1-31";
+
+        String Cash = "Cash";
+        String USSD = "USSD";
+        String All = "Not Applicable";
+        String Means = "";
+
+
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+
+
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse responsed = authApi.getMemberDetails(memberProfile);
+
+        // Non Trust Fund Payload
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload.setChurchCode(responsed.getPayload().getChurchCode());
+        payload.setGroup("Not Applicable");
+        payload.setChurchName(responsed.getPayload().getChurchName());
+
+        /*
+        if(Means == "All"){
+            payload.setMeansOfPayment("Not Applicable");
+        }else if(Means == "USSD"){
+            payload.setMeansOfPayment("USSD");
+        }else{
+            payload.setMeansOfPayment("Cash");
+        }
+         */
+        payload.setMeansOfPayment("Not Applicable");
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(responsed.getPayload().getChurchCode());
+
+        // Get the Personnel Response
+        MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
+
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(responsed2.getPayload().getPersonnelName());
+        authentication.setInstitutionNumber(responsed2.getPayload().getOrganisationNumber());
+        authentication.setInstitutionLevel(responsed2.getPayload().getOrganisationLevel());
+        authentication.setInstitutionName(responsed2.getPayload().getOrganisationName());
+
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload);
+        System.out.println("Local Non Trust Fund Summary: "+nonTrustFundSummary);
+
+        String headerValue = "attachment; filename=" + username + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+        System.out.println("Local Non Trust Fund Summary: "+ response1);
+
+        List<com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem> membersItems = response1.getNonTrpayload().getMembers();
+        LocalNonTrustFundReportExcel nonTrustFundReportExcel = new LocalNonTrustFundReportExcel();
+        nonTrustFundReportExcel.export(response, membersItems);
+    }
+
+
+    @GetMapping("/pdf/non_trust_fund")
+    public String generateNonTrustFund(HttpServletResponse response) throws IOException {
+
+        // Profile Information
+        String username = "mwakesho";
+        String password = "0389";
+        String phone_number = "254786439659";
+
+        String start_date = "2024-1-1";
+        String end_date = "2024-1-31";
+
+        String Cash = "Cash";
+        String USSD = "USSD";
+        String All = "Not Applicable";
+        String Means = "";
+
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse responsed = authApi.getMemberDetails(memberProfile);
+
+        // Non Trust Fund Payload
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload.setChurchCode(responsed.getPayload().getChurchCode());
+        payload.setGroup("Not Applicable");
+        payload.setChurchName(responsed.getPayload().getChurchName());
+
+        /*
+        if(Means == "All"){
+            payload.setMeansOfPayment("Not Applicable");
+        }else if(Means == "USSD"){
+            payload.setMeansOfPayment("USSD");
+        }else{
+            payload.setMeansOfPayment("Cash");
+        }
+         */
+        payload.setMeansOfPayment("Not Applicable");
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(responsed.getPayload().getChurchCode());
+
+        // Get the Personnel Response
+        MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
+
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(responsed2.getPayload().getPersonnelName());
+        authentication.setInstitutionNumber(responsed2.getPayload().getOrganisationNumber());
+        authentication.setInstitutionLevel(responsed2.getPayload().getOrganisationLevel());
+        authentication.setInstitutionName(responsed2.getPayload().getOrganisationName());
+
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload);
+        System.out.println("Local Non Trust Fund Summary: "+nonTrustFundSummary);
+
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+        System.out.println("Local Non Trust Fund Summary: "+ response1);
+
+        List<com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem> membersItems = response1.getNonTrpayload().getMembers();
+
+        response.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=local_non_trust_fund " + start_date +" - "+ end_date  + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        testPDFSummary.nonTrustFundSummaryReport(response, phone_number, start_date, end_date, membersItems);
+        return "Generate Local Non Trust Fund";
+    }
+
+
 }

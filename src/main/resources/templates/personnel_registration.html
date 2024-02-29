@@ -3,8 +3,9 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Responsive Admin Dashboard | Redesign</title>
-<link rel="stylesheet " type="text/css" href="/cfms/css/style.css">
-	<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/table_register.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
 </head>
 <body>
 <div class="container">
@@ -99,8 +100,10 @@
 				<div id="all_members">
 					<div class="cardHeader">
 						<h2>Active Members</h2>
-						<input type="text" placeholder="Search here" id="myInput">
 					</div>
+					<input type="text" placeholder="Search here" id="myInput">
+					<br>
+					<hr>
 					<table>
 						<thead>
 						</thead>
@@ -108,13 +111,13 @@
 							<tr tabindex="0" th:each="members : ${Members}">
 								<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
 									<span class='right' th:text="${members.name}"></span><br><br>
-									<span class="left" th:text="${members.churchNumber}"></span>
-									<a href="https://www.google.com" class="btn">View Member</a></td>
+									<span class="left-below" th:text="${members.churchNumber}"></span>
+									<a class="right-blue" th:onclick="getMemberProfile([[${members.phoneNumber}]])">View Member</a></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-				<div id="member_profile"></div>
+				<div id="member_profile" style="display:none;"></div>
 			</div>
 			
 			<!-- New Customers -->
@@ -123,15 +126,17 @@
 					<h2>Deactivated Members</h2>
 				</div>
 				<input type="text" placeholder="Search here" id="myInput1">
+				<br>
+				<hr>
 				<table>
 					<thead>
 					</thead>
 					<tbody id="myTable1">
 					<tr tabindex="0" th:each="members1 : ${listDeactivatedMembers}">
-						<td class="con1"><span class='left' th:text="${members1.phoneNumber}"></span>
+						<td class="con"><span class='left' th:text="${members1.phoneNumber}"></span>
 							<span class='right' th:text="${members1.memberName}"></span><br><br>
-							<span class="left" th:text="${members1.membershipNumber}"></span>
-							<a href="https://www.google.com" class="btn1">Activate Member</a></td>
+							<span class="left-below" th:text="${members1.membershipNumber}"></span>
+							<a href="https://www.google.com" class="right-blue">Activate Member</a></td>
 					</tr>
 					</tbody>
 				</table>

@@ -56,7 +56,7 @@ auth:
     trust_funds_url: https://sdacfms.org:8443/sdacfmsWS/webresources/trustfunds/v1
     mpesa_stk_request_url: https://sdacfms.org:8443/sdacfmsWS/webresources/payment/mpesa_stk_request/
     reports_url: http://sdacfms.org:8080/sdacfmsWS/webresources/
-    reconciliation_url: http://localhost:8080/sdacfmsWS/webresources/ai_reconciliation/complete_trust_funds_reconciliation
+    reconciliation_url: http://localhost:8080/sdacfmsWS/webresources/reconciliation_reports/v1/
     dashboard_url: https://sdacfms.org:8443/sdacfmsWS/webresources/dashboard/v1/financial
 
 server:

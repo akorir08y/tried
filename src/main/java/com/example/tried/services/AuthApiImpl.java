@@ -19,6 +19,10 @@ import com.example.tried.auth.member.RequestChurchDetailsWithCode;
 import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.personnel.*;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummary;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummaryResponse;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.example.tried.config.AuthConfiguration;
@@ -252,7 +256,6 @@ public class AuthApiImpl implements AuthApi{
     public MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) {
         // Function Name
         personnel.setFunction("login");
-        personnel.setChurchCode("29001");
         personnel.setConnectionPurpose("Web Administration");
         System.out.println("Login Personnel Credentials: "+personnel.toString());
 
@@ -334,7 +337,6 @@ public class AuthApiImpl implements AuthApi{
     // Get the Member Details
     @Override
     public MemberProfileResponse getMemberDetails(MemberProfile profile) {
-        // Profile
         profile.setFunction("mobileFetchProfile");
 
         System.out.println("Member Profile Request JSON: "+
@@ -718,7 +720,7 @@ public class AuthApiImpl implements AuthApi{
 
         System.out.println("Request Body: " + body.toString());
         Request request = new Request.Builder()
-                .url(authConfiguration.getReports_url())
+                .url(authConfiguration.getReconciliation_url())
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
@@ -730,6 +732,64 @@ public class AuthApiImpl implements AuthApi{
             log.error(String.format("Could not get Transaction Tracing Report -> %s", e.getLocalizedMessage()));
             try {
                 return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTransactionTracingResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) {
+        nonTrustSummary.setFunction("getLocalChurchNonTrustFundsOfferingsReport");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(nonTrustSummary)));
+
+        System.out.println("Request Body: " + body);
+        Request request = new Request.Builder()
+                .url(authConfiguration.getDashboard_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), LocalChurchNonTrustSummaryResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Transaction Tracing Report -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchNonTrustSummaryResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) {
+        churchOfferingSummary.setFunction("getLocalChurchNonTrustFundsOfferingsReport");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(churchOfferingSummary)));
+
+        System.out.println("Request Body: " + body);
+        Request request = new Request.Builder()
+                .url(authConfiguration.getDashboard_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),LocalChurchOfferingSummaryResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Transaction Tracing Report -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(),LocalChurchOfferingSummaryResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }

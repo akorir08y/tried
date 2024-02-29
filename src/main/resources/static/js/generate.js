@@ -2,7 +2,6 @@ var hosted_url = location.origin;
 
 function generateOfferingStatement(){
 
-
     var phone = document.getElementById("phone").value;
     var pin = document.getElementById("pass").value;
     var start_date = document.getElementById("start_date").value;

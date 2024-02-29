@@ -107,15 +107,16 @@ select{
 
 .right-blue{
 	float:right;
-	padding: 10px 15px;
+	padding: 10px 10px;
 	background-color: #24478f;
-	border-radius: 10px;
 	color: white;
+	font-size:13px;
+	border-radius:10px;
 }
 
 .right-blue:hover{
-	background-color: white;
-	color: black;
+    background-color: white;
+    color:black;
 }
 
 .second{
@@ -156,4 +157,39 @@ select{
 	font-size:18px;
 	font-weight: bold;
 	text-align:center;
+}
+
+
+.recentOrders table{
+	font-size:12px;
+}
+
+
+.recentCustomers table{
+	font-size:13px;
+}
+
+.recentOrders table a:link, .recentOrders table span{
+	text-decoration:none;
+	font-size:13px;
+}
+
+
+.recentOrders table span{
+	font-size:13px;
+}
+
+.recentCustomers table span, .recentCustomers table a:link{
+	font-size:11px;
+	text-decoration:none;
+}
+
+
+#myInput{
+	margin-top:10px;
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+    border-radius: 10px;
+    font-size:12px;
 }

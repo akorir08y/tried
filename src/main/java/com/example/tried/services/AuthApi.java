@@ -22,6 +22,10 @@ import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelReset;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
 import com.example.tried.auth.personnel.PersonnelResetResponse;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
+import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummary;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummaryResponse;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -106,4 +110,11 @@ public interface AuthApi {
 
     // Transaction Tracing Summary Funds
     public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing);
+
+    // Get the Local Church Non Trust Fund Summary
+    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary);
+
+
+    // Get the Local Church Offering Reports
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary);
 }

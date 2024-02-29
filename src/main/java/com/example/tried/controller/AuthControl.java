@@ -353,15 +353,28 @@ public class AuthControl {
     public String getDashboard(Model model, Model model2, Model model3){
         String username = "mwakesho";
         String password = "0389";
+        String phone_number = "254786439659";
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Member Profile Information
+        //Member Profile Information
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse details = authApi.getMemberDetails(memberProfile);
 
         // Get the Login Details to get the Number of Church Members
         // Login Credentials
         MemberPersonnel personnel = new MemberPersonnel();
         personnel.setUser(username);
         personnel.setPassword(password);
+        personnel.setChurchCode(details.getPayload().getChurchCode());
 
         // Get the Personnel Response
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);

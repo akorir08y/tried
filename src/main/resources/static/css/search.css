@@ -42,6 +42,9 @@
     width:60%;
     box-shadow: 10px 10px 5px lightblue;
     border-radius: 10px;
+    position: relative;
+    margin-bottom:30px;
+    left:20%;
 }
 
 
@@ -51,6 +54,7 @@
     padding:10px;
     box-shadow: 10px 10px 5px lightblue;
     border-radius: 10px;
+    margin-bottom:30px;
 }
 
 #myInput2{
@@ -59,4 +63,16 @@
     padding:10px;
     box-shadow: 10px 10px 5px lightblue;
     border-radius: 10px;
+}
+
+label{
+    font-size: 12px;
+}
+
+#member_profile table tr{
+	padding:0px;
+}
+
+#member_profile table td{
+	padding:2px;
 }

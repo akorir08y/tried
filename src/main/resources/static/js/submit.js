@@ -2,8 +2,6 @@ var hosted_url = location.origin;
 
 function submitProfile(){
 
-    var validator = $("#profile").validate();
-    validator.form();
 
     var fullname = document.getElementById("fullname").value;
     var email = document.getElementById("email").value;
