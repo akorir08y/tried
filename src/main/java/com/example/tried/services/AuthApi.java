@@ -13,10 +13,7 @@ import com.example.tried.auth.dto.*;
 import com.example.tried.auth.dto.Payload;
 import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
-import com.example.tried.auth.member.RequestChurchDetails;
-import com.example.tried.auth.member.RequestChurchDetailsResponse;
-import com.example.tried.auth.member.RequestChurchDetailsWithCode;
-import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelReset;
@@ -73,6 +70,9 @@ public interface AuthApi {
 
     // Get the Member Transfer Details
     public MemberTransferResponse getMemberTransfer(MemberTransfer transfer);
+
+    // Get Member Details
+    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails request);
 
     // Request Church Details with Church Code
     public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails);

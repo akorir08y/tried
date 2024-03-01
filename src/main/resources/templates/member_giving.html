@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -27,14 +27,6 @@
           <span class="title">Personnel Login</span>
         </a>
       </li>
-      <!--
-      <li>
-      <a href="#">
-      <span class="icon"><ion-icon name="settings-outline"></ion-icon></span>
-      <span class="title">Settings</span>
-      </a>
-      </li>
-      -->
       <li>
         <a href="#">
           <span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
@@ -79,7 +71,9 @@
       </div>
     </div>
 
-
+    <input type="hidden" id="personal_no" name="personal_no" th:value="${personal_no}">
+    <input type="hidden" id="personal_no2" name="personal_no2" th:value="${personal_no2}">
+    <input type="hidden" id="personal_pin" name="personal_pin" th:value="${personal_pin}">
     <!-- Order Details List -->
     <div class="details">
       <div class="recentOrders">
@@ -144,9 +138,9 @@
             <tbody>
             <tr>
               <td><b> To: </b></td>
-              <td align="left"><input type="text" id="churchName" name="churchName" placeholder="Mamboleo Harvest"></td>
+              <td align="left"><input type="text" id="church_name" name="church_name" readonly></td>
               <td><b> For: </b></td>
-              <td><input type="text" id="member_name" name="member_name" placeholder="Andrew Keitany"></td>
+              <td><input type="text" id="member_name" name="member_name" readonly></td>
             </tr>
             <tr>
               <td colspan="4" style="padding-top:10px;"><b>Select Fund Type</b></td>
@@ -200,7 +194,7 @@
           <table>
             <tbody>
             <tr>
-              <td><input type="text" id="churchCode" name="churchCode" placeholder="Church Code" style="width:50%;"></td>
+              <td><input type="text" id="church_code_host" min="5" max="5" name="church_code_host" placeholder="Church Code" style="width:50%;"></td>
             </tr>
             <tr>
               <td><button type="button" class="btn" onclick="getChurchCode()">Submit</button></tr>
@@ -220,7 +214,7 @@
             <tbody>
             <tr>
               <td><b> To: </b></td>
-              <td><input type="text" id="churchName1" name="churchName" placeholder="Mamboleo Harvest"></td>
+              <td><input type="text" id="church_name1" name="church_name" placeholder="Mamboleo Harvest"></td>
               <td><b> For: </b></td>
               <td><input type="text" id="member_name1" name="member_name" placeholder="Self"></td>
             </tr>
@@ -268,7 +262,7 @@
             <tbody>
             <tr>
               <td><label class="label_input"><b> To: </b></label></td>
-              <td><input type="text" id="churchName2" name="churchName1" placeholder="Cfms" readonly></td>
+              <td><input type="text" id="church_name_home" name="church_name_home" readonly></td>
             </tr>
             <tr>
               <td colspan="2"><label class="label_input"><b>Select Others</b></label></td>
@@ -342,7 +336,7 @@
               </td>
             </tr>
             <tr>
-              <td><button type="button" class="btn">Submit</button></td>
+              <td><button type="button" class="btn" onclick="">Submit</button></td>
             </tr>
             </tbody>
           </table>
@@ -449,7 +443,7 @@
             </tr>
             <tr>
               <td colspan="2">
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number" onclick="getPaymentNumber()">
                 <label class="form-check-label" for="visiting_member">
                   My Registered Number
                 </label>
@@ -457,7 +451,7 @@
             </tr>
             <tr>
               <td style="text-align:left;">
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number" onclick="getPaymentNumber()">
                 <label class="form-check-label" for="guest">
                   My Other Number
                 </label>
@@ -465,7 +459,7 @@
             </tr>
             <tr>
               <td>
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="other_number">
+                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="other_number" onclick="getPaymentNumber()">
                 <label class="form-check-label" for="anonymous">
                   Other Number
                 </label>
@@ -474,8 +468,15 @@
             <tr>
               <td><br></td>
             </tr>
+            <tr style="display:none;" id="alternative_number">
+              <td><label class="label_input"><b> Phone Number: </b></label></td>
+              <td><input type="text" id="other_number2" name="other_number2" placeholder="+254"></td>
+            </tr>
             <tr>
-              <td><br><p id="payment_line"></p></td>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td><br><p id="payment_line"></p><input type="hidden" id="total_value" name="total_value"></td>
             </tr>
             <tr>
               <td><button type="button" class="btn" onclick="saveTrustFundSummary()">Confirm</button></td>

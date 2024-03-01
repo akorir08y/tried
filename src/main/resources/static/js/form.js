@@ -546,7 +546,7 @@ function checkChurch(){
            console.log(data);
            if(data != "Yes"){
                 $(".responseDiv1").show();
-                $(".responseDiv1").html(""+data+"");
+                $(".responseDiv1").html(data);
                 $(".responseDiv1").fadeOut(3000);
            }
         });

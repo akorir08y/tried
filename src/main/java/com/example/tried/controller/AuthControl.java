@@ -513,15 +513,26 @@ public class AuthControl {
     public String getPersonnelRegistration(Model model, Model model2){
         String username = "mwakesho";
         String password = "0389";
+        String phone_number = "254786439659";
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Get Profile Information
+        MemberProfile profiler = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profiler.setProfilepayload(payload);
+
+        MemberProfileResponse responser = authApi.getMemberDetails(profiler);
 
         // Get the Login Details to get the Number of Church Members
         // Login Credentials
         MemberPersonnel personnel = new MemberPersonnel();
         personnel.setUser(username);
         personnel.setPassword(password);
+        personnel.setChurchCode(responser.getPayload().getChurchCode());
 
         // Get the Personnel Response
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
@@ -651,7 +662,10 @@ public class AuthControl {
 
 
     @GetMapping("/offering")
-    public String getMemberOffering(){
+    public String getMemberOffering(Model model){
+        model.addAttribute("personal_no", "254707981971");
+        model.addAttribute("personal_no2", "254775351396");
+        model.addAttribute("personal_pin", "1226");
         return "member_giving";
     }
 }

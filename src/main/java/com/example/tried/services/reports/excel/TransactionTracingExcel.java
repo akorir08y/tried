@@ -68,8 +68,7 @@ public class TransactionTracingExcel {
         cell.setCellStyle(style);
     }
 
-    public void getTransactionTracing(String start_date, String end_date,
-                                      String username, String password){
+    public void getTransactionTracing(List<TransactionsItem> transaction){
 
         int rowCount = 1;
 
@@ -79,38 +78,7 @@ public class TransactionTracingExcel {
         style.setFont(font);
 
         // Session Numbers
-        final int rand = (int) ((Math.random() * 9000000) + 1000000);
 
-        // Get the Login Details to get the Number of Church Members
-        // Login Credentials
-        MemberPersonnel personnel = new MemberPersonnel();
-        personnel.setUser(username);
-        personnel.setPassword(password);
-
-        // Get the Personnel Response
-        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
-
-        // Authentication
-        com.example.tried.auth.personnel.tracing.Authentication authenticate = new com.example.
-                tried.auth.personnel.tracing.Authentication();
-        authenticate.setInstututionLevel(response.getPayload().getOrganisationLevel());
-        authenticate.setInstututionNumber(response.getPayload().getOrganisationNumber());
-        authenticate.setInstututionName(response.getPayload().getOrganisationName());
-        authenticate.setUser(username);
-        authenticate.setPassword(password);
-        authenticate.setSessionNumber(rand);
-
-        com.example.tried.auth.personnel.tracing.TracingPayload payload = new com.example.tried.
-                auth.personnel.tracing.TracingPayload();
-        payload.setStartDate(start_date);
-        payload.setEndDate(end_date);
-
-        LocalChurchTransactionTracing tracing = new LocalChurchTransactionTracing();
-        tracing.setPayload(payload);
-        tracing.setAuthentication(authenticate);
-
-        LocalChurchTransactionTracingResponse response1 = authApi.getTransactionTracingSummary(tracing);
-        List<TransactionsItem> transaction = response1.getPayload().getTransactions();
 
         for (TransactionsItem transactionItem : transaction) {
             Row row = sheet.createRow(rowCount++);
@@ -126,10 +94,9 @@ public class TransactionTracingExcel {
         }
     }
 
-    public void export(HttpServletResponse response,String start_date, String end_date,
-                       String username, String password) throws IOException, java.io.IOException {
+    public void export(HttpServletResponse response,List<TransactionsItem> transactionsItems) throws IOException, java.io.IOException {
         writeHeaderLine();
-        getTransactionTracing(start_date,end_date,username,password);
+        getTransactionTracing(transactionsItems);
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

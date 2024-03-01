@@ -7,14 +7,14 @@ import com.example.tried.auth.dashboard.trust_funds.TransactionsItem;
 import com.example.tried.auth.dto.*;
 import com.example.tried.auth.dto.Payload;
 import com.example.tried.auth.financial.*;
-import com.example.tried.auth.member.Churchpayload;
-import com.example.tried.auth.member.RequestChurchDetailsWithCode;
-import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.member.giving.FundDistribution;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
+import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.services.AuthApi;
 import com.example.tried.services.OfferingStatementService;
@@ -200,7 +200,7 @@ public class AuthController {
 
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
-        System.out.println("The Session Number is: " + session_number);
+        // System.out.println("The Session Number is: " + session_number);
 
         // String session = String.valueOf(session_number);
 
@@ -956,7 +956,7 @@ public class AuthController {
 
 
     @GetMapping("/export/transaction-tracing")
-    public void exportTransactionTracingDocument(HttpServletResponse response) throws IOException {
+    public void exportTransactionTracingDocument(HttpServletResponse Outesponse) throws IOException {
         // Profile Information
         String username = "mwakesho";
         String password = "0389";
@@ -965,8 +965,53 @@ public class AuthController {
         String start_date = "2024-1-1";
         String end_date = "2024-1-31";
 
+        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Member Profile
+        MemberProfile memberProfile = new MemberProfile();
+
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse profiler = authApi.getMemberDetails(memberProfile);
+
+        // Get the Login Details to get the Number of Church Members
+        // Login Credentials
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(profiler.getPayload().getChurchCode());
+
+        // Get the Personnel Response
+        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
+
+        // Authentication
+        com.example.tried.auth.personnel.tracing.Authentication authenticate = new com.example.
+                tried.auth.personnel.tracing.Authentication();
+        authenticate.setInstututionLevel(response.getPayload().getOrganisationLevel());
+        authenticate.setInstututionNumber(response.getPayload().getOrganisationNumber());
+        authenticate.setInstututionName(response.getPayload().getOrganisationName());
+        authenticate.setUser(username);
+        authenticate.setPassword(password);
+        authenticate.setSessionNumber(rand);
+
+        com.example.tried.auth.personnel.tracing.TracingPayload payload = new com.example.tried.
+                auth.personnel.tracing.TracingPayload();
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        LocalChurchTransactionTracing tracing = new LocalChurchTransactionTracing();
+        tracing.setPayload(payload);
+        tracing.setAuthentication(authenticate);
+
+        LocalChurchTransactionTracingResponse response1 = authApi.getTransactionTracingSummary(tracing);
+        List<com.example.tried.auth.personnel.tracing.TransactionsItem> transaction = response1.getPayload().getTransactions();
+
         TransactionTracingExcel transactionTracingExcel = new TransactionTracingExcel();
-        transactionTracingExcel.export(response,start_date, end_date,username,password);
+        transactionTracingExcel.export(Outesponse,transaction);
     }
 
 
@@ -1151,4 +1196,79 @@ public class AuthController {
     }
 
 
+    // Check if the Number Exists in the Database
+    @PostMapping(path="/check-name")
+    public MemberProfileResponse getMemberName(@RequestParam("phone_number")String phoneNumber){
+        String response = "";
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phoneNumber);
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
+        return response1;
+    }
+
+
+    @PostMapping(path="/check-account")
+    public RequestChurchDetailsWithCodeResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber){
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phoneNumber);
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
+
+        RequestChurchDetailsWithCode requestCode = new RequestChurchDetailsWithCode();
+
+        Churchpayload churchpayload = new Churchpayload();
+        churchpayload.setChurchCode(response1.getPayload().getChurchCode());
+        churchpayload.setSessionNumber(session_number);
+        churchpayload.setAccessNumber(phoneNumber);
+        churchpayload.setMobileServiceProvider("Safaricom");
+        requestCode.setChurchpayload(churchpayload);
+        RequestChurchDetailsWithCodeResponse churchDetails = authApi.getChurchCodeDetails(requestCode);
+        return churchDetails;
+    }
+
+
+
+    @PostMapping(path="/check-phone")
+    public MemberProfileResponse checkPhoneNumberExist(@RequestParam("phone_number")String phoneNumber){
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phoneNumber);
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse response = authApi.getMemberDetails(profile);
+
+        return response;
+    }
+
+
+    @PostMapping(path="/check-member-id")
+    public RequestMemberDetailsResponse checkCfmsMemberNumber(@RequestParam("cfms_member_id")String cfms_member_id){
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Request Member Information
+        RequestMemberDetails details = new RequestMemberDetails();
+        Mempayload mempayload = new Mempayload();
+        mempayload.setMembershipNumber(cfms_member_id);
+        mempayload.setMemberDescription("Member");
+        mempayload.setSessionNumber(String.valueOf(session_number));
+
+        details.setMempayload(mempayload);
+
+        RequestMemberDetailsResponse requestMemberDetails = authApi.getFullMemberDetails(details);
+
+        return requestMemberDetails;
+    }
 }

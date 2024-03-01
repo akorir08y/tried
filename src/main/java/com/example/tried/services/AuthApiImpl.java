@@ -13,10 +13,7 @@ import com.example.tried.auth.dto.*;
 import com.example.tried.auth.dto.Payload;
 import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
-import com.example.tried.auth.member.RequestChurchDetails;
-import com.example.tried.auth.member.RequestChurchDetailsResponse;
-import com.example.tried.auth.member.RequestChurchDetailsWithCode;
-import com.example.tried.auth.member.RequestChurchDetailsWithCodeResponse;
+import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
@@ -441,6 +438,31 @@ public class AuthApiImpl implements AuthApi{
             log.error(String.format("Could not facilitate Member Transfer Details -> %s", e.getLocalizedMessage()));
             try {
                 return objectMapper.readValue(e.getLocalizedMessage().toString(), MemberTransferResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    @Override
+    public RequestMemberDetailsResponse getMemberFullDetails(RequestMemberDetails requestMember) {
+        requestMember.setFunction("mobileRequestMemberDetails");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(requestMember)));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),RequestMemberDetailsResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not retrieve Member Details -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), RequestMemberDetailsResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
