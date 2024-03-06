@@ -24,8 +24,15 @@ function generateOfferingStatement(){
         pin: pin
     }
 
+    var loader = document.getElementById("loader_spin");
+    var contented = document.getElementById("content2");
+    contented.style.display = "none";
+    loader.style.display = "block";
+
      $.post(hosted_url + "/cfms/auth/statement",dates ,function(data, status){
              console.log(data);
+             loader.style.display = "none";
+             contented.style.display = "block";
 
              let container = $("#content2");
              let html = new String("");
@@ -49,22 +56,18 @@ function generateOfferingStatement(){
 
 function exportStatement(){
 
-    var phone = document.getElementById("phone").value;
-    var pin = document.getElementById("pass").value;
     var start_date = document.getElementById("start_date").value;
     var end_date = document.getElementById("end_date").value;
 
-    var dates = {
-        start_date: start_date,
-        end_date: end_date,
-        phone_number: phone,
-        pin: pin
+    if(start_date == null || end_date == null){
+        alert("Make Sure you input the start and end dates");
+        return false;
     }
 
-     $.get(hosted_url + "/cfms/auth/off-statement",dates ,function(data, status){
-          $(".responseDiv").html("<div class=\"alert alert-success\">"+data+"</div>");
-          $(".responseDiv").fadeOut(3000);
-     });
+    if (start_date >= end_date){
+        alert("The Start Date must predate the End date");
+        return false;
+    }
 }
 
 function passwordVisibility(){

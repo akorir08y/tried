@@ -87,7 +87,7 @@ $(document).ready(function(){
         <br>
         <hr>
         <table width="100%">
-          <form action="/cfms/auth/off-statement" method="get" id="#myform">
+          <form action="/cfms/auth/off-statement" method="get" id="statement" onsubmit="exportStatement()">
             <input type="hidden" id="phone" name="phone_number" value="254707981971">
             <input type="hidden" id="pass" name="pin" value="1226">
             <thead>
@@ -115,6 +115,7 @@ $(document).ready(function(){
             <input id="myInput" type="text" placeholder="Search Statement" style="width:50%;">
           </div>
           <br><br>
+          <div class="loader" id="loader_spin" style="display:none;"></div>
           <div id="content2">
 
           </div>

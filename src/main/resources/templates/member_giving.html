@@ -2,11 +2,17 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <title>Login Dashboard</title>
   <link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
   <link rel="stylesheet" type="text/css" href="/cfms/css/table_offering.css">
   <style>
+    #identifier-option-head{
+        border:none;
+    }
+
+    #identifier-option, #identifier-option1{
+        border:none;
+    }
 
 
 </style>
@@ -67,13 +73,15 @@
 
       <!-- userImg -->
       <div class="user">
-        <img src="images/profile-2.jpg">
+        <img src="/cfms/images/cfmsLogo.png">
       </div>
     </div>
 
     <input type="hidden" id="personal_no" name="personal_no" th:value="${personal_no}">
     <input type="hidden" id="personal_no2" name="personal_no2" th:value="${personal_no2}">
     <input type="hidden" id="personal_pin" name="personal_pin" th:value="${personal_pin}">
+    <input type="hidden" id="church_code_mine" name="church_code_mine" th:value="${church_code}">
+    <input type="hidden" id="church_name_mine" name="church_name_mine" th:value="${church_name}">
     <!-- Order Details List -->
     <div class="details">
       <div class="recentOrders">
@@ -178,13 +186,14 @@
               </td>
             </tr>
             <tr>
-              <td><button type="button" class="btn" onclick="getFundAccount()">Proceed</button></td>
+              <td><button type="button" class="btn" onclick="goBackToHomePage()">Back</button>
+                <button type="button" class="btn" onclick="getFundAccount()">Proceed</button></td>
             </tr>
             </tbody>
           </table>
         </div>
 
-        <div id="church_code_section" style="display:none;">
+        <div id="church_code_section_self" style="display:none;">
           <div class="cardHeader">
             <h2 style="text-align:center;margin-top:10px;">Enter Host Church Code</h2>
             <div class="responseDiv" style="display:none;"></div>
@@ -196,8 +205,30 @@
             <tr>
               <td><input type="text" id="church_code_host" min="5" max="5" name="church_code_host" placeholder="Church Code" style="width:50%;"></td>
             </tr>
+            <td>
+              <td><button type="button" class="btn" onclick="goBackToHomePage()">Back</button>
+              <button type="button" class="btn" onclick="getChurchCode()">Submit</button></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <div id="church_code_section_others" style="display:none;">
+          <div class="cardHeader">
+            <h2 style="text-align:center;margin-top:10px;">Enter Host Church Code</h2>
+            <div class="responseDiv" style="display:none;"></div>
+          </div>
+          <br>
+          <hr>
+          <table>
+            <tbody>
             <tr>
-              <td><button type="button" class="btn" onclick="getChurchCode()">Submit</button></tr>
+              <td><input type="text" id="church_code_others" min="5" max="5" name="church_code_others" placeholder="Church Code" style="width:50%;"></td>
+            </tr>
+            <td>
+              <td><button type="button" class="btn" onclick="goBackToHomePage()">Back</button>
+                <button type="button" class="btn" onclick="getChurchCodeOthers()">Submit</button></td>
             </tr>
             </tbody>
           </table>
@@ -214,9 +245,9 @@
             <tbody>
             <tr>
               <td><b> To: </b></td>
-              <td><input type="text" id="church_name1" name="church_name" placeholder="Mamboleo Harvest"></td>
+              <td><input type="text" id="church_name1" name="church_name1"></td>
               <td><b> For: </b></td>
-              <td><input type="text" id="member_name1" name="member_name" placeholder="Self"></td>
+              <td><input type="text" id="member_name1" name="member_name1" readonly></td>
             </tr>
             <tr>
               <td colspan="4" style="padding-top:10px;"><b>As who would you like to give?</b></td>
@@ -246,7 +277,7 @@
               </td>
             </tr>
             <tr>
-              <td><button type="button" class="btn">Confirm</button></td>
+              <td><button type="button" class="btn" onclick="getOfferingPage()">Confirm</button></td>
             </tr>
             </tbody>
           </table>
@@ -306,10 +337,10 @@
                 </label>
               </td>
             </tr>
-            <tr>
+            <tr id="identifier-option-head">
               <td><label class="label_input"><b>Identify Member by</b></label></td>
             </tr>
-            <tr>
+            <tr id="identifier-option">
               <td>
                 <input class="form-check-input" type="radio" name="flexRadioDefault6" id="phone_number" onclick="showIdentifier()">
                 <label class="form-check-label" for="special_trust_funds">
@@ -317,7 +348,7 @@
                 </label>
               </td>
             </tr>
-            <tr>
+            <tr id="identifier-option1">
               <td>
                 <input class="form-check-input" type="radio" name="flexRadioDefault6" id="cfms_id" onclick="showIdentifier()">
                 <label class="form-check-label" for="special_trust_funds">
@@ -336,7 +367,8 @@
               </td>
             </tr>
             <tr>
-              <td><button type="button" class="btn" onclick="">Submit</button></td>
+              <td><button type="button" class="btn" onclick="goBackToHomePage()">Back</button>
+                <button type="button" class="btn" onclick="submitHomeOthers()">Submit</button></td>
             </tr>
             </tbody>
           </table>
@@ -350,16 +382,16 @@
           </div>
           <br>
           <hr>
-          <table>
+          <table style="border:none;">
             <tr>
               <td><label class="label_input"><b> To: </b></label></td>
-              <td><input type="text" id="churchName3" name="churchName2" placeholder="Cfms" readonly></td>
+              <td><input type="text" id="church_name_others" name="church_name_others" readonly></td>
             </tr>
             <tr>
               <td colspan="2"><label class="label_input"><b>Select Others</b></label></td>
             </tr>
             <td>
-              <input class="form-check-input" type="radio" name="flexRadioDefault7" id="other_member1" onclick="otherMember()">
+              <input class="form-check-input" type="radio" name="flexRadioDefault7" id="other_member1" onclick="otherMember1()">
               <label class="form-check-label" for="trust_funds">
                 Other Member
               </label>
@@ -397,10 +429,10 @@
                 </label>
               </td>
             </tr>
-            <tr>
+            <tr id="identify_by1">
               <td><label class="label_input"><b>Identify Member by</b></label></td>
             </tr>
-            <tr>
+            <tr id="phone_number_div">
               <td>
                 <input class="form-check-input" type="radio" name="flexRadioDefault8" id="phone_number1" onclick="showIdentifier1()">
                 <label class="form-check-label" for="special_trust_funds">
@@ -408,7 +440,7 @@
                 </label>
               </td>
             </tr>
-            <tr>
+            <tr id="cfms_member_div">
               <td>
                 <input class="form-check-input" type="radio" name="flexRadioDefault8" id="cfms_id1" onclick="showIdentifier1()">
                 <label class="form-check-label" for="special_trust_funds">
@@ -432,56 +464,9 @@
           </table>
 
         </div>
-        <div id="trust_funds_div">
-        </div>
+        <div id="trust_funds_div"></div>
 
         <div id="payment_div" style="display:none;">
-
-          <table>
-            <tr>
-              <td colspan="4" style="padding-top:10px;"><b>Initiate Payment From:</b></td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number" onclick="getPaymentNumber()">
-                <label class="form-check-label" for="visiting_member">
-                  My Registered Number
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <td style="text-align:left;">
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number" onclick="getPaymentNumber()">
-                <label class="form-check-label" for="guest">
-                  My Other Number
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <input class="form-check-input" type="radio" name="flexRadioDefault4" id="other_number" onclick="getPaymentNumber()">
-                <label class="form-check-label" for="anonymous">
-                  Other Number
-                </label>
-              </td>
-            </tr>
-            <tr>
-              <td><br></td>
-            </tr>
-            <tr style="display:none;" id="alternative_number">
-              <td><label class="label_input"><b> Phone Number: </b></label></td>
-              <td><input type="text" id="other_number2" name="other_number2" placeholder="+254"></td>
-            </tr>
-            <tr>
-              <td><br></td>
-            </tr>
-            <tr>
-              <td><br><p id="payment_line"></p><input type="hidden" id="total_value" name="total_value"></td>
-            </tr>
-            <tr>
-              <td><button type="button" class="btn" onclick="saveTrustFundSummary()">Confirm</button></td>
-            </tr>
-          </table>
 
         </div>
 
@@ -601,12 +586,13 @@
 
 
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/cfms/js/generate.js"></script>
-<script src="/cfms/js/member_giving.js"></script>
+<script src="/cfms/js/giving.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');

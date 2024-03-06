@@ -100,9 +100,11 @@
 				<div id="all_members">
 					<div class="cardHeader">
 						<h2>Active Members</h2>
+
 					</div>
 					<input type="text" placeholder="Search here" id="myInput">
 					<br>
+					<div class="responseDiv" style="display:none;"></div>
 					<hr>
 					<table>
 						<thead>
@@ -112,7 +114,8 @@
 								<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
 									<span class='right' th:text="${members.name}"></span><br><br>
 									<span class="left-below" th:text="${members.churchNumber}"></span>
-									<a class="right-blue" th:onclick="getMemberProfile([[${members.phoneNumber}]])">View Member</a></td>
+									<a class="right-blue" th:onclick="getMemberProfile([[${members.phoneNumber}]])">View Member</a>
+									<a class="right-blue-red" th:onclick="getMemberProfile([[${members.phoneNumber}]])">Deactivate Member</a></td>
 							</tr>
 						</tbody>
 					</table>

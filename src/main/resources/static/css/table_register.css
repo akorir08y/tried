@@ -114,7 +114,17 @@ select{
 	border-radius:10px;
 }
 
-.right-blue:hover{
+.right-blue-red{
+	float:right;
+	padding: 10px 10px;
+	background-color: #560319;
+	margin-right:20px;
+	color: white;
+	font-size:13px;
+	border-radius:10px;
+}
+
+.right-blue:hover, .right-blue-red:hover{
     background-color: white;
     color:black;
 }

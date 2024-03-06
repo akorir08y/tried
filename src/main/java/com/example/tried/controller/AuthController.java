@@ -329,18 +329,29 @@ public class AuthController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone);
+        if(phone.contains("+")) {
+            payload.setMobileNumber(phone);
+        }else{
+            payload.setMobileNumber("+" + phone);
+        }
         profiler.setProfilepayload(payload);
 
         // Profile Info
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
 
+        System.out.println("churchMember: "+ churchMember);
+        System.out.println("Phone Owner: "+ phoneOwner);
 
         // Update Payload
         AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(fullname);
         updatepayload.setEmail(email);
-        updatepayload.setMobileNumber(phone);
+        if(phone.contains("+")){
+            phone = phone.substring(1,phone.length());
+            updatepayload.setMobileNumber(phone);
+        }else{
+            updatepayload.setMobileNumber(phone);
+        }
         updatepayload.setChurchCode(churchCode);
         updatepayload.setPreferredLanguage(language);
         updatepayload.setPhoneNumberPrivacy(phone_number_privacy);
@@ -514,7 +525,7 @@ public class AuthController {
 
 
     @GetMapping("/church-trust-funds")
-    public List<TransactionsItem> getUSSDandCashSummary(){
+    public LocalChurchTrustFundSummaryResponse getUSSDandCashSummary(){
         String username = "mwakesho";
         String password = "0389";
         String phone_number = "254786439659";
@@ -596,7 +607,7 @@ public class AuthController {
         Integer total_zone = totals.size();
         Integer total_month_transactions = total_transactions - total_zone;
         System.out.println("Transaction Size: "+ total_month_transactions);
-        return totals;
+        return localChurchTrustFund;
     }
 
     @PostMapping("/home_church")
@@ -715,7 +726,8 @@ public class AuthController {
         churchpayload.setMobileServiceProvider("Safaricom");
         requestChurchDetailsWithCode.setChurchpayload(churchpayload);
 
-        RequestChurchDetailsWithCodeResponse churchCodeResponse = authApi.getChurchCodeDetails(requestChurchDetailsWithCode);
+        RequestChurchDetailsWithCodeResponse churchCodeResponse =
+                authApi.getChurchCodeDetails(requestChurchDetailsWithCode);
 
         // Get the Current Date Time
         LocalDateTime myDateObj = LocalDateTime.now();
@@ -778,6 +790,8 @@ public class AuthController {
         payload.setFundDistribution(fundDistribution);
         giving.setPayload(payload);
 
+        System.out.println("Member Giving Object: "+ HelperUtility.toJSON(giving));
+
         MobileReceiveFundsResponse response = authApi.receiveMemberFunds(giving);
         String cfmsTransactionId = response.getCfmsTransactionId();
         String accountNumber = response.getAccountNumber();
@@ -789,8 +803,8 @@ public class AuthController {
         request.setAccountNumber(accountNumber);
         request.setSessionNumber(String.valueOf(session_number1));
 
-
-
+        MpesaSTKRequestResponse responser = authApi.getMPESASTKResponse(request);
+        System.out.println("MPESA STK Request: "+ request);
         System.out.println("Mpesa Request Processing Right Now");
         return "Now";
     }
@@ -1213,7 +1227,7 @@ public class AuthController {
 
 
     @PostMapping(path="/check-account")
-    public RequestChurchDetailsWithCodeResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber){
+    public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber){
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -1225,15 +1239,15 @@ public class AuthController {
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
 
-        RequestChurchDetailsWithCode requestCode = new RequestChurchDetailsWithCode();
+        RequestChurchDetails requestCode = new RequestChurchDetails();
+        requestCode.setChurchCode(response1.getPayload().getChurchCode());
+        requestCode.setAccessPoint("Web App");
+        requestCode.setConnectionPurpose("Registration");
+        requestCode.setAccessNumber(phoneNumber);
+        requestCode.setMobileServiceProvider("Safaricom");
 
-        Churchpayload churchpayload = new Churchpayload();
-        churchpayload.setChurchCode(response1.getPayload().getChurchCode());
-        churchpayload.setSessionNumber(session_number);
-        churchpayload.setAccessNumber(phoneNumber);
-        churchpayload.setMobileServiceProvider("Safaricom");
-        requestCode.setChurchpayload(churchpayload);
-        RequestChurchDetailsWithCodeResponse churchDetails = authApi.getChurchCodeDetails(requestCode);
+
+        RequestChurchDetailsResponse churchDetails = authApi.getMemberChurchDetails(requestCode);
         return churchDetails;
     }
 

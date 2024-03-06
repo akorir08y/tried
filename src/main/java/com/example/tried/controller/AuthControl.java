@@ -404,102 +404,9 @@ public class AuthControl {
         model.addAttribute("Members", membersList);
         model.addAttribute("ChurchSize", membersList.size());
 
-        // List Deactivated Church Members
-        ListDeactivatedMembers listDeactivatedMembers = new ListDeactivatedMembers();
-        Deapayload deapayload = new Deapayload();
-        deapayload.setChurchName(church_name);
-        deapayload.setChurchCode(church_code);
-
-        // Deactivated Members Authentication
-        Authentication authentication = new Authentication();
-        authentication.setSessionNumber(rand);
-        authentication.setPersonnelName(personnel_name);
-        authentication.setPassword(password);
-        authentication.setUser(username);
-        authentication.setInstitutionName(church_name);
-        authentication.setInstitutionLevel(church_level);
-        authentication.setInstitutionNumber(church_code);
-
-        listDeactivatedMembers.setDeapayload(deapayload);
-        listDeactivatedMembers.setAuthentication(authentication);
-        ListDeactivatedMembersResponse members1 = authApi.getDeactivatedMembers(listDeactivatedMembers);
-
-
-        // Session Numbers
-        final long rand1 = (int) ((Math.random() * 900000000) + 100000000);
-        final int rand2 = (int) ((Math.random() * 9000000) + 1000000);
-
-        // Get the Payment Accounts
-        LocalChurchPaymentAccounts paymentAccounts = new LocalChurchPaymentAccounts();
-        paymentAccounts.setChurchName(church_name);
-        paymentAccounts.setPassword(password);
-        paymentAccounts.setChurchCode(church_code);
-        paymentAccounts.setUser(username);
-        paymentAccounts.setSessionNumber(rand1);
-
-        LocalChurchPaymentAccountsResponse churchPaymentAccountsResponse = authApi
-                .getPaymentAccounts(paymentAccounts);
-
-        // Get the Previous Month Trust Fund Summary
-        LocalChurchTrustFundSummary trustFundSummary = new LocalChurchTrustFundSummary();
-        Payload payload = new Payload();
 
         // Get the Current Year
         LocalDate localdate = LocalDate.now();
-
-        // Trust Fund Summary Payload
-        payload.setYear(localdate.getYear());
-        payload.setMonth(localdate.getMonthValue() - 1);
-        payload.setChurchName(church_name);
-        payload.setLocalChurchNumber(church_code);
-        trustFundSummary.setPayload(payload);
-
-        //
-        com.example.tried.auth.dashboard.trust_funds.Authentication authentication1 = new com.example.tried.auth.dashboard.
-                trust_funds.Authentication();
-
-        authentication1.setInstututionLevel(church_level);
-        authentication1.setUser(username);
-        authentication1.setPersonnelName(personnel_name);
-        authentication1.setPassword(password);
-        authentication1.setSessionNumber(rand2);
-        authentication1.setInstututionName(church_name);
-        authentication1.setInstututionNumber(church_code);
-        trustFundSummary.setAuthentication(authentication1);
-
-
-        System.out.println("Local Church Trust Fund Summary: " + HelperUtility.toJSON(trustFundSummary));
-
-        LocalChurchTrustFundSummaryResponse localChurchTrustFund = authApi.getLocalChurchTrustFundSummary(trustFundSummary);
-
-        System.out.println("Local Church Trust Fund Summary Response: " + HelperUtility.toJSON(localChurchTrustFund));
-
-        List<TransactionsItem> transactions = localChurchTrustFund.getTrupayload().getTransactions();
-        List<TransactionsItem> totals = new ArrayList<TransactionsItem>();
-        String total_amount = "";
-        String total_amount_paid = "";
-        String balance = "";
-        for(TransactionsItem transaction : transactions){
-            if (transaction.getReceiptNumber() == null){
-                totals.add(transaction);
-            }
-
-            if(transaction.getModeOfPayment() == null){
-                total_amount = transaction.getTotalReceiptedAmount();
-                total_amount_paid = transaction.getTotalReceiptedAmountPaid();
-                balance = transaction.getBalance();
-            }
-        }
-
-        total_amount = total_amount.substring(0, total_amount.length()-1);
-        total_amount_paid = total_amount_paid.substring(0, total_amount_paid.length()-1);
-        Integer total_transactions = transactions.size();
-        Integer total_zone = totals.size();
-        Integer total_month_transactions = total_transactions - total_zone;
-        model3.addAttribute("Transactions",  total_month_transactions);
-        model3.addAttribute("TotalAmount",  total_amount);
-        model3.addAttribute("TotalAmountPaid",  total_amount_paid);
-
 
         String previousMonth = localdate.getMonth().minus(1).toString();
         model3.addAttribute("PreviousMonth", WordUtils.capitalize(previousMonth.toLowerCase()));
@@ -663,9 +570,41 @@ public class AuthControl {
 
     @GetMapping("/offering")
     public String getMemberOffering(Model model){
-        model.addAttribute("personal_no", "254707981971");
-        model.addAttribute("personal_no2", "254775351396");
-        model.addAttribute("personal_pin", "1226");
+        String phoneNumber = "254707981971";
+        String pin = "1226";
+
+        System.out.println("Phone Number Retrieved using Post Request: "+phoneNumber);
+
+        // Get Profile Information
+        MemberProfile profiler = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phoneNumber);
+        profiler.setProfilepayload(payload);
+
+        // Profile Info
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+        String Fullname = profile.getPayload().getMemberName();
+        String ChurchCode = profile.getPayload().getChurchCode();
+        String Residence = profile.getPayload().getContributesAs();
+
+        // Request Church Details
+        RequestChurchDetails requestChurchDetails = new RequestChurchDetails();
+        requestChurchDetails.setChurchCode(profile.getPayload().getChurchCode());
+        requestChurchDetails.setMobileServiceProvider("Safaricom");
+        requestChurchDetails.setAccessNumber(phoneNumber);
+
+        // More Profile Info
+        RequestChurchDetailsResponse requestCode = authApi.getMemberChurchDetails(requestChurchDetails);
+        String group = requestCode.getGroups();
+        String otherPhoneNumber = requestCode.getOtherPhoneNumber();
+        String language = profile.getPayload().getPreferredLanguage();
+
+        model.addAttribute("personal_no", phoneNumber);
+        model.addAttribute("personal_no2", otherPhoneNumber);
+        model.addAttribute("personal_pin", pin);
+        model.addAttribute("church_code", ChurchCode);
+        model.addAttribute("church_name", profile.getPayload().getChurchName());
         return "member_giving";
     }
 }

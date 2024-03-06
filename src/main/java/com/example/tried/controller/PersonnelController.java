@@ -31,7 +31,11 @@ public class PersonnelController {
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+"+ phoneNumber);
+        if (phoneNumber.contains("+")) {
+            payload.setMobileNumber(phoneNumber);
+        }else{
+            payload.setMobileNumber("+" + phoneNumber);
+        }
         profile.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
@@ -73,7 +77,11 @@ public class PersonnelController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone);
+        if (phone.contains("+")) {
+            payload.setMobileNumber(phone);
+        }else{
+            payload.setMobileNumber("+" + phone);
+        }
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -84,7 +92,12 @@ public class PersonnelController {
         AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(profile.getPayload().getMemberName());
         updatepayload.setEmail("any@gmail.com");
-        updatepayload.setMobileNumber(phone);
+        if(phone.contains("+")){
+            phone = phone.substring(1,phone.length());
+            updatepayload.setMobileNumber(phone);
+        }else{
+            updatepayload.setMobileNumber(phone);
+        }
         updatepayload.setChurchCode(profile.getPayload().getMemberName());
         updatepayload.setPreferredLanguage(profile.getPayload().getPreferredLanguage());
         updatepayload.setPhoneNumberPrivacy("Normal");
@@ -120,7 +133,11 @@ public class PersonnelController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone);
+        if (phone.contains("+")) {
+            payload.setMobileNumber(phone);
+        }else{
+            payload.setMobileNumber("+" + phone);
+        }
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -136,8 +153,8 @@ public class PersonnelController {
         updatepayload.setPreferredLanguage(profile.getPayload().getPreferredLanguage());
         updatepayload.setPhoneNumberPrivacy("Normal");
         updatepayload.setResidence("Any");
-        updatepayload.setPhoneOwner(false);
-        updatepayload.setIsMember("true");
+        updatepayload.setPhoneOwner(true);
+        updatepayload.setIsMember("false");
         updatepayload.setGivingReceiptedTo("Self");
         updatepayload.setMembershipNumber(profile.getPayload().getMembershipNumber());
         updatepayload.setOtherPhoneNumber("+254");

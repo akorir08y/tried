@@ -445,7 +445,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public RequestMemberDetailsResponse getMemberFullDetails(RequestMemberDetails requestMember) {
+    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails requestMember) {
         requestMember.setFunction("mobileRequestMemberDetails");
 
         //Request Body
@@ -505,7 +505,6 @@ public class AuthApiImpl implements AuthApi{
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
-
 
         try {
             Response response = client.newCall(request).execute();

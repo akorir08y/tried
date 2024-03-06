@@ -91,99 +91,144 @@
 				<img src="/cfms/images/cfmsLogo.png">
 			</div>
 		</div>
-		
+
 		<div class="cardBox">
-			<div class="card">
-				<div>
-					<div class="numbers" th:text="${ChurchSize}"></div>
-					<div class="cardName">Church Members</div>
+				<div class="card" style="background-color:#24478f;color:white;">
+					<div>
+						<div class="cardName">Non Trust January Report</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
 				</div>
-				<div class="iconBx">
-					<ion-icon name="eye-outline"></ion-icon>
+				<div class="card"  style="background-color:#24478f;color:white;">
+					<div>
+						<div class="cardName">Trust Fund January Report</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card"  style="background-color:#24478f;color:white;">
+					<div>
+						<div class="cardName">Local Church Offering January Report</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card"  style="background-color:#24478f;color:white;">
+					<div>
+						<div class="cardName">Transaction Tracing January Report</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
+				</div>
+		</div>
+
+		<div id="trust_fund_summary">
+			<h2 style="text-align:center;">Trust Fund Summary</h2>
+
+				<div class="cardBox">
+					<div class="card">
+						<div>
+							<div class="numbers" th:text="${ChurchSize}"></div>
+							<div class="cardName">Church Members</div>
+						</div>
+						<div class="iconBx">
+							<ion-icon name="eye-outline"></ion-icon>
+						</div>
+					</div>
+					<div class="card">
+						<div>
+							<div class="numbers" id="transactions"></div>
+							<div class="cardName" th:text="|Transactions in ${PreviousMonth}|"></div>
+						</div>
+						<div class="iconBx">
+							<ion-icon name="wallet-outline"></ion-icon>
+						</div>
+					</div>
+					<div class="card">
+						<div>
+							<div class="numbers" id="total_amount_paid"></div>
+							<div class="cardName" th:text="|Trust Fund Amount Paid in ${PreviousMonth}|"></div>
+						</div>
+						<div class="iconBx">
+							<ion-icon name="chatbubbles-outline"></ion-icon>
+						</div>
+					</div>
+					<div class="card">
+						<div>
+							<div class="numbers" id="total_amount"></div>
+							<div class="cardName" th:text="|Trust Fund Amount Contributed in ${PreviousMonth}|"></div>
+						</div>
+						<div class="iconBx">
+							<ion-icon name="wallet-outline"></ion-icon>
+						</div>
+					</div>
+				</div>
+
+
+				<!-- Add Charts -->
+				<div class="graphBox">
+					<div class="box"><canvas id="myChart"></canvas></div>
+					<div class="box"><canvas id="myChart1"></canvas></div>
+				</div>
+		</div>
+
+		<div id="non-trust-fund-summary">
+			<h2 style="text-align:center;">Non Trust Fund Summary</h2>
+
+			<div class="cardBox">
+				<div class="card">
+					<div>
+						<div class="numbers" th:text="${ChurchSize}"></div>
+						<div class="cardName">Church Members</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="eye-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="transactions1"></div>
+						<div class="cardName" th:text="|Transactions in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="wallet-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="total_amount_paid1"></div>
+						<div class="cardName" th:text="|Trust Fund Amount Paid in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="chatbubbles-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="total_amount1"></div>
+						<div class="cardName" th:text="|Trust Fund Amount Contributed in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="wallet-outline"></ion-icon>
+					</div>
 				</div>
 			</div>
-			<div class="card">
-				<div>
-					<div class="numbers" th:text="${Transactions}"></div>
-					<div class="cardName"> Transactions</div>
-				</div>
-				<div class="iconBx">
-					<ion-icon name="wallet-outline"></ion-icon>
-				</div>
-			</div>
-			<div class="card">
-				<div>
-					<div class="numbers" th:text="|Kshs: ${TotalAmountPaid}|"></div>
-					<div class="cardName" th:text="|Trust Fund Amount Paid in ${PreviousMonth}|"></div>
-				</div>
-				<div class="iconBx">
-					<ion-icon name="chatbubbles-outline"></ion-icon>
-				</div>
-			</div>
-			<div class="card">
-				<div>
-					<div class="numbers" th:text="|Kshs: ${TotalAmount}|"></div>
-					<div class="cardName" th:text="|Trust Fund Amount Contributed in ${PreviousMonth}|"></div>
-				</div>
-				<div class="iconBx">
-					<ion-icon name="wallet-outline"></ion-icon>
-				</div>
+
+
+			<!-- Add Charts -->
+			<div class="graphBox">
+				<div class="box"><canvas id="myChart2"></canvas></div>
+				<div class="box"><canvas id="myChart3"></canvas></div>
 			</div>
 		</div>
 
 
-		<!-- Add Charts -->
-		<div class="graphBox">
-			<div class="box"><canvas id="myChart"></canvas></div>
-			<div class="box"><canvas id="myChart1"></canvas></div>
-		</div>
 
-
-		<!-- Order Details List -->
-		<!--
-		<div class="details">
-			<div class="recentOrders">
-				<div class="cardHeader">
-					<h2>Active Members</h2>
-					<input type="text" placeholder="Search here" id="myInput">
-				</div>
-				<table>
-					<thead>
-					</thead>
-					<tbody id="myTable">
-						<tr tabindex="0" th:each="members : ${Members}">
-							<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
-								<span class='right' th:text="${members.name}"></span><br><br>
-								<span class="left" th:text="${members.churchNumber}"></span>
-								<a href="https://www.google.com" class="btn">View Member</a></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			-->
-			
-			<!-- New Customers -->
-		<!--
-			<div class="recentCustomers">
-				<div class="cardHeader">
-					<h2>Deactivated Members</h2>
-				</div>
-				<input type="text" placeholder="Search here" id="myInput1">
-				<table>
-					<thead>
-					</thead>
-					<tbody id="myTable1">
-					<tr tabindex="0" th:each="members1 : ${listDeactivatedMembers}">
-						<td class="con1"><span class='left' th:text="${members1.phoneNumber}"></span>
-							<span class='right' th:text="${members1.memberName}"></span><br><br>
-							<span class="left" th:text="${members1.membershipNumber}"></span>
-							<a href="https://www.google.com" class="btn1">Activate Member</a></td>
-					</tr>
-					</tbody>
-				</table>
-			</div>
-			</div>
-		-->
 
 
 
