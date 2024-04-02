@@ -10,13 +10,19 @@ import com.example.tried.auth.financial.*;
 import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.member.giving.FundDistribution;
+import com.example.tried.auth.member.giving.Member;
+import com.example.tried.auth.member.specific.SpecificOfferingStatement;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummary;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummaryResponse;
+import com.example.tried.auth.personnel.reports.offering.LocalChurchPayload;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.services.AuthApi;
+import com.example.tried.services.OfferingSpecificStatementService;
 import com.example.tried.services.OfferingStatementService;
 import com.example.tried.services.reports.excel.LocalNonTrustFundReportExcel;
 import com.example.tried.services.reports.excel.TestExcelForm;
@@ -32,6 +38,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.apache.commons.codec.binary.Base32;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -46,6 +53,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 
 @RestController
@@ -58,6 +66,9 @@ public class AuthController {
 
     @Autowired
     OfferingStatementService statementService;
+
+    @Autowired
+    OfferingSpecificStatementService specificStatementService;
 
     @Autowired
     TrustFundSummary trustFundSummary;
@@ -201,7 +212,6 @@ public class AuthController {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
         // System.out.println("The Session Number is: " + session_number);
-
         // String session = String.valueOf(session_number);
 
         // Get the Member Authentication Details
@@ -423,6 +433,70 @@ public class AuthController {
         return "Generate Offering Statement";
     }
 
+
+    @GetMapping("/off-statement-specific")
+    public String generateSpecificOfferingStatement(@RequestParam("phone_number_specific") String phone_number,
+                                            @RequestParam("start_date_specific") String start_date,
+                                            @RequestParam("end_date_specific") String end_date,
+                                            @RequestParam("pin_specific") String pin,
+                                            @RequestParam("account_name") String account_name,
+                                            @RequestParam("account_number") String account_number,
+                                            HttpServletResponse response) throws IOException {
+
+        // Final Session Number
+        final long session_number = (long) ((Math.random() * 900000000) + 100000000);
+
+        // Offering Statement Information
+        SpecificOfferingStatement statement = new SpecificOfferingStatement();
+
+
+        // Member Profile Information
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        // Member Payload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+        String membershipNumber = profile.getPayload().getMembershipNumber();
+
+        // Authentication
+        com.example.tried.auth.member.specific.Authentication authentication = new
+                com.example.tried.auth.member.specific.Authentication();
+        authentication.setPin(pin);
+        authentication.setPhoneNumber(phone_number);
+        authentication.setSessionNumber(session_number);
+        authentication.setPersonnelName(profile.getPayload().getMemberName());
+        authentication.setInstututionName(profile.getPayload().getChurchName());
+        authentication.setInstututionLevel("LOCAL CHURCH");
+        authentication.setInstututionNumber(profile.getPayload().getChurchCode());
+
+        com.example.tried.auth.member.specific.Payload payload = new
+                com.example.tried.auth.member.specific.Payload();
+        payload.setAccountName(account_name);
+        payload.setAccountNumber(account_number);
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+        payload.setMemberNumber(membershipNumber);
+        payload.setMemberName(profile.getPayload().getMemberName());
+
+
+        System.out.println("Generated Profile: " + profile);
+        System.out.println("Member Number: " + membershipNumber);
+
+        response.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=" + membershipNumber + "-specific.pdf";
+        response.setHeader(headerKey, headerValue);
+
+        specificStatementService.createOfferingStatement(statement,response);
+        return "Generate Specific Offering Statement";
+    }
+
     @GetMapping("/time")
     public String getTime() {
         Map<String, String> otpMap = new HashMap<>();
@@ -525,10 +599,9 @@ public class AuthController {
 
 
     @GetMapping("/church-trust-funds")
-    public LocalChurchTrustFundSummaryResponse getUSSDandCashSummary(){
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
+    public LocalChurchTrustFundSummaryResponse getUSSDandCashSummary(@RequestParam("username")String username,
+                                                                     @RequestParam("password")String password,
+                                                                     @RequestParam("phone_number")String phone_number){
 
         // Session Numbers
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
@@ -541,7 +614,6 @@ public class AuthController {
         profilepayload.setFromWithin(true);
 
         memberProfile.setProfilepayload(profilepayload);
-
 
         MemberProfileResponse details = authApi.getMemberDetails(memberProfile);
 
@@ -589,10 +661,7 @@ public class AuthController {
         authentication1.setInstututionNumber(church_code);
         trustFundSummary.setAuthentication(authentication1);
 
-        System.out.println("Local Church Trust Fund Summary: " + HelperUtility.toJSON(trustFundSummary));
-
         LocalChurchTrustFundSummaryResponse localChurchTrustFund = authApi.getLocalChurchTrustFundSummary(trustFundSummary);
-
         System.out.println("Local Church Trust Fund Summary Response: " + HelperUtility.toJSON(localChurchTrustFund));
 
         List<TransactionsItem> transactions = localChurchTrustFund.getTrupayload().getTransactions();
@@ -693,6 +762,8 @@ public class AuthController {
                                               @RequestParam("amount") int amount,
                                               @RequestParam("church_code") String church_code,
                                               @RequestParam("contribute") String contribute,
+                               @RequestParam("receiver_id") String receiver_id,
+                               @RequestParam("receiver_name") String receiver_name,
                                @RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
                                @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount,
                                @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
@@ -744,8 +815,8 @@ public class AuthController {
         payload.setChurchCode(profile.getPayload().getChurchCode());
         payload.setContributingFor(contribute);
         payload.setContributorType("Member");
-        payload.setReceiverId(profile.getPayload().getMembershipNumber());
-        payload.setReceiverName(profile.getPayload().getMemberName());
+        payload.setReceiverId(receiver_id);
+        payload.setReceiverName(receiver_name);
         payload.setTotalAmount(amount);
         payload.setMeansOfPayment("M-PESA");
         payload.setCollectingParty("M-PESA");
@@ -852,23 +923,23 @@ public class AuthController {
 
     @GetMapping("/trust_fund_summary")
     public String getTrustFundSummary(HttpServletResponse response) throws IOException {
-        trustFundSummary.trustFundSummaryReport(response);
+        String phone_number = "254786439659";
+        trustFundSummary.trustFundSummaryReport(phone_number,response);
         return "Trust Fund Summary Generated";
     }
 
-
     @GetMapping("/transactions_tracing_summary")
-    public String getTransactionTracingSummary(HttpServletResponse response) throws IOException {
-        transactionTracingSummary.transactionSummaryReport(response);
+    public String getTransactionTracingSummary(HttpServletResponse response,String start_date,
+                                               String end_date,String username, String password, String phone_number) throws IOException {
+        transactionTracingSummary.transactionSummaryReport(phone_number,response,start_date,end_date,username,password);
         return "Trust Fund Summary Generated";
     }
 
 
     @GetMapping("/non_trust_fund_summary")
-    public LocalChurchNonTrustSummaryResponse getNonTrustFundSummary() throws IOException {
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
+    public LocalChurchNonTrustSummaryResponse getNonTrustFundSummary(@RequestParam("username")String username,
+                                                                     @RequestParam("password")String password,
+                                                                     @RequestParam("phone_number")String phone_number) throws IOException {
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -891,8 +962,10 @@ public class AuthController {
         authentication.setInstitutionName(response.getPayload().getOrganisationName());
 
         // Dates
-        String start_date = "2024-1-1";
-        String end_date = "2024-1-31";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate now = LocalDate.now();
+        String start_date = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).format(format);
+        String end_date = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(format);
 
         // Non Trust Fund Payload
         com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
@@ -970,14 +1043,10 @@ public class AuthController {
 
 
     @GetMapping("/export/transaction-tracing")
-    public void exportTransactionTracingDocument(HttpServletResponse Outesponse) throws IOException {
-        // Profile Information
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
+    public void exportTransactionTracingDocument(HttpServletResponse outResponse,String start_date,String end_date,String username,
+                                                 String password, String phone_number) throws IOException {
 
-        String start_date = "2024-1-1";
-        String end_date = "2024-1-31";
+
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -1005,12 +1074,13 @@ public class AuthController {
         // Authentication
         com.example.tried.auth.personnel.tracing.Authentication authenticate = new com.example.
                 tried.auth.personnel.tracing.Authentication();
-        authenticate.setInstututionLevel(response.getPayload().getOrganisationLevel());
-        authenticate.setInstututionNumber(response.getPayload().getOrganisationNumber());
-        authenticate.setInstututionName(response.getPayload().getOrganisationName());
+        authenticate.setInstitutionLevel(response.getPayload().getOrganisationLevel());
+        authenticate.setInstitutionNumber(response.getPayload().getOrganisationNumber());
+        authenticate.setInstitutionName(response.getPayload().getOrganisationName());
         authenticate.setUser(username);
         authenticate.setPassword(password);
-        authenticate.setSessionNumber(rand);
+        authenticate.setSessionNumber(String.valueOf(rand));
+        authenticate.setPersonnelName(response.getPayload().getPersonnelName());
 
         com.example.tried.auth.personnel.tracing.TracingPayload payload = new com.example.tried.
                 auth.personnel.tracing.TracingPayload();
@@ -1024,26 +1094,23 @@ public class AuthController {
         LocalChurchTransactionTracingResponse response1 = authApi.getTransactionTracingSummary(tracing);
         List<com.example.tried.auth.personnel.tracing.TransactionsItem> transaction = response1.getPayload().getTransactions();
 
+        System.out.println("Transaction Tracing: " + transaction);
+
+        //outResponse.setContentType("application/pdf");
+        outResponse.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=transaction_tracing-" + start_date +" - "+ end_date  + ".xlsx";
+        outResponse.setHeader(headerKey, headerValue);
+
         TransactionTracingExcel transactionTracingExcel = new TransactionTracingExcel();
-        transactionTracingExcel.export(Outesponse,transaction);
+        transactionTracingExcel.export(outResponse,transaction);
     }
 
 
     @GetMapping("/export/non_trust_fund")
-    public void exportNonTrustFundDocument(HttpServletResponse response) throws IOException {
-        // Profile Information
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
-
-        String start_date = "2024-1-1";
-        String end_date = "2024-1-31";
-
-        String Cash = "Cash";
-        String USSD = "USSD";
-        String All = "Not Applicable";
-        String Means = "";
-
+    public void exportNonTrustFundDocument(HttpServletResponse response, String start_date, String end_date, String account_name,
+                                           String username,String password, String phone_number) throws IOException {
 
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -1067,17 +1134,7 @@ public class AuthController {
         payload.setChurchCode(responsed.getPayload().getChurchCode());
         payload.setGroup("Not Applicable");
         payload.setChurchName(responsed.getPayload().getChurchName());
-
-        /*
-        if(Means == "All"){
-            payload.setMeansOfPayment("Not Applicable");
-        }else if(Means == "USSD"){
-            payload.setMeansOfPayment("USSD");
-        }else{
-            payload.setMeansOfPayment("Cash");
-        }
-         */
-        payload.setMeansOfPayment("Not Applicable");
+        payload.setMeansOfPayment(account_name);
         payload.setStartDate(start_date);
         payload.setEndDate(end_date);
 
@@ -1122,20 +1179,8 @@ public class AuthController {
 
 
     @GetMapping("/pdf/non_trust_fund")
-    public String generateNonTrustFund(HttpServletResponse response) throws IOException {
-
-        // Profile Information
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
-
-        String start_date = "2024-1-1";
-        String end_date = "2024-1-31";
-
-        String Cash = "Cash";
-        String USSD = "USSD";
-        String All = "Not Applicable";
-        String Means = "";
+    public String generateNonTrustFund(HttpServletResponse response,String start_date,String end_date,String account_name,
+                                       String username,String password, String phone_number) throws IOException {
 
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
@@ -1152,17 +1197,7 @@ public class AuthController {
         payload.setChurchCode(responsed.getPayload().getChurchCode());
         payload.setGroup("Not Applicable");
         payload.setChurchName(responsed.getPayload().getChurchName());
-
-        /*
-        if(Means == "All"){
-            payload.setMeansOfPayment("Not Applicable");
-        }else if(Means == "USSD"){
-            payload.setMeansOfPayment("USSD");
-        }else{
-            payload.setMeansOfPayment("Cash");
-        }
-         */
-        payload.setMeansOfPayment("Not Applicable");
+        payload.setMeansOfPayment(account_name);
         payload.setStartDate(start_date);
         payload.setEndDate(end_date);
 
@@ -1209,7 +1244,6 @@ public class AuthController {
         return "Generate Local Non Trust Fund";
     }
 
-
     // Check if the Number Exists in the Database
     @PostMapping(path="/check-name")
     public MemberProfileResponse getMemberName(@RequestParam("phone_number")String phoneNumber){
@@ -1224,7 +1258,6 @@ public class AuthController {
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
         return response1;
     }
-
 
     @PostMapping(path="/check-account")
     public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber){
@@ -1251,8 +1284,6 @@ public class AuthController {
         return churchDetails;
     }
 
-
-
     @PostMapping(path="/check-phone")
     public MemberProfileResponse checkPhoneNumberExist(@RequestParam("phone_number")String phoneNumber){
 
@@ -1267,7 +1298,7 @@ public class AuthController {
         return response;
     }
 
-
+    // Check Member Id
     @PostMapping(path="/check-member-id")
     public RequestMemberDetailsResponse checkCfmsMemberNumber(@RequestParam("cfms_member_id")String cfms_member_id){
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -1284,5 +1315,381 @@ public class AuthController {
         RequestMemberDetailsResponse requestMemberDetails = authApi.getFullMemberDetails(details);
 
         return requestMemberDetails;
+    }
+
+
+    // Check Member Id
+    @PostMapping(path="/check-member")
+    public RequestMemberDetailsResponse checkCfmsMember(@RequestParam("phone_number")String phone_number){
+
+        // Member Profile Information
+        MemberProfile profile = new MemberProfile();
+
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        // Member Profile Response
+        MemberProfileResponse responsed = authApi.getMemberDetails(profile);
+
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // Request Member Information
+        RequestMemberDetails details = new RequestMemberDetails();
+        Mempayload mempayload = new Mempayload();
+        mempayload.setMembershipNumber(responsed.getPayload().getMembershipNumber());
+        mempayload.setMemberDescription("Member");
+        mempayload.setSessionNumber(String.valueOf(session_number));
+
+        details.setMempayload(mempayload);
+
+        RequestMemberDetailsResponse requestMemberDetails = authApi.getFullMemberDetails(details);
+        return requestMemberDetails;
+    }
+
+
+    @GetMapping(path="/check-json")
+    public HashMap<String, Integer> getCheckJson() throws JSONException {
+        HashMap<String, Integer> hashMap = new HashMap<String, Integer>();
+        hashMap.put("Total Funds", 256000);
+        hashMap.put("Offering", 35000);
+        hashMap.put("USSD", 25000);
+
+        return hashMap;
+    }
+
+    // Function to Get Non Trust Fund Dashboard Information
+    @GetMapping("/report/non_trust_fund")
+    public HashMap<String, Double> generateNonTrustFundReport(@RequestParam("username")String username,
+                                                              @RequestParam("password")String password,
+                                                              @RequestParam("phone_number") String phone_number) throws IOException {
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate now = LocalDate.now();
+        String start_date = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).format(format);
+        String end_date = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(format);
+
+        String Cash = "Cash";
+        String USSD = "USSD";
+        String All = "Not Applicable";
+
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        memberProfile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse responsed = authApi.getMemberDetails(memberProfile);
+
+        // Non Trust Fund Payload(USSD)
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload.setChurchCode(responsed.getPayload().getChurchCode());
+        payload.setGroup("Not Applicable");
+        payload.setChurchName(responsed.getPayload().getChurchName());
+        payload.setMeansOfPayment("USSD");
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        // Non Trust Fund Payload(All)
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload1 =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload1.setChurchCode(responsed.getPayload().getChurchCode());
+        payload1.setGroup("Not Applicable");
+        payload1.setChurchName(responsed.getPayload().getChurchName());
+        payload1.setMeansOfPayment("Cash");
+        payload1.setStartDate(start_date);
+        payload1.setEndDate(end_date);
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        // final int session_number1 = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(responsed.getPayload().getChurchCode());
+
+        // Get the Personnel Response
+        MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
+
+        String name = responsed.getPayload().getMemberName();
+
+        System.out.println("Member Name: "+ responsed.getPayload().getMemberName());
+        System.out.println("Member Name 2: "+ responsed2.getPayload().getPersonnelName());
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(name.trim());
+        authentication.setInstitutionNumber(responsed2.getPayload().getOrganisationNumber());
+        authentication.setInstitutionLevel(responsed2.getPayload().getOrganisationLevel());
+        authentication.setInstitutionName(responsed2.getPayload().getOrganisationName());
+
+        // USSD Non Trust Fund
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload);
+
+        // Total Non Trust Fund
+        LocalChurchNonTrustSummary nonTrustFundSummary1 = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary1.setAuthentication(authentication);
+        nonTrustFundSummary1.setPayload(payload1);
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+        LocalChurchNonTrustSummaryResponse response2 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary1);
+
+        Double Total_Amount = Double.parseDouble(response2.getTotalAmount()) + Double.parseDouble(response1.getTotalAmount());
+        List<com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem> transactions =  response2.getNonTrpayload().getMembers();
+
+
+        // Total Combined Offerings
+        Double Total_Combined_Offerings = Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().getLocalCombinedOfferings())) +
+                Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().getLocalCombinedOfferings()));
+
+        List<com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem> valid_transactions =
+                new ArrayList<com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem>();
+
+        // Valid Transactions
+        for(com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem said_transaction : transactions) {
+            if(said_transaction.getReceiptNumber() != null){
+                valid_transactions.add(said_transaction);
+            }
+        }
+
+        // Non Trust Fund HashMap to Add Information to the Non Trust Fund JSON File
+        HashMap<String, Double> nonTrustFundSummaryReport = new HashMap<String, Double>();
+        nonTrustFundSummaryReport.put("USSD", Double.parseDouble(response1.getTotalAmount()));
+        nonTrustFundSummaryReport.put("totalAmount",Total_Amount);
+        nonTrustFundSummaryReport.put("cashAmount", Double.parseDouble(response2.getTotalAmount()));
+        nonTrustFundSummaryReport.put("transactions", Double.parseDouble(String.valueOf(valid_transactions.size())));
+        nonTrustFundSummaryReport.put("localCombinedOfferingsUSSD", Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().getLocalCombinedOfferings())));
+        nonTrustFundSummaryReport.put("localCombinedOfferingsCash", Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().getLocalCombinedOfferings())));
+        nonTrustFundSummaryReport.put("localCombinedOfferings", Total_Combined_Offerings);
+        return nonTrustFundSummaryReport;
+    }
+
+    @GetMapping("/report/local_church_offering")
+    public HashMap<String, Object> generateLocalChurchOfferingReport(@RequestParam("phone_number")String phone_number,
+                                                                     @RequestParam("username")String username,
+                                                                     @RequestParam("password")String password) throws IOException {
+
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate now = LocalDate.now();
+        String start_date = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).format(format);
+        String end_date = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(format);
+
+        // Local Church Authentication
+        com.example.tried.auth.personnel.reports.offering.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.offering.Authentication();
+
+        // Session Number
+        final int session_number = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Member Profile Information
+        MemberProfile profile = new MemberProfile();
+
+        // Profile Payload
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(profilepayload);
+
+        // Get Member Profile Information
+        MemberProfileResponse response = authApi.getMemberDetails(profile);
+
+        // Personnel Details
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(response.getPayload().getChurchCode());
+
+        MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+
+
+        // Authentication Details
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(session_number);
+        authentication.setInstututionName(personnelResponse.getPayload().getOrganisationName());
+        authentication.setInstututionNumber(personnelResponse.getPayload().getOrganisationNumber());
+        authentication.setInstututionLevel(personnelResponse.getPayload().getOrganisationLevel());
+        authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+
+        // Payload Information
+        LocalChurchPayload localChurchPayload = new LocalChurchPayload();
+        localChurchPayload.setChurchCode(response.getPayload().getChurchCode());
+        localChurchPayload.setGroup("Not Applicable");
+        localChurchPayload.setChurchName(response.getPayload().getChurchName());
+        localChurchPayload.setMeansOfPayment("Not Applicable");
+        localChurchPayload.setStartDate(start_date);
+        localChurchPayload.setEndDate(end_date);
+
+        // Payload Information
+        LocalChurchPayload localChurchPayload2 = new LocalChurchPayload();
+        localChurchPayload2.setChurchCode(response.getPayload().getChurchCode());
+        localChurchPayload2.setGroup("Not Applicable");
+        localChurchPayload2.setChurchName(response.getPayload().getChurchName());
+        localChurchPayload2.setMeansOfPayment("USSD");
+        localChurchPayload2.setStartDate(start_date);
+        localChurchPayload2.setEndDate(end_date);
+
+
+        // Local Church Offering Reports
+        LocalChurchOfferingSummary summary = new LocalChurchOfferingSummary();
+        summary.setPayload(localChurchPayload);
+        summary.setAuthentication(authentication);
+
+        // Local Church Offering Reports
+        LocalChurchOfferingSummary summary1 = new LocalChurchOfferingSummary();
+        summary1.setPayload(localChurchPayload2);
+        summary1.setAuthentication(authentication);
+
+        LocalChurchOfferingSummaryResponse localChurch = authApi.getLocalChurchOfferingReports(summary);
+        LocalChurchOfferingSummaryResponse localChurch2 = authApi.getLocalChurchOfferingReports(summary1);
+
+        Double Cash_Amount = Double.valueOf(localChurch.getTotalAmount()) -
+                Double.valueOf(localChurch2.getTotalAmount());
+
+        HashMap<String, Object> LocalChurchOffering = new HashMap<String, Object>();
+        LocalChurchOffering.put("localChurchFunds", localChurch.getPayload().getLocalChurchFunds());
+        LocalChurchOffering.put("totalAmount", localChurch.getTotalAmount());
+        LocalChurchOffering.put("localTrustFunds", localChurch.getPayload().getTrustFunds());
+        LocalChurchOffering.put("transactions", localChurch.getPayload().getMembers().size());
+        LocalChurchOffering.put("USSD", localChurch2.getTotalAmount());
+        LocalChurchOffering.put("Cash", Cash_Amount);
+
+        return LocalChurchOffering;
+    }
+
+    @GetMapping("/datetime")
+    public String getFirstdayOftheMonth(){
+        HashMap<String, String> theMap4 = new HashMap<String, String>();
+        theMap4.put("Avenue", "Hospital");
+        theMap4.put("Avenue2", "Hospital2");
+        theMap4.put("Avenue3", "Hospital3");
+
+        HashMap<String, Object> theMap3 = new HashMap<String, Object>();
+        theMap3.put("organisationName", "Hospital");
+        theMap3.put("priority_number", "Hospital2");
+        theMap3.put("accountName", theMap4);
+
+
+        HashMap<String, Object> theMap2 = new HashMap<String, Object>();
+        theMap2.put("Avenue",  theMap3);
+        theMap2.put("Avenue2", theMap3);
+        theMap2.put("Avenue3", theMap3);
+
+        HashMap<String, Object> theMap = new HashMap<String, Object>();
+        theMap.put("Now", "Then");
+        theMap.put("Here", 2);
+        theMap.put("HashMapped", theMap2);
+        System.out.println("Now: "+ theMap);
+        System.out.println("Now: "+ theMap.get("HashMapped"));
+        System.out.println("Now JSON: "+ HelperUtility.toJSON(theMap));
+
+        /*
+        com.example.tried.auth.personnel.accounts.Payload payload = new
+                com.example.tried.auth.personnel.accounts.Payload();
+        payload.setAccountList();
+        */
+        return "Date of the Month";
+    }
+
+
+    @GetMapping("/get-keys")
+    public String getKeysOfAHashMap(){
+        HashMap<String, Integer> accounts = new HashMap<String, Integer>();
+        accounts.put("Prison_Visitation", 250);
+        accounts.put("Pathfinders", 40);
+        accounts.put("Singles_Water_Project", 600);
+        accounts.put("Prayer_And_Retention", 3680);
+        accounts.put("Church_Budget", 7985);
+        accounts.put("Sabbath_School", 160);
+        accounts.put("Youths", 450);
+        accounts.put("Local_Church", 9350);
+        accounts.put("Welfare", 9200);
+        accounts.put("Elders", 1400);
+        accounts.put("Adventurers", 1040);
+        accounts.put("Development", 250);
+        accounts.put("Camp_Meeting_Expenses", 1050);
+        accounts.put("Children", 940);
+        accounts.put("Singles", 960);
+        accounts.put("Communication", 200);
+        accounts.put("Msamaria", 800);
+        accounts.put("Chaplaincy", 100);
+        accounts.put("Amo", 140);
+        accounts.put("local_combined_offerings", 16664);
+        accounts.put("Crusade", 70000);
+        accounts.put("Special_Needs", 700);
+        accounts.put("Evangelism", 50);
+        accounts.put("Ambassadors", 40);
+        accounts.put("Camporee", 40);
+        accounts.put("Health_Hiv_And_Aids", 50);
+        accounts.put("Master_Guide", 40);
+        accounts.put("Church_Choir", 100);
+        accounts.put("Deaconry", 3535);
+        accounts.put("Vocational_Bible_School", 40);
+
+
+        for (Map.Entry<String,Integer> mapElement : accounts.entrySet()) {
+            String key = mapElement.getKey();
+            System.out.println("Key"+ key);
+        }
+        return "Generated Hash Maps";
+    }
+
+
+    @GetMapping("/trust_fund_reporting")
+    public String generateTrustFundReport(HttpServletResponse response) throws IOException {
+        String input = "Excel";
+        if(input == "Excel"){
+            getTrustFundSummary(response);
+        }
+        return "Excel Successfully Downloaded";
+    }
+
+
+    @GetMapping("/exporting-non-trust-fund")
+    public String generateNonTrustFundReport(HttpServletResponse response,
+                                             @RequestParam("start_date") String start_date,
+                                             @RequestParam("end_date") String end_date,
+                                             @RequestParam("account_name") String account_name,
+                                             @RequestParam("input") String input,
+                                             String username,String password, String phone_number) throws IOException{
+
+
+        if(input.contains("Excel")){
+            exportNonTrustFundDocument(response,start_date,end_date,account_name,username,password,phone_number);
+        }else if(input.contains("PDF")){
+            generateNonTrustFund(response,start_date,end_date,account_name,username,password,phone_number);
+        }
+        return "Non Trust Fund Report Downloaded Successfully";
+    }
+
+
+    @GetMapping("/exporting-transaction-tracing")
+    public String generateTransactionTracing(HttpServletResponse response,
+                                             @RequestParam("start_date") String start_date,
+                                             @RequestParam("end_date") String end_date,
+                                             @RequestParam("account_name") String account_name,
+                                             @RequestParam("input") String input,
+                                             @RequestParam("username") String username,
+                                             @RequestParam("password") String password,
+                                             @RequestParam("phone_number") String phone_number) throws IOException{
+
+
+        if(input.contains("Excel")){
+            exportTransactionTracingDocument(response,start_date,end_date,username,password,phone_number);
+        }else if(input.contains("PDF")){
+            getTransactionTracingSummary(response,start_date,end_date,username,password,phone_number);
+        }
+        return "Transaction Tracing Report Report Downloaded Successfully";
     }
 }

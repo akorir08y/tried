@@ -41,4 +41,7 @@ public class RequestMemberDetailsResponse{
 
 	@JsonProperty("churchNumber")
 	private String churchNumber;
+
+	@JsonProperty("error")
+	private String error;
 }

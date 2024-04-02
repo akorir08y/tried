@@ -12,7 +12,7 @@ public class Payload{
 	private HashMap<String, Integer> localChurchFunds;
 
 	@JsonProperty("members")
-	private List<MembersItem> members;
+	private List<HashMap<String, Object>> members;
 
 	@JsonProperty("meansOfPayment")
 	private List<String> meansOfPayment;

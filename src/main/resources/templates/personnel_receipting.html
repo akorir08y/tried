@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<title>Login Dashboard</title>
+<link rel="stylesheet " type="text/css" href="/cfms/css/style2_receipt.css">
+<link rel="stylesheet" type="text/css" href="/cfms/css/table_statement.css">
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+</head>
+<body onload="getAllFundAccounts()">
+<div class="container">
+<div class="navigation">
+	<ul>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+		<span class="icon" >Home</span>
+		</a>
+		</li>
+		<li id="dash">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
+		<span class="title">Dashboard</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
+		<span class="title">Registration</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
+		<span class="title">Manage Accounts</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+		<span class="title">Fund Transfers</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
+		<span class="title">Reports and Statements</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
+		<span class="title">Receipting and Reconciliation</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="pie-chart-outline"></ion-icon></span>
+		<span class="title">Budget and Expenditure</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+		<span class="title">Support Options</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+		<span class="title">Sign Out</span>
+		</a>
+		</li>
+	</ul>
+</div>
+	<!-- main -->
+	<div class="main">
+		<div class="topbar">
+			<div class="toggle">
+			<ion-icon name="menu-outline" id="toggle_button"></ion-icon>
+			</div>
+
+			<!-- Search -->
+			<div class="search">
+				<h1 style="font-size:16px;">Personnel Receipting</h1>
+			</div>
+			
+			<!-- userImg -->
+			<div class="user">
+				<img src="/cfms/images/cfmsLogo.png">
+			</div>
+		</div>
+
+		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
+		<input type="hidden" name="password" id="password" th:value="${personal_password}">
+		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+		
+		<!-- Order Details List -->
+		<div class="details">
+			<div class="recentOrders">
+				<div id="cash_receipting">
+					<div class="cardHeader">
+						<h2 style="text-align:center;">Cash Receipting</h2>
+						<div class="responseDiv" style="display:none;"></div>
+					</div>
+					<br>
+					<hr>					
+				
+					<table>
+					  <tbody>
+							<tr>
+								<td colspan="4" style="padding-top:10px;"><b>Select a Contributor Type</b></td>
+							</tr>
+							<tr>
+								<td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="church_member">
+									  <label class="form-check-label" for="church_member">
+										Church Member
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="visiting_member">
+									  <label class="form-check-label" for="visiting_member">
+										Visiting Member
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								  <td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="guest">
+									  <label class="form-check-label" for="guest">
+										Guest
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="group">
+									  <label class="form-check-label" for="group">
+										Group
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								  <td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="family">
+									  <label class="form-check-label" for="family">
+										Family
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="department">
+									  <label class="form-check-label" for="department">
+										Department
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="institution">
+									  <label class="form-check-label" for="institution">
+										Institution
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="receiptingFunction()">Proceed</button></td>
+							</tr>
+					  </tbody>
+					</table>
+				</div>
+				<div id="all_members" style="display:none;">
+					<div class="cardHeader">
+						<h2>Search Members</h2>
+
+					</div>
+					<input type="text" placeholder="Search here" id="myInput">
+					<br>
+					<div class="responseDiv" style="display:none;"></div>
+					<br>
+					<hr>
+					<table>
+						<thead>
+						</thead>
+						<tbody id="myTable">
+						<tr tabindex="0" th:each="members : ${Members}">
+							<td class="con" th:onclick='getMemberName([[${members.name}]],[[${members.churchNumber}]],[[${members.phoneNumber}]])'><span class='left' th:text="${members.phoneNumber}"></span>
+								<span class='right' th:text="${members.name}"></span><br><br>
+								<span class="left-below" th:text="${members.churchNumber}"></span>
+								<button type="button" class="btn" onclick="goBackToReceipting()">Back</button>
+							</td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+				
+				
+				
+			<div id="home_church_others" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Visitor</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="visitor_phone"><b> Phone Number: </b></label></td>
+							<td><input type="text" id="visitor_phone" name="visitor_phone" placeholder="Phone Number"></td>
+						</tr>					
+				<tr>
+					<td><button type="button" class="btn" onclick="goBackToReceipting()">Back</button>
+						<button type="button" class="btn" onclick="checkVisitorName()">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			
+			<div id="home_church_others1" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Guest</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="guest_name"><b> Guest Name: </b></label></td>
+							<td><input type="text" id="guest_name" name="guest_name" placeholder="Name"></td>
+						</tr>
+						<tr>
+							<td><label class="label_input" for="guest_phone"><b> Guest Phone Number: </b></label></td>
+							<td><input type="text" id="guest_phone" name="guest_phone" placeholder="Phone Number"></td>
+						</tr>						
+				<tr>
+					<td><button type="button" class="btn" onclick="goBackToReceipting()">Back</button>
+						<button type="button" class="btn" onclick="checkGuestName()">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			<div id="home_church_others2" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Group</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="group_phone"><b> Phone Number: </b></label></td>
+							<td><input type="text" id="group_phone" name="group_phone" placeholder="Phone Number"></td>
+						</tr>					
+				<tr>
+					<td><button type="button" class="btn">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			
+			<div id="home_church_others3" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Family</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="family_phone"><b> Phone Number: </b></label></td>
+							<td><input type="text" id="family_phone" name="family_phone" placeholder="Phone Number"></td>
+						</tr>					
+				<tr>
+					<td><button type="button" class="btn">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			<div id="home_church_others4" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Department</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="department_phone"><b> Phone Number: </b></label></td>
+							<td><input type="text" id="department_phone" name="department_phone" placeholder="Phone Number"></td>
+						</tr>					
+				<tr>
+					<td><button type="button" class="btn">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			<div id="home_church_others5" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Cash Receipting for Institution</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td><label class="label_input" for="institution_phone"><b> Phone Number: </b></label></td>
+							<td><input type="text" id="institution_phone" name="institution_phone" placeholder="Phone Number"></td>
+						</tr>					
+				<tr>
+					<td><button type="button" class="btn">Submit</button></td>
+				</tr>
+				</table>				
+			</div>
+			
+			<div id="trust_funds_div" style="display:none;"></div>
+			
+			<div id="payment_div" style="display:none;">
+				
+					<table>
+							<tr>
+								<td colspan="4" style="padding-top:10px;"><b>Initiate Payment From:</b></td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number">
+									  <label class="form-check-label" for="visiting_member">
+										My Registered Number
+									  </label>
+								</td>
+							</tr>
+							<tr>
+								  <td style="text-align:left;">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number">
+									  <label class="form-check-label" for="guest">
+										My Other Number
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								  <td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="other_number">
+									  <label class="form-check-label" for="other_number">
+										Other Number
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								<td><br></td>
+							</tr>
+							<tr>
+								<td><br><p id="payment_line"></p></td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="">Confirm</button></td>
+							</tr>							
+					</table>
+				
+			</div>
+			
+				
+				
+			</div>
+			<div class="recentCustomers">
+				<hr>
+				<div id="about_app">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">About App</h2>
+					</div>
+					<table width="100%">
+						<tbody>
+							<tr>
+								<td><ion-icon name="aperture-outline" class="icons"></ion-icon></td>
+								<td><a href="" class="linkers">SDA CFMS</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
+								<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
+								<td><a href="https://lakeatts.co.ke/data_privacy.html" class="linkers">Privacy Policy</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		
+			
+
+	</div>
+	
+	
+</div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="myChart.js"></script>
+<script src="/cfms/js/member_receipting.js"></script>
+
+<script type="text/javascript">
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+</script>
+</body>
+</html>

@@ -5,15 +5,26 @@ function getPreviousMonthName(dt){
     return monthNamelist[dt.getMonth()-1];
 };
 
-
+// Trust Fund Summary Report
 (async function() {
         const ctx = document.getElementById('myChart');
         const ctx1 = document.getElementById('myChart1');
 
+        // Personal Information
+        var phone_number = document.getElementById("phone_number").value;
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
         var date = new Date(); // date object
         var mName = getPreviousMonthName(date);
 
-         $.get(hosted_url + "/cfms/auth/church-trust-funds" ,function(data, status){
+        var personal = {
+             phone_number: phone_number,
+             username: username,
+             password: password
+        };
+
+         $.get(hosted_url + "/cfms/auth/church-trust-funds",personal,function(data, status){
                 console.log(data);
 
                 var uniqueChars = [...new Set(data.payload.transactions)];
@@ -42,15 +53,15 @@ function getPreviousMonthName(dt){
                 }
 
                 new Chart(ctx, {
-                    type: 'polarArea',
+                    type: 'pie',
                     data: {
                       labels: ['USSD', 'Cash'],
                       datasets: [{
                         label: 'Kshs',
                         data: [ussd.totalReceiptedAmount, cash.totalReceiptedAmount],
                 		backgroundColor:[
-                		'rgba(255, 99, 132, 1)',
-                		'rgba(54, 162, 235, 1)']
+                		'rgba(52, 42, 135, 1)',
+                		'rgba(113, 128, 185, 1)']
                       }]
                     },
                     options: {
@@ -62,7 +73,7 @@ function getPreviousMonthName(dt){
                             },
                         	title: {
                         		display: true,
-                        		text: 'USSD and Cash Distribution in '+mName
+                        		text: 'USSD and Cash Trust Fund Distribution in '+mName
                         	},
                         	tooltip: {
                         		mode: 'index',
@@ -120,7 +131,7 @@ function getPreviousMonthName(dt){
                         },
                         title: {
                         		display: true,
-                        		text: 'Total Funds Distribution in '+mName
+                        		text: 'Total Trust Fund Distribution in '+mName
                            }
                         },
                         hover: {
@@ -139,10 +150,9 @@ function getPreviousMonthName(dt){
                         	    display: true,
                         	    text: 'Kshs * 500'
                         	  },
-                        			// the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                        	  // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
                         	  suggestedMin: 500,
-
-                        			// the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                     		  // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
                         	  suggestedMax: 500,
                         	  }
                         }
@@ -161,50 +171,40 @@ function getPreviousMonthName(dt){
          });
 })();
 
-
-/*
+// Non Trust Fund Summary Dashboard Report
 (async function() {
-        const ctx = document.getElementById('myChart1');
-        const ctx1 = document.getElementById('myChart2');
+        const ctx = document.getElementById('myChart3');
+        const ctx1 = document.getElementById('myChart4');
+
+        // Personal Information
+        var phone_number = document.getElementById("phone_number").value;
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
 
         var date = new Date(); // date object
         var mName = getPreviousMonthName(date);
 
-         $.get(hosted_url + "/cfms/auth/church-trust-funds" ,function(data, status){
-                console.log(data);
+        var personal = {
+            phone_number: phone_number,
+            username: username,
+            password: password
+        };
 
-                var uniqueChars = [...new Set(data.payload.transactions)];
-                var transactions = uniqueChars.length - 3;
-                document.getElementById("transactions").innerHTML = transactions;
+         $.get(hosted_url + "/cfms/auth/report/non_trust_fund", personal,function(responsive, status){
+                // var responsive = JSON.parse(data);
 
-                var ussd = {};
-                var total = {};
-                var cash = {};
-                for(var i=0; i<data.payload.transactions.length; i++){
-                    if(data.payload.transactions[i].modeOfPayment == null){
-                        total = data.payload.transactions[i];
-                        var total_receipted = total.totalReceiptedAmount.split(".");
-                        var total_receipted_paid = total.totalReceiptedAmountPaid.split(".");
-                        document.getElementById("total_amount1").innerHTML = "Kshs: "+ total_receipted[0] + ".0";
-                        document.getElementById("total_amount_paid1").innerHTML = "Kshs: "+ total_receipted_paid[0] + ".0";
-                    }
+                document.getElementById("transactions1").innerHTML = responsive.transactions;
+                document.getElementById("total_amount2").innerHTML = "Kshs: "+ responsive.totalAmount;
+                document.getElementById("local_combined_offering").innerHTML = "Kshs: "+ responsive.localCombinedOfferings;
 
-                    if(data.payload.transactions[i].modeOfPayment == "USSD"){
-                        ussd = data.payload.transactions[i];
-                    }
-
-                    if(data.payload.transactions[i].modeOfPayment == "Cash"){
-                        cash = data.payload.transactions[i];
-                    }
-                }
 
                 new Chart(ctx, {
-                    type: 'polarArea',
+                    type: 'pie',
                     data: {
                       labels: ['USSD', 'Cash'],
                       datasets: [{
                         label: 'Kshs',
-                        data: [ussd.totalReceiptedAmount, cash.totalReceiptedAmount],
+                        data: [responsive.USSD, responsive.cashAmount],
                 		backgroundColor:[
                 		'rgba(255, 99, 132, 1)',
                 		'rgba(54, 162, 235, 1)']
@@ -219,7 +219,7 @@ function getPreviousMonthName(dt){
                             },
                         	title: {
                         		display: true,
-                        		text: 'USSD and Cash Distribution in '+mName
+                        		text: 'USSD and Cash Non Trust Fund Distribution in '+mName
                         	},
                         	tooltip: {
                         		mode: 'index',
@@ -243,12 +243,10 @@ function getPreviousMonthName(dt){
                  new Chart(ctx1, {
                     type: 'bar',
                     data: {
-                      labels: ['Local Combined Offerings','Total Amount'],
+                      labels: ['Local Combined Offerings USSD','Local Combined Offerings Cash'],
                       datasets: [{
                         label: 'Kshs',
-                        data: [total.campMeeting, total.campMeetingPaid,total.combinedOfferings, total.combinedOfferingsPaid,
-                        total.tithe, total.tithePaid, total.thirteenthSabbath, total.thirteenthSabbathPaid, total.conferenceDevelopment,
-                        total.conferenceDevelopmentPaid, total.totalReceiptedAmount, total.totalReceiptedAmountPaid, total.balance],
+                        data: [responsive.localCombinedOfferingsUSSD, responsive.localCombinedOfferingsCash],
                 		backgroundColor:[
                 		'rgba(255, 99, 132, 1)',
                 		'rgba(54, 162, 235, 1)',
@@ -265,7 +263,7 @@ function getPreviousMonthName(dt){
                         },
                         title: {
                         		display: true,
-                        		text: 'Total Funds Distribution in '+mName
+                        		text: 'Total Non Trust Funds Distribution in '+mName
                            }
                         },
                         hover: {
@@ -282,13 +280,12 @@ function getPreviousMonthName(dt){
                         	  y: {
                         		title: {
                         	    display: true,
-                        	    text: 'Kshs * 500'
+                        	    text: 'Kshs * 1000'
                         	  },
-                        			// the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
-                        	  suggestedMin: 500,
-
-                        			// the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
-                        	  suggestedMax: 500,
+                        	  // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                        	  suggestedMin: 1000,
+                        	  // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                        	  suggestedMax: 1000,
                         	  }
                         }
                     }
@@ -305,4 +302,3 @@ function getPreviousMonthName(dt){
                   });
          });
 })();
-*/

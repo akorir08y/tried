@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Dashboard</title>
+  <title>Member Giving</title>
   <link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
   <link rel="stylesheet" type="text/css" href="/cfms/css/table_offering.css">
   <style>
@@ -34,13 +34,13 @@
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{offering(p=${Phone},q=${Password})}">
           <span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
           <span class="title">Offerings</span>
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{profile2(p=${Phone},q=${Password})}">
           <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
           <span class="title">Profile</span>
         </a>
@@ -52,7 +52,7 @@
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{/authenticate/login}">
           <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
           <span class="title">Sign Out</span>
         </a>
@@ -63,7 +63,7 @@
   <div class="main">
     <div class="topbar">
       <div class="toggle">
-        <ion-icon name="menu-outline"></ion-icon>
+        <ion-icon name="menu-outline" id="toggle_button"></ion-icon>
       </div>
 
       <!-- Search -->
@@ -80,8 +80,12 @@
     <input type="hidden" id="personal_no" name="personal_no" th:value="${personal_no}">
     <input type="hidden" id="personal_no2" name="personal_no2" th:value="${personal_no2}">
     <input type="hidden" id="personal_pin" name="personal_pin" th:value="${personal_pin}">
+    <input type="hidden" id="cfms_member_name" name="cfms_member_name" th:value="${cfms_member_name}">
+    <input type="hidden" id="cfms_member_number" name="cfms_member_number" th:value="${cfms_member_number}">
     <input type="hidden" id="church_code_mine" name="church_code_mine" th:value="${church_code}">
     <input type="hidden" id="church_name_mine" name="church_name_mine" th:value="${church_name}">
+    <p id="member_number_id" style="display:none;"></p>
+    <p id="member_name_id" style="display:none;"></p>
     <!-- Order Details List -->
     <div class="details">
       <div class="recentOrders">
@@ -465,12 +469,7 @@
 
         </div>
         <div id="trust_funds_div"></div>
-
-        <div id="payment_div" style="display:none;">
-
-        </div>
-
-
+        <div id="payment_div" style="display:none;"></div>
 
       </div>
       <div class="recentCustomers">
@@ -486,10 +485,10 @@
           </thead>
           <tbody>
           <tr>
-            <td width="100%"><input type="number" id="church_code" placeholder="Church Code" required></td>
+            <td width="100%"><input type="number" id="church_code_transfer" placeholder="Church Code" required onkeyup="checkChurch()"></td>
           </tr>
           <tr>
-            <td><button type="button" class="btn" onclick="displayDetails()">Transfer Church</button></td>
+            <td><button type="button" class="btn" onclick="displayChurchName()">Transfer Church</button></td>
           </tr>
           </tbody>
         </table>
@@ -592,6 +591,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/cfms/js/generate.js"></script>
+<script src="/cfms/js/form.js"></script>
 <script src="/cfms/js/giving.js"></script>
 
 <script type="text/javascript">

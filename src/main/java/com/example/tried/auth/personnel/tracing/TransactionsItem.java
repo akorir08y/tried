@@ -9,9 +9,6 @@ public class TransactionsItem{
 	@JsonProperty("transactionDetails")
 	private TransactionDetails transactionDetails;
 
-	@JsonProperty("settlement_status")
-	private String settlementStatus;
-
 	@JsonProperty("cfms_transaction_id")
 	private String cfmsTransactionId;
 
@@ -24,9 +21,12 @@ public class TransactionsItem{
 	@JsonProperty("giving_status")
 	private String givingStatus;
 
+	@JsonProperty("non_trust_fund")
+	private String nonTrustFund;
+
 	@JsonProperty("trust_fund")
 	private String trustFund;
 
-	@JsonProperty("non_trust_fund")
-	private String nonTrustFund;
+	@JsonProperty("settlement_status")
+	private String settlementStatus;
 }

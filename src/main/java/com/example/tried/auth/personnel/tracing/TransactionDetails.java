@@ -2,7 +2,6 @@ package com.example.tried.auth.personnel.tracing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 
@@ -14,6 +13,12 @@ public class TransactionDetails{
 
 	@JsonProperty("fundDistribution")
 	private FundDistribution fundDistribution;
+
+	@JsonProperty("accountDetails")
+	private AccountDetails accountDetails;
+
+	@JsonProperty("transferDuration")
+	private TransferDuration transferDuration;
 
 	@JsonProperty("specialTrustFunds")
 	private HashMap<String, Integer> specialTrustFunds;

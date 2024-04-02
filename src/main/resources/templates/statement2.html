@@ -34,13 +34,13 @@ $(document).ready(function(){
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{offering(p=${Phone},q=${Password})}">
           <span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
           <span class="title">Offerings</span>
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{profile2(p=${Phone},q=${Password})}">
           <span class="icon"><ion-icon name="person-outline"></ion-icon></span>
           <span class="title">Profile</span>
         </a>
@@ -52,7 +52,7 @@ $(document).ready(function(){
         </a>
       </li>
       <li>
-        <a href="#">
+        <a th:href="@{/authenticate/login}">
           <span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
           <span class="title">Sign Out</span>
         </a>
@@ -63,7 +63,7 @@ $(document).ready(function(){
   <div class="main">
     <div class="topbar">
       <div class="toggle">
-        <ion-icon name="menu-outline"></ion-icon>
+        <ion-icon name="menu-outline" id="toggle_button"></ion-icon>
       </div>
 
       <!-- Search -->
@@ -80,46 +80,101 @@ $(document).ready(function(){
     <!-- Order Details List -->
     <div class="details">
       <div class="recentOrders">
-        <div class="cardHeader">
-          <h2 style="text-align:center;">Account Statement</h2>
+        <div id="general_account_statement" style="display:none;">
+            <div class="cardHeader">
+              <h2 style="text-align:center;">Account Statement</h2>
+            </div>
+            <div class="responseDiv" style="display:none;"></div>
+            <br>
+            <hr>
+            <table width="100%">
+              <form action="/cfms/auth/off-statement" method="get" id="statement" onsubmit="exportStatement()">
+                <input type="hidden" id="phone" name="phone_number" th:value="${phone}">
+                <input type="hidden" id="pass" name="pin" th:value="${pin}">
+                <thead>
+                <tr>
+                  <td>From Date</td>
+                  <td>To Date</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td width="50%"><input type="date" id="start_date" name="start_date" required></td>
+                  <td width="50%"><input type="date" id="end_date" name="end_date" required></td>
+                </tr>
+                <tr>
+                  <td><button type="button" class="btn" onclick="generateOfferingStatement()">Generate Statement</button></td>
+                  <td style="text-align:right;"><button type="submit" class="btn">Export Statement</button></td>
+                </tr>
+                </tbody>
+              </form>
+            </table>
+
+            <div id="generated_statement">
+              <hr>
+              <div class="cardHeader">
+                <input id="myInput" type="text" placeholder="Search Statement" style="width:50%;">
+              </div>
+              <br><br>
+              <div class="loader" id="loader_spin" style="display:none;"></div>
+              <div id="content2">
+
+              </div>
+
+            </div>
         </div>
-        <div class="responseDiv" style="display:none;"></div>
-        <br>
-        <hr>
-        <table width="100%">
-          <form action="/cfms/auth/off-statement" method="get" id="statement" onsubmit="exportStatement()">
-            <input type="hidden" id="phone" name="phone_number" value="254707981971">
-            <input type="hidden" id="pass" name="pin" value="1226">
-            <thead>
-            <tr>
-              <td>From Date</td>
-              <td>To Date</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td width="50%"><input type="date" id="start_date" name="start_date" required></td>
-              <td width="50%"><input type="date" id="end_date" name="end_date" required></td>
-            </tr>
-            <tr>
-              <td><button type="button" class="btn" onclick="generateOfferingStatement()">Generate Statement</button></td>
-              <td style="text-align:right;"><button type="submit" class="btn">Export Statement</button></td>
-            </tr>
-            </tbody>
-          </form>
-        </table>
-
-        <div id="generated_statement">
-          <hr>
+        <div id="specific_account_statement">
           <div class="cardHeader">
-            <input id="myInput" type="text" placeholder="Search Statement" style="width:50%;">
+            <h2 style="text-align:center;">Specific Account Statement</h2>
           </div>
-          <br><br>
-          <div class="loader" id="loader_spin" style="display:none;"></div>
-          <div id="content2">
+          <div class="responseDiv" style="display:none;"></div>
+          <br>
+          <hr>
+          <table width="100%">
+            <form action="/cfms/auth/off-statement-specific" method="get" id="statement_specific" onsubmit="exportStatementSpecific()">
+              <input type="hidden" id="phone_specific" name="phone_number_specific" th:value="${phone}">
+              <input type="hidden" id="pass_specific" name="pin_specific" th:value="${pin}">
+              <thead>
+              <tr>
+                <td>From Date</td>
+                <td>To Date</td>
+              </tr>
+              </thead>
+              <tbody>
+              <tr>
+                <td width="50%"><input type="date" id="start_date_specific" name="start_date" required></td>
+                <td width="50%"><input type="date" id="end_date_specific" name="end_date" required></td>
+              </tr>
+              <tr>
+                <td width="100%" colspan="2">Account</td>
+              </tr>
+              <tr>
+                <td width="100%" colspan="2"><select class="login_input" name="account_name" aria-label="Default Select Example" id="specific_account">
+                  <option th:each="account_details : ${AccountDetails}"
+                          th:value="${account_details}"
+                          th:text="${account_details}"></option>
+                </select></td>
+              </tr>
+              <tr>
+                <td><button type="button" class="btn" onclick="generateOfferingStatementSpecific()">Generate Statement</button></td>
+                <td style="text-align:right;"><button type="submit" class="btn">Export Statement</button></td>
+              </tr>
+              </tbody>
+            </form>
+          </table>
+
+          <div id="generated_specific_statement">
+            <hr>
+            <div class="cardHeader">
+              <input id="myInput2" type="text" placeholder="Search Statement" style="width:50%;">
+            </div>
+            <br><br>
+            <div class="loader" id="loader_spin1" style="display:none;"></div>
+            <div id="content3">
+
+            </div>
 
           </div>
-
         </div>
       </div>
       <div class="recentCustomers">
@@ -137,10 +192,10 @@ $(document).ready(function(){
           </thead>
           <tbody>
           <tr>
-            <td width="100%"><input type="number" id="church_code" placeholder="Church Code" required></td>
+            <td width="100%"><input type="number" id="church_code_transfer" placeholder="Church Code" required onkeyup="checkChurch()"></td>
           </tr>
           <tr>
-            <td><button type="button" class="btn" onclick="displayDetails()">Transfer Church</button></td>
+            <td><button type="button" class="btn" onclick="displayChurchName()">Transfer Church</button></td>
           </tr>
           </tbody>
         </table>

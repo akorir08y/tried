@@ -2,6 +2,7 @@ package com.example.tried;
 
 import com.example.tried.config.MpesaConfiguration;
 import com.example.tried.dto.c2b.AcknowledgeResponse;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.SpringApplication;
@@ -19,7 +20,6 @@ public class TriedApplication {
 		SpringApplication.run(TriedApplication.class, args);
 	}
 
-
 	@Bean
 	public OkHttpClient getOkHttpClient() {
 		return new OkHttpClient();
@@ -28,7 +28,9 @@ public class TriedApplication {
 	// Global Instance of Object Mapper
 	@Bean
 	public ObjectMapper getObjectMapper() {
-		return new ObjectMapper();
+		ObjectMapper defaultObjectMapper = new ObjectMapper();
+		defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return defaultObjectMapper;
 	}
 
 	// Global Instance of Acknowledge Response

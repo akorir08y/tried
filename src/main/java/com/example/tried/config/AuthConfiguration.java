@@ -17,4 +17,5 @@ public class AuthConfiguration {
     private final String reports_url;
     private final String reconciliation_url;
     private final String dashboard_url;
+    private final String payment_url;
 }

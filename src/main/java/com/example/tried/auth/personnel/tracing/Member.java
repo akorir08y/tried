@@ -3,6 +3,7 @@ package com.example.tried.auth.personnel.tracing;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+
 @Data
 public class Member{
 
@@ -32,6 +33,9 @@ public class Member{
 
 	@JsonProperty("collectingParty")
 	private String collectingParty;
+
+	@JsonProperty("totalAmount")
+	private Integer totalAmount;
 
 	@JsonProperty("contributorContactType")
 	private String contributorContactType;

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/table_statement.css">
+</head>
+<style>
+</style>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+<body>
+<div class="container">
+<div class="navigation">
+	<ul>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+		<span class="icon" >Home</span>
+		</a>
+		</li>
+		<li id="dash">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
+		<span class="title">Dashboard</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
+		<span class="title">Registration</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
+		<span class="title">Manage Accounts</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+		<span class="title">Fund Transfers</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_reports(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
+		<span class="title">Reports and Statements</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
+		<span class="title">Receipting and Reconciliation</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="pie-chart-outline"></ion-icon></span>
+		<span class="title">Budget and Expenditure</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+		<span class="title">Support Options</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+		<span class="title">Sign Out</span>
+		</a>
+		</li>
+	</ul>
+</div>
+	<!-- main -->
+	<div class="main">
+		<div class="topbar">
+			<div class="toggle">
+				<ion-icon name="menu-outline" id="toggle_button"></ion-icon>
+			</div>
+
+			<!-- Search -->
+			<div class="search">
+				<h2>Reports and Statements</h2>
+			</div>
+			
+			<!-- userImg -->
+			<div class="user">
+				<img src="/cfms/images/cfmsLogo.png">
+			</div>
+		</div>
+
+
+		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
+		<input type="hidden" name="password" id="password" th:value="${personal_password}">
+		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+		
+		<div class="cardBox">			
+			<div class="card" style="background-color:#24478f;color:white;" onclick="showNonTrustFund()">
+				<div>
+					<div class="cardName">Non Trust Fund Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;" onclick="showTrustFund()">
+				<div>
+					<div class="cardName">Trust Fund Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;" onclick="showLocalChurchOffering()">
+				<div>
+					<div class="cardName">Local Church Offering Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;" onclick="showTransactionTracingReport()">
+				<div>
+					<div class="cardName">Transaction Tracing Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+		</div>
+
+		<div class="cardBox">
+			<div class="card" style="background-color:#24478f;color:white;" onclick="showTrustFundTranscriptReport()">
+				<div>
+					<div class="cardName">Trust Fund Transcript Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;" onclick="showSpecificAccountSummaryReport()">
+				<div>
+					<div class="cardName">Specific Account Summary Report</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;" onclick="">
+				<div>
+					<div class="cardName">Member Statements</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+			<div class="card"  style="background-color:#24478f;color:white;"  onclick="">
+				<div>
+					<div class="cardName">Local Church Statements</div>
+				</div>
+				<div class="iconBx">
+					<ion-icon name="bar-chart-outline"></ion-icon>
+				</div>
+			</div>
+		</div>
+		
+		
+		
+		<!-- Order Details List -->
+		<div class="details">
+			<div class="recentOrders">
+				<div id="trust_summary_reports" style="display:none;">
+					<div id="trust_ranger">
+						<div class="cardHeader">
+							<h2>Trust Fund Summary Reports</h2>
+						</div>
+						<table width="100%;">
+							<form action="" id="trust_fund_month_form" onsubmit="return validateTrustFundMonthForm();">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="select-month">Month</label></td>
+									<td><input type="month" id="select-month" name="select-month" required></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select id="all_accounts" class="required">
+										<option value="Not Applicable">All Accounts</option>
+										<option value="Cash">Cash Accounts</option>
+										<option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn">Get Report</button>
+								<button class="btn">Select Range</button></td></tr>
+							</tbody>
+							</form>
+						</table>
+					</div>
+					<div id="trust_dated" style="display:none;">
+						<div class="cardHeader">
+							<h2>Trust Fund Summary Reports</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date" name="from-date"></td>
+									<td><input type="date" id="to-date" name="to-date"></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select><option value="Not Applicable">All Accounts</option>
+									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn">Get Report</button>
+								<button class="btn">Select Month</button></td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+					<div id="local_offering_report" style="display:none;">
+						<div class="cardHeader">
+							<h2>Local Church Offering Report</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date-local" name="from-date"></td>
+									<td><input type="date" id="to-date-local" name="to-date"></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select><option value="Not Applicable">All Accounts</option>
+									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Accounts</label></td>
+									<td><select><option value="Not Applicable">Amo Accounts</option>
+									<option value="Cash">Adventurers Accounts</option><option value="USSD">Ambassadors Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn">Get Report</button></td></tr>
+							</tbody>
+						</table>
+					</div>
+					<div id="non_trust_fund_report" style="display:none;">
+						<div class="cardHeader">
+							<h2>Non Trust Fund Summary Report</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date-non-trust" name="from-date"></td>
+									<td><input type="date" id="to-date-non-trust" name="to-date"></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select name="account_name" id="account_name"><option value="Not Applicable">All Accounts</option>
+									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn" onclick="nonTrustFundReportExcel()">Get Report in Excel</button>
+									<button class="btn" onclick="nonTrustFundReportPDF()">Get Report in PDF</button></td></tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div id="trust_fund_transcript_report"  style="display:none;">
+						<div class="cardHeader">
+							<h2>Trust Fund Transcript Reports</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date-transcript" name="from-date"></td>
+									<td><input type="date" id="to-date-transcript" name="to-date"></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select id="account_name_transcript"><option value="Not Applicable">All Accounts</option>
+									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn" onclick="tracingReportExcel()">Get Report in Excel</button>
+									<button class="btn" onclick="tracingReportPDF()">Get Report in PDF</button></tr>
+							</tbody>
+						</table>
+					</div>
+					<div id="specific_account_summary_reports" style="display:none;">
+						<div class="cardHeader">
+							<h2>Specific Account Summary Reports</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date-specific" name="from-date"></td>
+									<td><input type="date" id="to-date-specific" name="to-date"></td>
+								</tr>
+								<tr>
+									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
+									<td><select><option value="Not Applicable">All Accounts</option>
+									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
+								</tr>
+								<tr><td><button class="btn">Get Report</button></tr>
+							</tbody>
+						</table>
+					</div>
+					<div id="transactions_trace_summary_report">
+						<div class="cardHeader">
+							<h2>Transactions Trace Reports</h2>
+						</div>
+						
+						<table width="100%;">
+							<tbody>
+								<tr>
+									<td><label class="form-check-label" for="from-date">From</label></td>
+									<td><label class="form-check-label" for="from-date">To</label></td>
+								</tr>
+								<tr>
+									<td><input type="date" id="from-date-trace" name="from-date"></td>
+									<td><input type="date" id="to-date-trace" name="to-date"></td>
+								</tr>
+								<tr><td><button class="btn">Get Transactions Trace Report</button></tr>
+							</tbody>
+						</table>
+					</div>
+			</div>
+			
+			<!-- New Customers -->
+			<div class= "recentCustomers">
+				<hr>
+				<div id="about_app">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">About App</h2>
+					</div>
+					<table width="100%">
+						<tbody>
+						<tr>
+							<td><ion-icon name="aperture-outline" class="icons"></ion-icon></td>
+							<td><a href="" class="linkers">SDA CFMS</a></td>
+						</tr>
+						<tr>
+							<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
+							<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+						</tr>
+						<tr>
+							<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
+							<td><a href="https://lakeatts.co.ke/data_privacy.html" class="linkers">Privacy Policy</a></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		
+			
+
+	</div>
+	
+	
+</div>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="myChart.js"></script>
+<script src="/cfms/js/reports.js"></script>
+
+<script type="text/javascript">
+function getMonth(){
+	var month = document.getElementById("select-month").value;
+	var dated = month.split("-");
+	console.log("Year: "+ dated[0]);
+	console.log("Month: "+ dated[1]);
+}
+
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+</script>
+</body>
+</html>

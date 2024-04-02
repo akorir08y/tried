@@ -63,8 +63,9 @@ function getMemberProfile(phone_number){
         html += "<input class=\"form-check-input\" type=\"radio\" name=\"receipt_to\" id=\"anonymous\" value=\"Anonymous\">";
         html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Anonymous</label></td>";
         html += "<td><input type=\"text\" id=\"residence\" name=\"residence\" placeholder=\"Residence\"></td></tr><tr>";
-        html += "<td><button type=\"button\" class=\"btn\" onclick=\"getBack()\" style=\"width:100%;\">Back</button></td>";
-        html += "<td><button type=\"button\" class=\"btn\" onclick=\"submitMemberProfile()\" style=\"width:100%;\">Submit</button></td>";
+        html += "<td><button type=\"button\" class=\"btn\" onclick=\"getBack()\" style=\"width:70%;\">Back</button></td>";
+        html += "<td><button type=\"button\" class=\"btn\" onclick=\"submitMemberProfile()\" style=\"width:70%;\">Submit</button></td>";
+        html += "<td><button type=\"button\" class=\"btn\" onclick=\"submitMemberProfile()\" style=\"width:70%;\">Transfer Church</button></td>";
         html += "</tr></tbody></table>";
         $("#member_profile").html(html);
 
@@ -145,4 +146,31 @@ function submitMemberProfile(){
         }
     });
 
+}
+
+
+
+function TransferChurch(code,code2){
+    var name = document.getElementById("fullname").value;
+    var phone_number = document.getElementById("phone").value;
+
+    var statement = "Is "+ name +" the church you wish to transfer your details to?";
+
+    var content = {
+        phone_number: phone_number,
+        church_code: code2
+    }
+    if(code != code2){
+         if(confirm(statement) == true){
+             $.post(hosted_url + "/cfms/auth/member-transfer", content ,function(data, status){
+                   $(".responseDiv1").show();
+                   $(".responseDiv1").html("Transfer Successful");
+                   $(".responseDiv1").fadeOut(3000);
+             });
+         }
+    }else if(code === code2){
+        $(".responseDiv1").show();
+        $(".responseDiv1").html("You are already Registered to this Church Code");
+        $(".responseDiv1").fadeOut(3000);
+    }
 }

@@ -1,10 +1,13 @@
 package com.example.tried.auth.personnel.reports.offering;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 
 @Data
+@JsonIgnoreProperties
 public class LocalChurchOfferingSummaryResponse{
 
 	@JsonProperty("totalAmount")
@@ -21,4 +24,5 @@ public class LocalChurchOfferingSummaryResponse{
 
 	@JsonProperty("status")
 	private Integer status;
+
 }

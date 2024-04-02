@@ -21,11 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class TransactionTracingExcel {
-
-    @Autowired
-    AuthApi authApi;
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
@@ -42,7 +38,7 @@ public class TransactionTracingExcel {
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(16);
+        font.setFontHeight(12);
         style.setFont(font);
 
         createCell(row, 0, "Transaction ID", style);
@@ -74,12 +70,10 @@ public class TransactionTracingExcel {
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
+        font.setFontHeight(12);
         style.setFont(font);
 
         // Session Numbers
-
-
         for (TransactionsItem transactionItem : transaction) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;

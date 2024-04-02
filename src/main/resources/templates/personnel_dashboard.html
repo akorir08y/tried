@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Responsive Admin Dashboard | Redesign</title>
+<title>Local Church Dashboard</title>
 <link rel="stylesheet " type="text/css" href="/cfms/css/style.css">
 	<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
 </head>
@@ -17,13 +17,13 @@
 		</a>
 		</li>
 		<li id="dash">
-		<a href="#">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
@@ -41,13 +41,13 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -76,7 +76,7 @@
 	<div class="main">
 		<div class="topbar">
 			<div class="toggle">
-			<ion-icon name="menu-outline"></ion-icon>
+			<ion-icon name="menu-outline" id="toggle_button"></ion-icon>
 			</div>
 
 			<!-- Search -->
@@ -92,10 +92,30 @@
 			</div>
 		</div>
 
+		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
+		<input type="hidden" name="password" id="password" th:value="${personnel_password}">
+		<input type="hidden" name="phone_number" id="phone_number" th:value="${personnel_phone}">
+
 		<div class="cardBox">
-				<div class="card" style="background-color:#24478f;color:white;">
+				<div class="card" style="background-color:#24478f;color:white;" onclick="showNonTrustFunds()">
 					<div>
-						<div class="cardName">Non Trust January Report</div>
+						<div class="cardName" th:text="|Non Trust Fund ${PreviousMonth} Report|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card"  style="background-color:#24478f;color:white;" onclick="showTrustFunds()">
+					<div>
+						<div class="cardName" th:text="|Trust Fund ${PreviousMonth} Report|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="bar-chart-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card"  style="background-color:#24478f;color:white;" onclick="showLocalChurchOffering()">
+					<div>
+						<div class="cardName" th:text="|Local Church Offering ${PreviousMonth} Report|"></div>
 					</div>
 					<div class="iconBx">
 						<ion-icon name="bar-chart-outline"></ion-icon>
@@ -103,23 +123,7 @@
 				</div>
 				<div class="card"  style="background-color:#24478f;color:white;">
 					<div>
-						<div class="cardName">Trust Fund January Report</div>
-					</div>
-					<div class="iconBx">
-						<ion-icon name="bar-chart-outline"></ion-icon>
-					</div>
-				</div>
-				<div class="card"  style="background-color:#24478f;color:white;">
-					<div>
-						<div class="cardName">Local Church Offering January Report</div>
-					</div>
-					<div class="iconBx">
-						<ion-icon name="bar-chart-outline"></ion-icon>
-					</div>
-				</div>
-				<div class="card"  style="background-color:#24478f;color:white;">
-					<div>
-						<div class="cardName">Transaction Tracing January Report</div>
+						<div class="cardName" th:text="|Transaction Tracing ${PreviousMonth} Report|"></div>
 					</div>
 					<div class="iconBx">
 						<ion-icon name="bar-chart-outline"></ion-icon>
@@ -177,7 +181,7 @@
 				</div>
 		</div>
 
-		<div id="non-trust-fund-summary">
+		<div id="non_trust_fund_summary" style="display:none;">
 			<h2 style="text-align:center;">Non Trust Fund Summary</h2>
 
 			<div class="cardBox">
@@ -201,8 +205,8 @@
 				</div>
 				<div class="card">
 					<div>
-						<div class="numbers" id="total_amount_paid1"></div>
-						<div class="cardName" th:text="|Trust Fund Amount Paid in ${PreviousMonth}|"></div>
+						<div class="numbers" id="local_combined_offering"></div>
+						<div class="cardName" th:text="|Local Combined Offering Contributed in ${PreviousMonth}|"></div>
 					</div>
 					<div class="iconBx">
 						<ion-icon name="chatbubbles-outline"></ion-icon>
@@ -210,7 +214,57 @@
 				</div>
 				<div class="card">
 					<div>
-						<div class="numbers" id="total_amount1"></div>
+						<div class="numbers" id="total_amount2"></div>
+						<div class="cardName" th:text="|Non Trust Fund Amount Contributed in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="wallet-outline"></ion-icon>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- Add Charts -->
+			<div class="graphBox">
+				<div class="box"><canvas id="myChart3"></canvas></div>
+				<div class="box"><canvas id="myChart4"></canvas></div>
+			</div>
+		</div>
+
+		<div id="local_church_offering_summary" style="display:none;">
+			<h2 style="text-align:center;">Local Church Offering Report</h2>
+
+			<div class="cardBox">
+				<div class="card">
+					<div>
+						<div class="numbers" th:text="${ChurchSize}"></div>
+						<div class="cardName">Church Members</div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="eye-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="transactions2"></div>
+						<div class="cardName" th:text="|Transactions in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="wallet-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="total_offering_amount"></div>
+						<div class="cardName" th:text="|Total Local Church Offering Contributed in ${PreviousMonth}|"></div>
+					</div>
+					<div class="iconBx">
+						<ion-icon name="chatbubbles-outline"></ion-icon>
+					</div>
+				</div>
+				<div class="card">
+					<div>
+						<div class="numbers" id="total_trust_fund"></div>
 						<div class="cardName" th:text="|Trust Fund Amount Contributed in ${PreviousMonth}|"></div>
 					</div>
 					<div class="iconBx">
@@ -222,17 +276,14 @@
 
 			<!-- Add Charts -->
 			<div class="graphBox">
-				<div class="box"><canvas id="myChart2"></canvas></div>
-				<div class="box"><canvas id="myChart3"></canvas></div>
+				<div class="box"><canvas id="myChart5"></canvas></div>
+				<div class="box"><canvas id="myChart7"></canvas></div>
+			</div>
+
+			<div class="graphBox1">
+				<div class="box1"><canvas id="myChart6"></canvas></div>
 			</div>
 		</div>
-
-
-
-
-
-
-
 </div>
 
 
@@ -243,7 +294,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="/cfms/js/chart.js"></script>
+<script src="/cfms/js/chart1.js"></script>
 <script src="/cfms/js/search.js"></script>
+<script src="/cfms/js/dashboard.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');
@@ -251,8 +304,8 @@ let navigation = document.querySelector('.navigation');
 let main = document.querySelector('.main');
 
 toggle.onclick = function(){
-navigation.classList.toggle('active');
-main.classList.toggle('active');
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
 }
 
 // add hovered class in selected list item

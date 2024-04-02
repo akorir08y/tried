@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Management</title>
+<link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/table_register.css">
+<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
+</head>
+<body>
+<div class="container">
+<div class="navigation">
+	<ul>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+		<span class="icon" >Home</span>
+		</a>
+		</li>
+		<li id="dash">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
+		<span class="title">Dashboard</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
+		<span class="title">Registration</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
+		<span class="title">Manage Accounts</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+		<span class="title">Fund Transfers</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
+		<span class="title">Reports and Statements</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
+		<span class="title">Receipting and Reconciliation</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="pie-chart-outline"></ion-icon></span>
+		<span class="title">Budget and Expenditure</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+		<span class="title">Support Options</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+		<span class="title">Sign Out</span>
+		</a>
+		</li>
+	</ul>
+</div>
+	<!-- main -->
+	<div class="main">
+		<div class="topbar">
+			<div class="toggle">
+			<ion-icon name="menu-outline" id="toggle_button"></ion-icon>
+			</div>
+
+			<!-- Search -->
+			<div class="search">
+				<label>
+					<h2>Personnel Registration</h2>
+				</label>
+			</div>
+			
+			<!-- userImg -->
+			<div class="user">
+				<img src="/cfms/images/cfmsLogo.png">
+			</div>
+		</div>
+
+		
+		<!-- Order Details List -->
+		<div class="details">
+			<div class="recentOrders">
+				<div id="all_members">
+					<div class="cardHeader">
+						<h2>Active Members</h2>
+
+					</div>
+					<input type="text" placeholder="Search here" id="myInput">
+					<br>
+					<div class="responseDiv" style="display:none;"></div>
+					<hr>
+					<table>
+						<thead>
+						</thead>
+						<tbody id="myTable">
+							<tr tabindex="0" th:each="members : ${Members}" >
+								<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
+									<span class='right' th:text="${members.name}"></span><br><br>
+									<span class="left-below" th:text="${members.churchNumber}"></span>
+									<a class="right-blue" th:onclick="getMemberProfile([[${members.phoneNumber}]])">View Member</a>
+									<a class="right-blue-red" th:onclick="getMemberProfile([[${members.phoneNumber}]])">Deactivate Member</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div id="member_profile" style="display:none;"></div>
+			</div>
+			
+			<!-- New Customers -->
+			<div class="recentCustomers">
+				<div class="cardHeader">
+					<h2>Deactivated Members</h2>
+				</div>
+				<input type="text" placeholder="Search here" id="myInput1">
+				<br>
+				<hr>
+				<table>
+					<thead>
+					</thead>
+					<tbody id="myTable1">
+					<tr tabindex="0" th:each="members1 : ${listDeactivatedMembers}">
+						<td class="con"><span class='left' th:text="${members1.phoneNumber}"></span>
+							<span class='right' th:text="${members1.memberName}"></span><br><br>
+							<span class="left-below" th:text="${members1.membershipNumber}"></span>
+							<a href="https://www.google.com" class="right-blue">Activate Member</a></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		
+			
+
+	</div>
+	
+	
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/cfms/js/search.js"></script>
+<script src="/cfms/js/profile.js"></script>
+
+<script type="text/javascript">
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+</script>
+</body>
+</html>

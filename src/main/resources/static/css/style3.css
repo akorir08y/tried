@@ -5,6 +5,7 @@ margin: 0;
 padding: 0;
 box-sizing: border-box;
 font-family: 'Ubuntu', sans-serif;
+font-size: 12px;
 }
 
 :root
@@ -24,6 +25,7 @@ overflow-x: hidden;
 
 h1,h2,h3,h4,h5,h6{
 	color: var(--blue);
+	font-size:12px;
 }
 
 .icons{
@@ -52,16 +54,20 @@ width: 100%;
 .navigation
 {
 position: fixed;
-width: 300px;
+width: 250px;
 height: 100%;
 background: var(--blue);
-border-Left: 10px solid var(--blue);
+border-left: 10px solid var(--blue);
 transition: 0.5s;
 overflow: hidden;
 }
 
 .navigation.active{
 	width: 60px;
+}
+
+.navigation.active ul li a .icon{
+	padding-right: 15px;
 }
 
 .navigation ul
@@ -100,7 +106,7 @@ width: 100%;
 display: flex;
 text-decoration: none;
 color: var(--white);
-font-size: 14px;
+font-size: 12px;
 }
 
 .navigation ul li:hover a
@@ -121,13 +127,13 @@ display: block;
 padding-top: 10px;
 min-width: 50px;
 height: 50px;
-line-height: 50px;
+line-height: 40px;
 text-align: center;
 }
 
 .navigation ul li a .icon ion-icon
 {
-font-size: 1.75em;
+font-size: 1.5em;
 }
 
 .navigation ul li a .title
@@ -161,7 +167,7 @@ white-space: nowrap;
 	position: absolute;
 	right: 0;
 	bottom: -50px;
-	width: 40px;
+	width: 50px;
 	height: 50px;
 	background: transparent;
 	border-radius: 50%;
@@ -175,7 +181,7 @@ white-space: nowrap;
 	position: absolute;
 	right: 0;
 	bottom: -50px;
-	width: 40px;
+	width: 50px;
 	height: 50px;
 	background: transparent;
 	border-radius: 50%;
@@ -188,7 +194,7 @@ white-space: nowrap;
 {
 	position: absolute;
 	width: calc(100% - 300px);
-	left: 300px;
+	left: 250px;
 	min-height: 100vh;
 	background: var(--white);
 	transition: 0.5s;
@@ -219,6 +225,10 @@ white-space: nowrap;
 	align-items: center;
 	font-size: 2.5em;
 	cursor: pointer;
+}
+
+#toggle_button{
+	font-size:24px;
 }
 
 .search{
@@ -369,7 +379,7 @@ font-size: 1.2em;
 .cardHeader h2{
 	font-weight: 600;
 	color: var(--blue);
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .btn{
@@ -568,14 +578,14 @@ input[type=checkbox]{
 	}
 	
 	.navigation{
-		left: -300px;
+		left: -250px;
 	}
 	.main{
 		width: 100%;
 		left: 0;
 	}
 	.main.active{
-		width:300px;
+		width:250px;
 	}
 
 	.cardBox{

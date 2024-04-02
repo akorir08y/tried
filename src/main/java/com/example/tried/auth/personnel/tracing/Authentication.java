@@ -9,20 +9,20 @@ public class Authentication{
 	@JsonProperty("password")
 	private String password;
 
-	@JsonProperty("instututionName")
-	private String instututionName;
+	@JsonProperty("institutionName")
+	private String institutionName;
 
 	@JsonProperty("personnelName")
 	private String personnelName;
 
-	@JsonProperty("instututionLevel")
-	private String instututionLevel;
+	@JsonProperty("institutionLevel")
+	private String institutionLevel;
 
 	@JsonProperty("sessionNumber")
-	private Integer sessionNumber;
+	private String sessionNumber;
 
-	@JsonProperty("instututionNumber")
-	private String instututionNumber;
+	@JsonProperty("institutionNumber")
+	private String institutionNumber;
 
 	@JsonProperty("user")
 	private String user;

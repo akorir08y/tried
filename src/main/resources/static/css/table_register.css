@@ -110,7 +110,7 @@ select{
 	padding: 10px 10px;
 	background-color: #24478f;
 	color: white;
-	font-size:13px;
+	font-size:11px;
 	border-radius:10px;
 }
 
@@ -120,13 +120,21 @@ select{
 	background-color: #560319;
 	margin-right:20px;
 	color: white;
-	font-size:13px;
+	font-size:11px;
 	border-radius:10px;
 }
 
 .right-blue:hover, .right-blue-red:hover{
     background-color: white;
     color:black;
+}
+
+.righter{
+    float: right;
+}
+
+.righter:hover{
+    color: white;
 }
 
 .second{
@@ -181,12 +189,12 @@ select{
 
 .recentOrders table a:link, .recentOrders table span{
 	text-decoration:none;
-	font-size:13px;
+	font-size:11px;
 }
 
 
 .recentOrders table span{
-	font-size:13px;
+	font-size:11px;
 }
 
 .recentCustomers table span, .recentCustomers table a:link{

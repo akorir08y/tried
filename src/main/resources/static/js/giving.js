@@ -127,7 +127,6 @@ function myFunction() {
 
 }
 
-
 function otherMember(){
 	var other_member = document.getElementById("other_member");
 	var identify_by = document.getElementById("identify_member_by");
@@ -204,6 +203,8 @@ function submitHomeOthers(){
                     home_church_self.style.display = "block";
                     document.getElementById("church_name").value = data.payload.church_name;
                     document.getElementById("member_name").value = data.payload.member_name;
+                    document.getElementById("member_number_id").innerHTML = data.payload.membership_number;
+                    document.getElementById("member_name_id").innerHTML = data.payload.member_name;
               }else{
                     $(".responseDiv").show();
                     $(".responseDiv").html("The Number Entered is not Associated with any Church Member");
@@ -213,11 +214,14 @@ function submitHomeOthers(){
     }else if(cfms_member_id != ""){
         $.post(hosted_url + "/cfms/auth/check-member-id",profile_data1   ,function(data, status){
               var statement = "Is "+ data.payload.member_name +" the Church Member you wish to contribute for?";
+              // getMemberDetailsNumber(data.payload.member_name, data.payload.membership_number);
               if(confirm(statement) == true){
                     home_church_others.style.display = "none";
                     home_church_self.style.display = "block";
                     document.getElementById("church_name").value = data.payload.church_name;
                     document.getElementById("member_name").value = data.payload.member_name;
+                    document.getElementById("member_number_id").innerHTML = data.payload.membership_number;
+                    document.getElementById("member_name_id").innerHTML = data.payload.member_name;
               }else{
                     $(".responseDiv").show();
                     $(".responseDiv").html("Member Details were not found");
@@ -564,22 +568,44 @@ function getBothFundAccounts(data){
 function saveTrustFundSummary(){
     var amt = document.getElementsByClassName("amt");
     var church_code_mine = document.getElementById("church_code_mine").value;
-    var phone_number = document.getElementById("personal_no").value;
     var church_code_host = document.getElementById("church_code_host").value;
     var church_code_others = document.getElementById("church_code_others").value;
     var total = document.getElementById("FTotal").value;
+    var phone_number;
 	var funds1 = [];
 	var amt1 = [];
 	var church_code = new String("");
 	var contribute = new String("");
 	var self = document.getElementById("self");
 	var others = document.getElementById("others");
+    var phone1 = document.getElementById("phone1").value;
+	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var receiver_id;
+	var receiver_name;
+
+    // Phone Number to Save the Phone
+    var registered_number = document.getElementById("registered_number");
+    var my_other_number = document.getElementById("my_other_number");
+    var other_number = document.getElementById("other_number");
+
 
     if(self.checked == true){
         church_code = church_code_mine;
         contribute = "Self";
+        phone_number = document.getElementById("personal_no").value;
+        receiver_id = document.getElementById("cfms_member_number").value;
+        receiver_name = document.getElementById("cfms_member_name").value;
     }else if(others.checked == true){
         contribute = "Others";
+
+        if(cfms_id_member != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }else if(phone1 != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }
+
 
         if (church_code_host == ""){
             church_code = church_code_others;
@@ -587,6 +613,8 @@ function saveTrustFundSummary(){
             church_code = church_code_host;
         }
     }
+
+
 
 	for (var i = 0; i < amt.length; i++) {
 		if(amt[i].value != ''){
@@ -600,11 +628,21 @@ function saveTrustFundSummary(){
 		}
     }
 
+    if(registered_number.checked == true){
+        phone_number = document.getElementById("personal_no").value;
+    }else if(my_other_number.checked == true){
+        phone_number = document.getElementById("personal_no2").value;
+    }else if(other_number.checked == true){
+        phone_number = document.getElementById("other_number2").value;
+    }
+
     var funds = {
         phone_number: phone_number,
         amount : total,
         church_code: church_code,
         contribute: contribute,
+        receiver_id: receiver_id,
+        receiver_name: receiver_name,
         trust_funds: funds1,
         fund_amount: amt1
     }
@@ -624,6 +662,7 @@ function saveNonTrustFundSummary(){
     var amt = document.getElementsByClassName("amt1");
     var church_code_mine = document.getElementById("church_code_mine").value;
     var church_code_host = document.getElementById("church_code_host").value;
+    var phone_number;
     var church_code_others = document.getElementById("church_code_others").value;
     var total = document.getElementById("FTotal1").value;
 	var funds1 = [];
@@ -632,12 +671,33 @@ function saveNonTrustFundSummary(){
 	var contribute = new String("");
 	var self = document.getElementById("self");
 	var others = document.getElementById("others");
+    var phone1 = document.getElementById("phone1").value;
+	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var receiver_id;
+	var receiver_name;
+
+    // Phone Number to Save the Phone
+    var registered_number = document.getElementById("registered_number");
+    var my_other_number = document.getElementById("my_other_number");
+    var other_number = document.getElementById("other_number");
 
     if(self.checked == true){
         church_code = church_code_mine;
         contribute = "Self";
+        phone_number = document.getElementById("personal_no").value;
+        receiver_id = document.getElementById("cfms_member_number").value;
+        receiver_name = document.getElementById("cfms_member_name").value;
     }else if(others.checked == true){
         contribute = "Others";
+
+        if(cfms_id_member != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;;
+        }else if(phone1 != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }
+
 
         if (church_code_host == ""){
             church_code = church_code_others;
@@ -658,10 +718,20 @@ function saveNonTrustFundSummary(){
 		}
     }
 
+    if(registered_number.checked == true){
+        phone_number = document.getElementById("personal_no").value;
+    }else if(my_other_number.checked == true){
+        phone_number = document.getElementById("personal_no2").value;
+    }else if(other_number.checked == true){
+        phone_number = document.getElementById("other_number2").value;
+    }
+
     var funds = {
         phone_number: phone_number,
         amount : total,
         church_code: church_code,
+        receiver_name: receiver_name,
+        receiver_id: receiver_id,
         contribute: contribute,
         non_trust_funds: funds1,
         fund_amount1: amt1
@@ -679,6 +749,7 @@ function saveSpecialTrustFundSummary(){
     var amt = document.getElementsByClassName("amt2");
     var church_code_mine = document.getElementById("church_code_mine").value;
     var church_code_host = document.getElementById("church_code_host").value;
+    var phone_number;
     var church_code_others = document.getElementById("church_code_others").value;
     var total = document.getElementById("FTotal2").value;
 	var funds1 = [];
@@ -687,12 +758,32 @@ function saveSpecialTrustFundSummary(){
 	var contribute = new String("");
 	var self = document.getElementById("self");
 	var others = document.getElementById("others");
+    var phone1 = document.getElementById("phone1").value;
+	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var receiver_id;
+	var receiver_name;
+
+	// Phone Number to Save the Phone
+    var registered_number = document.getElementById("registered_number");
+    var my_other_number = document.getElementById("my_other_number");
+    var other_number = document.getElementById("other_number");
 
     if(self.checked == true){
         church_code = church_code_mine;
         contribute = "Self";
+        phone_number = document.getElementById("personal_no").value;
+        receiver_id = document.getElementById("cfms_member_number").value;
+        receiver_name = document.getElementById("cfms_member_name").value;
     }else if(others.checked == true){
         contribute = "Others";
+
+        if(cfms_id_member != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }else if(phone1 != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }
 
         if (church_code_host == ""){
             church_code = church_code_others;
@@ -713,13 +804,24 @@ function saveSpecialTrustFundSummary(){
 		}
     }
 
+    if(registered_number.checked == true){
+        phone_number = document.getElementById("personal_no").value;
+    }else if(my_other_number.checked == true){
+        phone_number = document.getElementById("personal_no2").value;
+    }else if(other_number.checked == true){
+        phone_number = document.getElementById("other_number2").value;
+    }
+
+
     var funds = {
         phone_number: phone_number,
         amount : total,
         church_code: church_code,
+        receiver_id: receiver_id,
+        receiver_name: receiver_name,
         contribute: contribute,
-        non_trust_funds: funds1,
-        fund_amount1: amt1
+        special_trust_funds: funds1,
+        fund_amount2: amt1
     }
 
 	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
@@ -732,6 +834,7 @@ function saveSpecialTrustFundSummary(){
 function saveBothFundsSummary(){
     var amt = document.getElementsByClassName("amt3");
     var amt1 = document.getElementsByClassName("amt4");
+    var phone_number;
     var church_code_mine = document.getElementById("church_code_mine").value;
     var church_code_host = document.getElementById("church_code_host").value;
     var church_code_others = document.getElementById("church_code_others").value;
@@ -739,16 +842,37 @@ function saveBothFundsSummary(){
 	var funds1 = [];
 	var funds2 = [];
 	var amt2 = [];
+	var amt3 = [];
 	var church_code = new String("");
 	var contribute = new String("");
 	var self = document.getElementById("self");
 	var others = document.getElementById("others");
+	var phone1 = document.getElementById("phone1").value;
+	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var receiver_id;
+	var receiver_name;
+
+    // Phone Number to Save the Phone
+    var registered_number = document.getElementById("registered_number");
+    var my_other_number = document.getElementById("my_other_number");
+    var other_number = document.getElementById("other_number");
 
     if(self.checked == true){
         church_code = church_code_mine;
         contribute = "Self";
+        phone_number = document.getElementById("personal_no").value;
+        receiver_id = document.getElementById("cfms_member_number").value;
+        receiver_name = document.getElementById("cfms_member_name").value;
     }else if(others.checked == true){
         contribute = "Others";
+
+        if(cfms_id_member != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }else if(phone1 != ""){
+            receiver_id = document.getElementById("member_number_id").innerHTML;
+            receiver_name = document.getElementById("member_name_id").innerHTML;
+        }
 
         if (church_code_host == ""){
             church_code = church_code_others;
@@ -765,7 +889,7 @@ function saveBothFundsSummary(){
 			console.log("The Desired Id: "+ amount_id);
 			funds1.push(amount_id);
 			console.log("The Desired Value: "+amt[i].value);
-			amt1.push(amt[i].value);
+			amt2.push(amt[i].value);
 		}
     }
 
@@ -778,8 +902,22 @@ function saveBothFundsSummary(){
     		console.log("The Desired Id: "+ amount_id);
     		funds2.push(amount_id);
     		console.log("The Desired Value: "+amt1[i].value);
-    		amt2.push(amt[i].value);
+    		amt3.push(amt1[i].value);
     	}
+    }
+
+    console.log("Trust Fund: "+ funds1);
+    console.log("Trust Fund Amount: "+ amt2);
+
+    console.log("Non Trust Fund: "+ funds2);
+    console.log("Non Trust Fund Amount: "+ amt3);
+
+    if(registered_number.checked == true){
+        phone_number = document.getElementById("personal_no").value;
+    }else if(my_other_number.checked == true){
+        phone_number = document.getElementById("personal_no2").value;
+    }else if(other_number.checked == true){
+        phone_number = document.getElementById("other_number2").value;
     }
 
     var funds = {
@@ -787,10 +925,12 @@ function saveBothFundsSummary(){
         amount : total,
         church_code: church_code,
         contribute: contribute,
+        receiver_id: receiver_id,
+        receiver_name: receiver_name,
         trust_funds: funds1,
         non_trust_funds: funds2,
-        fund_amount1: amt1,
-        fund_amount2: amt2
+        fund_amount: amt2,
+        fund_amount1: amt3
     }
 
 	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
@@ -845,10 +985,9 @@ function getTrustFunds(total){
     html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
     html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
     html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr><td><br></td></tr>";
-    html += "<tr style=\"display:none;width:100%;\" id=\"alternative_number\">";
-    html += "<td width=\"50%\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
-    html += "<td width=\"50%\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
+    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
+    html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr>";
     html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveTrustFundSummary()\">Confirm</button></td></tr>"
@@ -871,10 +1010,9 @@ function getNonTrustFunds(total){
     html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
     html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
     html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr><td><br></td></tr>";
-    html += "<tr style=\"display:none;width:100%;\" id=\"alternative_number\">";
-    html += "<td width=\"50%\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
-    html += "<td width=\"50%\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
+    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
+    html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr>";
     html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveNonTrustFundSummary()\">Confirm</button></td></tr>"
@@ -897,10 +1035,9 @@ function getSpecialTrustFunds(total){
     html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
     html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
     html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr><td><br></td></tr>";
-    html += "<tr style=\"display:none;width:100%;\" id=\"alternative_number\">";
-    html += "<td width=\"50%\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
-    html += "<td width=\"50%\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
+    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
+    html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr>";
     html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveSpecialTrustFundSummary()\">Confirm</button></td></tr>"
@@ -923,10 +1060,9 @@ function getBothTrustFunds(total){
     html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
     html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
     html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr><td><br></td></tr>";
-    html += "<tr style=\"display:none;width:100%;\" id=\"alternative_number\">";
-    html += "<td width=\"50%\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
-    html += "<td width=\"50%\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
+    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
+    html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr>";
     html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveBothFundsSummary()\">Confirm</button></td></tr>"
@@ -1084,6 +1220,7 @@ function getPaymentNumber(){
 	var phone2 = document.getElementById("personal_no2").value;
 	var other_number = document.getElementById("other_number");
 	var alternative_number = document.getElementById("alternative_number");
+	var alternative_number1 = document.getElementById("alternative_number1");
 	var total = document.getElementById("total_value").value;
 
 
@@ -1091,14 +1228,17 @@ function getPaymentNumber(){
 		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone;
 		document.getElementById("payment_line").innerHTML = payment_info;
 		alternative_number.style.display = "none";
+		alternative_number1.style.display = "none";
 	}else if(my_other_number.checked == true){
 		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone2;
 		document.getElementById("payment_line").innerHTML = payment_info;
 		alternative_number.style.display = "none";
+		alternative_number1.style.display = "none";
 	}else if(other_number.checked == true){
 		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone2;
 		document.getElementById("payment_line").innerHTML = payment_info;
 		alternative_number.style.display = "block";
+		alternative_number1.style.display = "block";
 	}
 }
 
@@ -1155,4 +1295,14 @@ function getBackToFunds(){
     trust_funds.style.display = "none";
     payment_div.style.display = "none";
     home_church_self.style.display = "block";
+}
+
+function getMemberDetailsPhone(member_name, member_number){
+    member_number = document.getElementById("member_number_id").innerHTML;
+    member_name = document.getElementById("member_name_id").innerHTML;
+}
+
+function getMemberDetailsNumber(member_name, member_number){
+    member_number = document.getElementById("member_number_id").innerHTML;
+    member_name = document.getElementById("member_name_id").innerHTML;
 }

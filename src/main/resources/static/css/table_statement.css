@@ -178,3 +178,24 @@ select{
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+#cash_receipting table tr,#host_church_self table tr,#home_church_self table tr, #host_church_others table tr,
+#trust_funds_div table tr, #payment_div table tr{
+	padding: 0px;
+}
+
+#cash_receipting table td, #host_church_self table td,#home_church_self table td, #host_church_others table td,
+#trust_funds_div table td, #payment_div table td{
+	padding: 2px;
+}
+
+
+label{
+	font-size:12px;
+}
+
+input[type=month]{
+	padding: 10px;
+	border-radius: 10px;
+    border:none;
+}
