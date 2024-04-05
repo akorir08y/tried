@@ -123,9 +123,11 @@ function getBothFundAccounts(){
         html += "<tr><td><label class=\"label_input\"><b> For: </b></label></td>";
         html += "<td><input type=\"text\" id=\"member_name\" name=\"member_name\" readonly>";
         html += "<input type=\"hidden\" id=\"member_phone\" name=\"member_phone\" readonly></td></tr>";
-        html += "</tr><tr>";
-        html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2></td>";
-        html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
+        html += "</tr><tr></table>";
+        html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2><span class=\"right-icon\"";
+        html += "onclick=\"trustFundView()\" id=\"add_icon\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon\"><ion-icon name=\"remove-circle-outline\"></ion-icon></span</td></tr></table>";
+        html += "<div id=\"trust_funds_view\" style=\"display:block;\"><table>";
+        html += "<table><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
         html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
         html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
 
@@ -147,10 +149,13 @@ function getBothFundAccounts(){
             html += "</td></tr>";
         }
         html += "<tbody></table>";
+        html += "</div>";
 
         html += "<table><tr>";
-        html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2></td>";
-        html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
+        html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2><span class=\"right-icon\"";
+        html += "onclick=\"nonTrustFundView()\" id=\"add_icon1\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\"></ion-icon></span><span class=\"right-icon\" onclick=\"nonTrustFundView()\" id=\"remove_icon1\"><ion-icon name=\"remove-circle-outline\"></ion-icon></span</td></tr></table>";
+        html += "<div id=\"non_trust_funds_view\"  style=\"display:block;\">";
+        html += "<table><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
         html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
         html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
 
@@ -172,7 +177,7 @@ function getBothFundAccounts(){
         }
 
         html += "</form><tbody></table>";
-
+        html += "</div>";
 
         html += "<table><tr>";
         html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Special Trust Funds</h2></td>";
@@ -205,4 +210,40 @@ function getBothFundAccounts(){
         $("#trust_funds_div").html(html);
 	}
 
+}
+
+
+
+function trustFundView(){
+	var trust_fund_view = document.getElementById("trust_funds_view");
+	var add_icon = document.getElementById("add_icon");
+	var remove_icon = document.getElementById("remove_icon");
+
+	if(trust_fund_view.style.display === "block"){
+		trust_fund_view.style.display = "none";
+		remove_icon.style.display = "none"
+		add_icon.style.display = "block";
+	}else{
+		trust_fund_view.style.display = "block"
+		add_icon.style.display = "none";
+		remove_icon.style.display = "block";
+	}
+}
+
+
+
+function nonTrustFundView(){
+	var non_trust_fund_view = document.getElementById("non_trust_funds_view");
+	var add_icon = document.getElementById("add_icon1");
+	var remove_icon = document.getElementById("remove_icon1");
+
+	if(non_trust_fund_view.style.display === "block"){
+		non_trust_fund_view.style.display = "none";
+		remove_icon.style.display = "none"
+		add_icon.style.display = "block";
+	}else{
+		non_trust_fund_view.style.display = "block"
+		add_icon.style.display = "none";
+		remove_icon.style.display = "block";
+	}
 }

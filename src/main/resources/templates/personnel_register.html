@@ -96,6 +96,7 @@
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+		<input type="hidden" name="church_code" id="church_code" th:value="${church_code}">
 
 
 		<!-- Order Details List -->
@@ -104,9 +105,9 @@
 				<div id="all_members">
 					<div class="cardHeader">
 						<h2>Active Members</h2>
-
 					</div>
 					<input type="text" placeholder="Search here" id="myInput">
+					<span class="right-icon" onclick="getNewMember()"><ion-icon name="add-circle-outline" style="background-color:#24478f;color:white;border-radius:50%;font-size:40px;float:right;"></ion-icon>
 					<br>
 					<div class="responseDiv" style="display:none;"></div>
 					<hr>
@@ -114,17 +115,39 @@
 						<thead>
 						</thead>
 						<tbody id="myTable">
-							<tr tabindex="0" th:each="members : ${Members}" >
+							<tr tabindex="0" th:each="members : ${Members}" th:onclick="getMemberProfile([[${members.phoneNumber}]])">
 								<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
 									<span class='right' th:text="${members.name}"></span><br><br>
 									<span class="left-below" th:text="${members.churchNumber}"></span>
-									<a class="right-blue" th:onclick="getMemberProfile([[${members.phoneNumber}]])">View Member</a>
 									<a class="right-blue-red" th:onclick="getMemberProfile([[${members.phoneNumber}]])">Deactivate Member</a></td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 				<div id="member_profile" style="display:none;"></div>
+				<div id="new_member" style="display:none;"></div>
+				<div id="transfer_church" style="display:none;">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">Transfer Church</h2>
+					</div>
+					<div class="responseDiv"></div>
+					<table width="100%">
+						<tbody>
+							<tr>
+								<td><span id="transfer_line"></span></td>
+							</tr>
+							<tr>
+								<td><b>Church Code</b></td>
+							</tr>
+							<tr>
+								<td width="100%"><input type="text" id="church_code_transfer" placeholder="Enter the New Church Code" required></td>
+							</tr>
+							<tr>
+								<td><button class="btn" onclick="TransferChurchMember()">Submit</button></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 			</div>
 			
 			<!-- New Customers -->

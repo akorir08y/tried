@@ -510,7 +510,8 @@ public class AuthControl {
     @GetMapping(path="/personnel_register")
     public String getPersonnelRegistration(@RequestParam(value="p")String p,
                                            @RequestParam(value="q")String q
-                        ,@RequestParam(value="r")String r,Model model, Model model2, Model model3){
+                        ,@RequestParam(value="r")String r,Model model, Model model2,
+                                           Model model3, Model model4){
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -606,6 +607,13 @@ public class AuthControl {
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
+
+
+        // Credentials
+        model4.addAttribute("church_code", response.getPayload().getOrganisationNumber());
+        model4.addAttribute("personnel_name", username);
+        model4.addAttribute("personal_password", password);
+        model4.addAttribute("personal_no", phone_number);
 
         return "personnel_register";
     }

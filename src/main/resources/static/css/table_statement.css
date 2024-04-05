@@ -168,6 +168,20 @@ select{
     animation: spin 1s linear infinite;
 }
 
+.right-icon{
+	float: right;
+	text-align: right;
+	font-size:25px;
+}
+
+.add-circle, .remove-circle{
+	font-size:28px;
+}
+
+#remove_icon, #remove_icon1, #remove_icon2{
+	font-size:28px;
+}
+
 /* Safari */
 @-webkit-keyframes spin {
   0% { -webkit-transform: rotate(0deg); }

@@ -60,6 +60,17 @@ input[type=radio]{
 	background: #f1f1f1;
 }
 
+.add-circle, .remove-circle{
+	font-size:28px;
+}
+
+
+.right-icon{
+	float: right;
+	text-align: right;
+	font-size:25px;
+}
+
 select{
 	border:none;
     padding:10px;

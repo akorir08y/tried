@@ -113,8 +113,9 @@ $(document).ready(function(){
 						<h2 style="text-align:center;">Cash Receipting</h2>
 						<div class="responseDiv" style="display:none;"></div>
 					</div>
+					<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>
 					<br>
-					<hr>					
+					<hr>
 				
 					<table>
 					  <tbody>
@@ -186,9 +187,9 @@ $(document).ready(function(){
 				<div id="all_members" style="display:none;">
 					<div class="cardHeader">
 						<h2>Search Members</h2>
-
 					</div>
 					<input type="text" placeholder="Search here" id="myInput">
+					<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>
 					<br>
 					<div class="responseDiv" style="display:none;"></div>
 					<br>
@@ -201,7 +202,6 @@ $(document).ready(function(){
 							<td class="con" th:onclick='getMemberName([[${members.name}]],[[${members.churchNumber}]],[[${members.phoneNumber}]])'><span class='left' th:text="${members.phoneNumber}"></span>
 								<span class='right' th:text="${members.name}"></span><br><br>
 								<span class="left-below" th:text="${members.churchNumber}"></span>
-								<button type="button" class="btn" onclick="goBackToReceipting()">Back</button>
 							</td>
 						</tr>
 						</tbody>
