@@ -16,6 +16,8 @@ import com.example.tried.auth.personnel.accounts.new_account.Payload;
 import com.example.tried.auth.personnel.accounts.update_account.EditValues;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccount;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccountResponse;
+import com.example.tried.auth.personnel.department.DepartmentRequest;
+import com.example.tried.auth.personnel.department.DepartmentResponse;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccounts;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.*;
@@ -1120,5 +1122,48 @@ public class PersonnelController {
         }
 
         return result;
+    }
+
+    @PostMapping("/department-accounts")
+    public DepartmentResponse getDepartments(@RequestParam("phone_number") String phone_number,
+                                             @RequestParam("username") String username,
+                                             @RequestParam("password") String password){
+
+        // Member Profile
+        MemberProfile profile = new MemberProfile();
+
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(profilepayload);
+
+        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberProfileResponse profiler = authApi.getMemberDetails(profile);
+        // Member Personnel Response
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setChurchCode(profiler.getPayload().getChurchCode());
+        personnel.setPassword(password);
+        personnel.setUser(username);
+
+        // Personnel Response
+        MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+
+        DepartmentRequest request = new DepartmentRequest();
+        com.example.tried.auth.personnel.department.Authentication authentication = new
+                com.example.tried.auth.personnel.department.Authentication();
+
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(rand);
+        authentication.setInstututionName(personnelResponse.getPayload().getOrganisationName());
+        authentication.setInstututionNumber(personnelResponse.getPayload().getOrganisationNumber());
+        authentication.setInstututionLevel(personnelResponse.getPayload().getOrganisationLevel());
+        authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+        request.setAuthentication(authentication);
+
+        DepartmentResponse departmentResponse = personnelApi.getDepartmentAccounts(request);
+        return departmentResponse;
     }
 }

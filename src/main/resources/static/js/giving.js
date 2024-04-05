@@ -87,7 +87,7 @@ function myFunction() {
   };
 
   if (home_church.checked == true && self.checked == true){
-      $.post(hosted_url + "/cfms/auth/check-name",profile_data ,function(data, status){
+      $.post(hosted_url + "/cfms-web/auth/check-name",profile_data ,function(data, status){
           var statement = "Is "+ data.payload.church_name +" Your home church ?";
           console.log(data.payload);
           if(confirm(statement) == true){
@@ -105,7 +105,7 @@ function myFunction() {
           }
 	  });
   }else if(home_church.checked == true && others.checked == true){
-      $.post(hosted_url + "/cfms/auth/check-name",profile_data ,function(data, status){
+      $.post(hosted_url + "/cfms-web/auth/check-name",profile_data ,function(data, status){
                 var statement = "Is "+ data.payload.church_name +" Your home church ?";
                 if(confirm(statement) == true){
                   member_giving.style.display = "none";
@@ -196,7 +196,7 @@ function submitHomeOthers(){
     };
 
     if (phone != ""){
-        $.post(hosted_url + "/cfms/auth/check-phone",profile_data ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-phone",profile_data ,function(data, status){
               var statement = "Is "+ data.payload.member_name +" the Church Member you wish to contribute for?";
               if(confirm(statement) == true){
                     home_church_others.style.display = "none";
@@ -212,7 +212,7 @@ function submitHomeOthers(){
               }
         });
     }else if(cfms_member_id != ""){
-        $.post(hosted_url + "/cfms/auth/check-member-id",profile_data1   ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-member-id",profile_data1   ,function(data, status){
               var statement = "Is "+ data.payload.member_name +" the Church Member you wish to contribute for?";
               // getMemberDetailsNumber(data.payload.member_name, data.payload.membership_number);
               if(confirm(statement) == true){
@@ -650,7 +650,7 @@ function saveTrustFundSummary(){
     console.log("Funds Object: " + funds);
     console.log("Funds Object String: " + JSON.stringify(funds));
 
-	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Trust Fund Successfully Saved");
         $(".responseDiv").fadeOut(3000);
@@ -737,7 +737,7 @@ function saveNonTrustFundSummary(){
         fund_amount1: amt1
     }
 
-	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Non Trust Fund Successfully Saved");
         $(".responseDiv").fadeOut(3000);
@@ -824,7 +824,7 @@ function saveSpecialTrustFundSummary(){
         fund_amount2: amt1
     }
 
-	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Special Trust Fund Successfully Saved");
         $(".responseDiv").fadeOut(3000);
@@ -933,7 +933,7 @@ function saveBothFundsSummary(){
         fund_amount1: amt3
     }
 
-	$.post(hosted_url + "/cfms/auth/member_receive_funds",funds ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Both Trust Funds Successfully Saved");
         $(".responseDiv").fadeOut(3000);
@@ -954,7 +954,7 @@ function getFundAccount(){
         phone_number: phone
     };
 
-    $.post(hosted_url + "/cfms/auth/check-account",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/check-account",profile_data ,function(data, status){
         if(trust_funds.checked == true){
             getTrustFundAccounts(data);
             home_church_self.style.display = "none";
@@ -1164,7 +1164,7 @@ function getChurchCode(){
             church_code: code
         }
 
-        $.post(hosted_url + "/cfms/auth/check-church", content ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-church", content ,function(data, status){
              if(data != null){
                 var statement = "Is "+ data.churchName +" the host church you wish to contribute to?";
                 if(confirm(statement) == true){
@@ -1193,7 +1193,7 @@ function getChurchCodeOthers(){
             church_code: code
         }
 
-        $.post(hosted_url + "/cfms/auth/check-church", content ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-church", content ,function(data, status){
             if (data != null){
                 var statement = "Is "+ data.churchName +" the host church you wish to contribute to?";
                 if(confirm(statement) == true){
@@ -1248,7 +1248,7 @@ function getMemberName(){
     var profile_data = {
         phone_number: phone    }
 
-    $.post(hosted_url + "/cfms/auth/check-phone",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/check-phone",profile_data ,function(data, status){
         document.getElementById("member_name1").value = data.payload.member_name;
     });
 }

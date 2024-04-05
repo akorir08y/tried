@@ -2,9 +2,10 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="300">
 <title>Local Church Dashboard</title>
-<link rel="stylesheet " type="text/css" href="/cfms/css/style.css">
-	<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/style.css">
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/search.css">
 </head>
 <body>
 <div class="container">
@@ -29,7 +30,7 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
@@ -88,7 +89,7 @@
 			
 			<!-- userImg -->
 			<div class="user">
-				<img src="/cfms/images/cfmsLogo.png">
+				<img src="/cfms-web/images/cfmsLogo.png">
 			</div>
 		</div>
 
@@ -293,10 +294,10 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/cfms/js/chart.js"></script>
-<script src="/cfms/js/chart1.js"></script>
-<script src="/cfms/js/search.js"></script>
-<script src="/cfms/js/dashboard.js"></script>
+<script src="/cfms-web/js/chart.js"></script>
+<script src="/cfms-web/js/chart1.js"></script>
+<script src="/cfms-web/js/search.js"></script>
+<script src="/cfms-web/js/dashboard.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');

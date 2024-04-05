@@ -237,6 +237,7 @@ public class AuthControl {
 
         List<String> account_names = new ArrayList<String>();
         List<String> account_number = new ArrayList<String>();
+        List<String> account_info = new ArrayList<String>();
 
         RequestChurchDetailsResponse churchDetails = authApi.getMemberChurchDetails(requestCode);
         System.out.println("Response: "+ churchDetails.getDepartmentalAccounts());
@@ -285,17 +286,19 @@ public class AuthControl {
 
 
         for(int i=0; i<account_names.size(); i++){
-            System.out.println("Account: "+ account_names.get(i) + " - " + account_number.get(i));
+            account_info.add(account_names.get(i) + "#" + account_number.get(i));
+            System.out.println("Account: "+ account_names.get(i) + "#" + account_number.get(i));
         }
 
         if(!(response.getState() == null)){
-            model.addAttribute("Username", username);
+            model.addAttribute("phone_number", username);
+            model.addAttribute("pin", password);
             model.addAttribute("State", response.getState());
             model.addAttribute("Phone", phone_encode);
             model2.addAttribute("Password", pass_encode);
             model2.addAttribute("ChurchName", profiler.getPayload().getChurchName());
             model2.addAttribute("ConferenceNo", profiler.getPayload().getConferenceName());
-            model2.addAttribute("AccountDetails", account_names);
+            model2.addAttribute("AccountDetails", account_info);
             model2.addAttribute("AccountNumbers", account_number);
             return "statement2";
         }else{
@@ -617,7 +620,8 @@ public class AuthControl {
     // New Interface Profile Information
     @GetMapping("/profile2")
     public String getProfileInformation(Model model, @RequestParam(value="p")String p,
-                                        @RequestParam(value="q")String q,Model model2){
+                                        @RequestParam(value="q")String q,
+                                        Model model2){
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -813,10 +817,6 @@ public class AuthControl {
     @GetMapping("/personnel_receipting")
     public String getPersonnelReceipting(@RequestParam("p") String p,@RequestParam("q") String q,
                                          @RequestParam("r") String r,Model model, Model model2, Model model3){
-        /*
-        String phone_number = "254786439659";
-        String password = "0389";
-        String username = "mwakesho";*/
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -886,8 +886,6 @@ public class AuthControl {
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
 
-
-
         return "personnel_receipting";
     }
 
@@ -917,11 +915,16 @@ public class AuthControl {
     }
 
     @GetMapping("/manage_accounts")
-    public String selectLocalChurchAccounts(Model model) throws IOException {
+    public String selectLocalChurchAccounts(@RequestParam("p") String p, @RequestParam("q") String q,
+                                            @RequestParam("r") String r,Model model, Model model2) throws IOException {
 
-        String phone_number = "254786439659";
-        String username = "mwakesho";
-        String password = "0389";
+        Base32 base32 = new Base32();
+        byte[] decodedBytes = base32.decode(p);
+        byte[] decodedBytes1 = base32.decode(q);
+        byte[] decodedBytes2 = base32.decode(r);
+        String phone_number = new String(decodedBytes);
+        String password = new String(decodedBytes1);
+        String username = new String(decodedBytes2);
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
@@ -987,9 +990,25 @@ public class AuthControl {
                 result4.put("account_number", key);
                 result4.put("priority_number", "0");
             }
+
+            if(!result4.containsKey("department")){
+                result4.put("department", "No Department");
+            }
             accounts.add(result4);
         }
+
+        System.out.println("Accounts: " + accounts);
+
+        // Encrypted Credentials
+        model.addAttribute("Phone", p);
+        model.addAttribute("Password", q);
+        model.addAttribute("Username", r);
         model.addAttribute("Accounts", accounts);
+
+        // Plaintext Credentials
+        model2.addAttribute("personal_no",phone_number);
+        model2.addAttribute("personal_password",password);
+        model2.addAttribute("personnel_name", username);
         return "manage_accounts";
     }
 }

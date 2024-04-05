@@ -1,4 +1,4 @@
-package com.example.tried.auth.member.specific;
+package com.example.tried.auth.personnel.department;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
@@ -6,29 +6,23 @@ import lombok.Data;
 @Data
 public class Authentication{
 
+	@JsonProperty("password")
+	private String password;
+
 	@JsonProperty("instututionName")
-	private String institutionName;
+	private String instututionName;
 
 	@JsonProperty("personnelName")
 	private String personnelName;
 
-	@JsonProperty("password")
-	private String password;
-
 	@JsonProperty("instututionLevel")
-	private String institutionLevel;
-
-	@JsonProperty("phoneNumber")
-	private String phoneNumber;
+	private String instututionLevel;
 
 	@JsonProperty("sessionNumber")
-	private Long sessionNumber;
-
-	@JsonProperty("pin")
-	private String pin;
+	private Integer sessionNumber;
 
 	@JsonProperty("instututionNumber")
-	private String institutionNumber;
+	private String instututionNumber;
 
 	@JsonProperty("user")
 	private String user;

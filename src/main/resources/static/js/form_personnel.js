@@ -110,7 +110,7 @@ function sendPersonnelOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -145,7 +145,7 @@ function sendPersonnelResetOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -183,7 +183,7 @@ function confirmPersonnelOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -241,7 +241,7 @@ function confirmPersonnelResetOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -284,7 +284,7 @@ function personnelLogin(){
 
     $.ajax({
         type: "POST",
-        url: "/cfms/auth/personnel/login",
+        url: "/cfms-web/auth/personnel/login",
         datatype: "json",
         data: myObj,
         success: function(response){
@@ -321,7 +321,7 @@ function resetPersonnelPassword(){
 
     $.ajax({
         type: "POST",
-        url: "/cfms/auth/personnel/reset",
+        url: "/cfms-web/auth/personnel/reset",
         datatype: "json",
         data: myObj,
         success: function(response){

@@ -32,7 +32,7 @@ function nonTrustFundReportExcel(){
         phone_number: phone_number
     }
 
-    $.get(hosted_url + "/cfms/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
+    $.get(hosted_url + "/cfms-web/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Export Excel is Successful");
         $(".responseDiv").fadeOut(3000);
@@ -63,7 +63,7 @@ function nonTrustFundReportExcel(){
         phone_number: phone_number
     }
 
-    $.get(hosted_url + "/cfms/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
+    $.get(hosted_url + "/cfms-web/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Export Excel is Successful");
         $(".responseDiv").fadeOut(3000);
@@ -95,7 +95,7 @@ function nonTrustFundReportPDF(){
         phone_number: phone_number
     }
 
-    $.get(hosted_url + "/cfms/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
+    $.get(hosted_url + "/cfms-web/auth/exporting-non-trust-fund",non_trust_fund ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Export PDF is Successful");
         $(".responseDiv").fadeOut(3000);
@@ -127,7 +127,7 @@ function tracingReportExcel(){
         phone_number: phone_number
     }
 
-    $.get(hosted_url + "/cfms/auth/exporting-transaction-tracing",non_trust_fund ,function(data, status){
+    $.get(hosted_url + "/cfms-web/auth/exporting-transaction-tracing",non_trust_fund ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Export Excel is Successful");
         $(".responseDiv").fadeOut(3000);
@@ -158,7 +158,7 @@ function tracingReportPDF(){
         phone_number: phone_number
     }
 
-    $.get(hosted_url + "/cfms/auth/exporting-transaction-tracing",non_trust_fund ,function(data, status){
+    $.get(hosted_url + "/cfms-web/auth/exporting-transaction-tracing",non_trust_fund ,function(data, status){
         $(".responseDiv").show();
         $(".responseDiv").html("Export PDF is Successful");
         $(".responseDiv").fadeOut(3000);

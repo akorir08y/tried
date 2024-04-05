@@ -103,6 +103,8 @@ select{
 .left-below{
 	float: left;
 	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 .right-blue{
@@ -131,6 +133,8 @@ select{
 
 .righter{
     float: right;
+    font-size:24px;
+    color:#24478f
 }
 
 .righter:hover{

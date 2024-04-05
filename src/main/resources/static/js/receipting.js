@@ -48,7 +48,7 @@ function checkVisitorName(){
         phone_number: phone
     };
 
-    $.post(hosted_url + "/cfms/auth/check-name",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/check-name",profile_data ,function(data, status){
             if(data.payload != null){
                 var statement = "Is "+ data.payload.member_name + " the Visitor you wish to contribute for?";
                 if(confirm(statement) == true){
@@ -74,7 +74,7 @@ function checkGuestName(){
         phone_number: phone
     };
 
-    $.post(hosted_url + "/cfms/auth/check-name",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/check-name",profile_data ,function(data, status){
             if(data.payload != null){
                 var statement = "The member "+ data.payload.member_name + " is already registered to "+data.payload.church_code+".";
                 statement += "Would you like to contribute for them as a guest?";
@@ -97,7 +97,7 @@ function getBothFundAccounts(){
         phone_number: phone
     };
 
-	$.post(hosted_url + "/cfms/auth/check-name",profile_data ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/check-name",profile_data ,function(data, status){
         // Trust Fund Accounts
         var request = data.trustFundAccounts;
         var request1 = data.departmentalAccounts;

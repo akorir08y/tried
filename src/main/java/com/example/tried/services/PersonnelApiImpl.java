@@ -9,6 +9,8 @@ import com.example.tried.auth.personnel.accounts.new_account.CreateLocalChurchAc
 import com.example.tried.auth.personnel.accounts.new_account.CreateLocalChurchAccountResponse;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccount;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccountResponse;
+import com.example.tried.auth.personnel.department.DepartmentRequest;
+import com.example.tried.auth.personnel.department.DepartmentResponse;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccounts;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.CashReceipting;
@@ -382,6 +384,28 @@ public class PersonnelApiImpl implements PersonnelApi {
             return objectMapper.readValue(response.body().string(), HashMap.class);
         } catch (Exception e) {
             log.error(String.format("Could not get Local Church Specific Account Summary -> %s", e.getLocalizedMessage()));
+            return null;
+        }
+    }
+
+    @Override
+    public DepartmentResponse getDepartmentAccounts(DepartmentRequest departmentRequest) {
+        departmentRequest.setFunction("getDepartmentalAccountCreationMetaData");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, HelperUtility.toJSON(Objects.requireNonNull(departmentRequest)));
+
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), DepartmentResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Department Accounts of the Local Church Accounts -> %s", e.getLocalizedMessage()));
             return null;
         }
     }

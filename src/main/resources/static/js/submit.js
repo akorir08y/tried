@@ -49,7 +49,7 @@ function submitProfile(){
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 
-    $.post(hosted_url + "/cfms/auth/saveProfile",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/saveProfile",profile_data ,function(data, status){
         if(data.status == 0){
             $(".responseDiv").show();
             $(".responseDiv").html("Profile Updated Successfully");

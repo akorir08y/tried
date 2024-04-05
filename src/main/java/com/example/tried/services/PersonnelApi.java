@@ -8,6 +8,8 @@ import com.example.tried.auth.personnel.accounts.new_account.CreateLocalChurchAc
 import com.example.tried.auth.personnel.accounts.new_account.CreateLocalChurchAccountResponse;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccount;
 import com.example.tried.auth.personnel.accounts.update_account.UpdateLocalChurchAccountResponse;
+import com.example.tried.auth.personnel.department.DepartmentRequest;
+import com.example.tried.auth.personnel.department.DepartmentResponse;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccounts;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.CashReceipting;
@@ -65,4 +67,8 @@ public interface PersonnelApi {
 
     // Get Local Church Accounts
     public HashMap<String, Object> getLocalChurchAccounts(HashMap<String,Object> hashMap);
+
+
+    // Get the Departmental Accounts
+    public DepartmentResponse getDepartmentAccounts(DepartmentRequest request);
 }

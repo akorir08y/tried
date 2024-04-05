@@ -62,7 +62,7 @@ auth:
 
 server:
   servlet:
-    context-path: /cfms
+    context-path: /cfms-web
 
 file:
   upload-dir: ./../../cfms_media/

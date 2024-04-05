@@ -20,7 +20,7 @@ var personal = {
     password: password
 };
 
-$.get(hosted_url + "/cfms/auth/report/local_church_offering",personal,function(data, status){
+$.get(hosted_url + "/cfms-web/auth/report/local_church_offering",personal,function(data, status){
     var local_church_funds = data.localChurchFunds;
     var trust_funds = data.localTrustFunds;
     var local_church_keys = Object.keys(local_church_funds);

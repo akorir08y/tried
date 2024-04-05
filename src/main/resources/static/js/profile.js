@@ -9,7 +9,7 @@ function getMemberProfile(phone_number){
     };
 
 
-    $.post(hosted_url + "/cfms/personnel/profile",dated ,function(data, status){
+    $.post(hosted_url + "/cfms-web/personnel/profile",dated ,function(data, status){
         all_members.style.display = "none";
         member_profile.style.display = "block";
         var html = new String("");
@@ -138,7 +138,7 @@ function submitMemberProfile(){
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 
-    $.post(hosted_url + "/cfms/auth/saveProfile",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web-web/auth/saveProfile",profile_data ,function(data, status){
         if(data.status == 0){
             $(".responseDiv").show();
             $(".responseDiv").html(fullname + " profile updated successfully");
@@ -162,7 +162,7 @@ function TransferChurch(code,code2){
     }
     if(code != code2){
          if(confirm(statement) == true){
-             $.post(hosted_url + "/cfms/auth/member-transfer", content ,function(data, status){
+             $.post(hosted_url + "/cfms-web/auth/member-transfer", content ,function(data, status){
                    $(".responseDiv1").show();
                    $(".responseDiv1").html("Transfer Successful");
                    $(".responseDiv1").fadeOut(3000);

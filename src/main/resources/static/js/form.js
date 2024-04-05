@@ -52,7 +52,7 @@ function AuthMemberRequest(){
 
     $.ajax({
         type: "POST",
-        url: "/cfms/auth/login",
+        url: "/cfms-web/auth/login",
         datatype: "json",
         data: myObj,
         success: function(response){
@@ -105,7 +105,7 @@ function sendRegisterOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -321,7 +321,7 @@ function sendOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -354,7 +354,7 @@ function sendResetOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -388,7 +388,7 @@ function sendResetPinOTP(){
 
          $.ajax({
                 type: "POST",
-                url: "/cfms/auth/otp",
+                url: "/cfms-web/auth/otp",
                 datatype: "json",
                 data: myObj,
                 success: function(response){
@@ -424,7 +424,7 @@ function confirmOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -470,7 +470,7 @@ function confirmRegisterOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -521,7 +521,7 @@ function logoutUser(){
 function registeredNumbers(){
     var phone_number = document.getElementById("phone").value;
 
-     $.post(hosted_url + "/cfms/auth/check-number",phone_number ,function(data, status){
+     $.post(hosted_url + "/cfms-web/auth/check-number",phone_number ,function(data, status){
            $(".responseDiv").html("<div class=\"alert alert-danger\">"+response+". Try Again</div>");
            $(".responseDiv").fadeOut(3000);
      });
@@ -542,7 +542,7 @@ function checkChurch(){
             church_code: code
         }
 
-        $.post(hosted_url + "/cfms/auth/check-status", content ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-status", content ,function(data, status){
            console.log(data);
            if(data != "Yes"){
                 $(".responseDiv1").show();
@@ -574,7 +574,7 @@ function displayChurchName(){
            church_code: code2
         }
 
-        $.post(hosted_url + "/cfms/auth/check-church", content ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/check-church", content ,function(data, status){
             console.log("Church Details: " +data)
             console.log("Church Name: " +data.churchName);
             TransferChurch(data.churchName, phone, code, code2);
@@ -591,7 +591,7 @@ function TransferChurch(name,phone_number,code,code2){
     }
     if(code != code2){
          if(confirm(statement) == true){
-             $.post(hosted_url + "/cfms/auth/member-transfer", content ,function(data, status){
+             $.post(hosted_url + "/cfms-web/auth/member-transfer", content ,function(data, status){
                    $(".responseDiv1").show();
                    $(".responseDiv1").html("Transfer Successful");
                    $(".responseDiv1").fadeOut(3000);
@@ -632,7 +632,7 @@ function confirmResetOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -677,7 +677,7 @@ function confirmResetPinOTP(){
 
      $.ajax({
             type: "POST",
-            url: "/cfms/auth/otp-pin",
+            url: "/cfms-web/auth/otp-pin",
             datatype: "json",
             data: myObj,
             success: function(response){
@@ -716,7 +716,7 @@ function resetMemberPin(){
 
     $.ajax({
         type: "POST",
-        url: "/cfms/auth/reset",
+        url: "/cfms-web/auth/reset",
         datatype: "json",
         data: myObj,
         success: function(response){
@@ -747,7 +747,7 @@ function resetPin(){
 
         $.ajax({
             type: "POST",
-            url: "/cfms/auth/reset",
+            url: "/cfms-web/auth/reset",
             datatype: "json",
             data: myObj,
             success: function(response){

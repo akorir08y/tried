@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Member Management</title>
-<link rel="stylesheet " type="text/css" href="/cfms/css/style2.css">
-<link rel="stylesheet " type="text/css" href="/cfms/css/table_register.css">
-<link rel="stylesheet " type="text/css" href="/cfms/css/search.css">
+<title>Manage Accounts</title>
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/style2.css">
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/table_register.css">
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/search.css">
 </head>
 <body>
 <div class="container">
@@ -30,7 +30,7 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
@@ -89,11 +89,16 @@
 			
 			<!-- userImg -->
 			<div class="user">
-				<img src="/cfms/images/cfmsLogo.png">
+				<img src="/cfms-web/images/cfmsLogo.png">
 			</div>
 		</div>
 
-		
+		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
+		<input type="hidden" name="password" id="password" th:value="${personal_password}">
+		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+
+
+
 		<!-- Order Details List -->
 		<div class="details">
 			<div class="recentOrders">
@@ -109,12 +114,12 @@
 						<table>
 							<tbody id="myTable">
 							<tr tabindex="0" th:each="account : ${Accounts}" >
-								<td class="con">  <!--th:onclick="getMemberProfile([[${account.priority_number}]])">-->
+								<td class="con" th:onclick="getSingleAccount([[${account.accountName}]],[[${account.department}]],[[${account.status}]],[[${account.priority_number}]],[[${account.duration_of_use}]])">
 									<span class='left' th:text="${account.accountName}"></span>
 									<span class="righter" th:if="${account.status eq 'ACTIVATED'}" style="font-size:24px;color:#24478f">&#10003;</span>
 									<span class="righter" th:unless="${account.status eq 'ACTIVATED'}" style="font-size:24px;color:#24478f">&cross;</span>
 									<br><br>
-									<span class="left-below" th:text="${account.account_number}" style="padding-right;10px;"></span>
+									<span class="left-below" th:text="${account.account_number}"></span>
 									<span class="left-below" th:text="|Priority: ${account.priority_number}|" style="padding-left;10px;"></span>
 								</td>
 							</tr>
@@ -160,8 +165,9 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/cfms/js/search.js"></script>
-<script src="/cfms/js/profile.js"></script>
+<script src="/cfms-web-web/js/manage_accounts.js"></script>
+<script src="/cfms-web-web/js/search.js"></script>
+<script src="/cfms-web-web/js/profile.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');

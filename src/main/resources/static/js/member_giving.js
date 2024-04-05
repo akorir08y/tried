@@ -526,7 +526,7 @@ function saveTrustFundSummary(){
 
 	$.ajax({
         type: "POST",
-        url: "/cfms/auth/member_receive_funds",
+        url: "/cfms-web/auth/member_receive_funds",
         datatype: "json",
         data: {
             contribute: contribute,

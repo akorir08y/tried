@@ -12,6 +12,7 @@ import com.example.tried.auth.member.giving.*;
 import com.example.tried.auth.member.giving.FundDistribution;
 import com.example.tried.auth.member.giving.Member;
 import com.example.tried.auth.member.specific.SpecificOfferingStatement;
+import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
@@ -251,6 +252,60 @@ public class AuthController {
     }
 
 
+    @PostMapping(path="/statement-specific",produces = "application/json")
+    public SpecificOfferingStatementResponse getMemberOfferingStatementSpecific(@RequestParam("phone_number") String phone_number,
+                                                                                @RequestParam("start_date") String start_date,
+                                                                                @RequestParam("end_date") String end_date,
+                                                                                @RequestParam("pin") String pin,
+                                                                                @RequestParam("account_name")String account_name,
+                                                                                @RequestParam("account_number")String account_number){
+        System.out.println("Get the Phone Number: " + phone_number);
+
+        // Generate Session Number
+        final long session_number = (long) ((Math.random() * 900000000) + 100000000);
+        // System.out.println("The Session Number is: " + session_number);
+        // String session = String.valueOf(session_number);
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(payload);
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        // Authentication Information
+        com.example.tried.auth.member.specific.Authentication authentication = new
+                com.example.tried.auth.member.specific.Authentication();
+        authentication.setPhoneNumber(phone_number);
+        authentication.setInstitutionName(profile2.getPayload().getChurchName());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+        authentication.setPersonnelName(profile2.getPayload().getMemberName());
+        authentication.setSessionNumber(session_number);
+        authentication.setInstitutionNumber(profile2.getPayload().getChurchCode());
+        authentication.setPin(pin);
+        authentication.setUser("");
+        authentication.setPassword("");
+
+        // Offering Payload
+        com.example.tried.auth.member.specific.Payload payload2 = new com.example.tried.auth.member.specific.Payload();
+        payload2.setMemberNumber(profile2.getPayload().getMembershipNumber());
+        payload2.setMemberName(profile2.getPayload().getMemberName());
+        payload2.setNumberOfTries(1);
+        payload2.setStartDate(start_date);
+        payload2.setEndDate(end_date);
+        payload2.setAccountName(account_name);
+        payload2.setAccountNumber(account_number);
+
+        // Get the Member Offering Payload
+        SpecificOfferingStatement statement = new SpecificOfferingStatement();
+        statement.setAuthentication(authentication);
+        statement.setPayload(payload2);
+
+        return authApi.getSpecificOfferingStatement(statement);
+    }
+
+
     @PostMapping(path="/member-transfer")
     public MemberTransferResponse startMemberTransfer(@RequestParam("phone_number")String phoneNumber,
                                                       @RequestParam("church_code")String churchCode){
@@ -439,8 +494,7 @@ public class AuthController {
                                             @RequestParam("start_date_specific") String start_date,
                                             @RequestParam("end_date_specific") String end_date,
                                             @RequestParam("pin_specific") String pin,
-                                            @RequestParam("account_name") String account_name,
-                                            @RequestParam("account_number") String account_number,
+                                            @RequestParam("account_name") String account_info,
                                             HttpServletResponse response) throws IOException {
 
         // Final Session Number
@@ -470,9 +524,16 @@ public class AuthController {
         authentication.setPhoneNumber(phone_number);
         authentication.setSessionNumber(session_number);
         authentication.setPersonnelName(profile.getPayload().getMemberName());
-        authentication.setInstututionName(profile.getPayload().getChurchName());
-        authentication.setInstututionLevel("LOCAL CHURCH");
-        authentication.setInstututionNumber(profile.getPayload().getChurchCode());
+        authentication.setInstitutionName(profile.getPayload().getChurchName());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+        authentication.setInstitutionNumber(profile.getPayload().getChurchCode());
+        authentication.setUser("");
+        authentication.setPassword("");
+
+        String [] account = account_info.split("#");
+        String account_name = account[0];
+        String account_number = account[1];
+
 
         com.example.tried.auth.member.specific.Payload payload = new
                 com.example.tried.auth.member.specific.Payload();
@@ -482,6 +543,10 @@ public class AuthController {
         payload.setEndDate(end_date);
         payload.setMemberNumber(membershipNumber);
         payload.setMemberName(profile.getPayload().getMemberName());
+        payload.setNumberOfTries(1);
+
+        statement.setPayload(payload);
+        statement.setAuthentication(authentication);
 
 
         System.out.println("Generated Profile: " + profile);

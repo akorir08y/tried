@@ -7,7 +7,11 @@ import com.example.tried.auth.dto.Profilepayload;
 import com.example.tried.auth.financial.*;
 import com.example.tried.auth.member.RequestChurchDetails;
 import com.example.tried.auth.member.RequestChurchDetailsResponse;
+import com.example.tried.auth.member.specific.Authentication;
+import com.example.tried.auth.member.specific.MembersItem;
+import com.example.tried.auth.member.specific.Payload;
 import com.example.tried.auth.member.specific.SpecificOfferingStatement;
+import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.config.FileStorageProperties;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.exception.FileStorageException;
@@ -363,7 +367,7 @@ public class OfferingSpecificStatementService {
 
     private void accountSummary(Table accountSum, String Account_Name){
 
-        accountSum.addCell(new Cell().add("Accounts Summary for "+Account_Name+" Account")
+        accountSum.addCell(new Cell().add("Accounts Summary for "+Account_Name)
                 .setFontSize(15)
                 .setFont(bolden)
                 .setWidthPercent(100)
@@ -433,38 +437,12 @@ public class OfferingSpecificStatementService {
                 .setBold()
                 .setBackgroundColor(Color.WHITE));
 
-        // Member Offering Response Statement
-        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        System.out.println("Statement: "+ statement);
 
+        SpecificOfferingStatementResponse response = authApi.getSpecificOfferingStatement(statement);
+        System.out.println("Response: "+ response);
 
-        // Authentication Information
-        OfferingAuthentication authentication = new OfferingAuthentication();
-        authentication.setPhoneNumber(statement.getAuthentication().getPhoneNumber());
-        authentication.setInstitutionName(profile.getPayload().getChurchName());
-        authentication.setInstitutionLevel("LOCAL CHURCH");
-        authentication.setPersonnelName(profile.getPayload().getMemberName());
-        authentication.setSessionNumber(session_number);
-        authentication.setInstitutionNumber(profile.getPayload().getChurchCode());
-        authentication.setPin(statement.getAuthentication().getPin());
-        authentication.setUser("");
-        authentication.setPassword("");
-
-        // Offering Payload
-        OfferingPayload payload2 = new OfferingPayload();
-        payload2.setMemberNumber(profile.getPayload().getMembershipNumber());
-        payload2.setMemberName(profile.getPayload().getMemberName());
-        payload2.setNumberOfTries(1);
-        payload2.setStartDate(statement.getPayload().getStartDate());
-        payload2.setEndDate(statement.getPayload().getEndDate());
-
-        // Get the Member Offering Payload
-        MemberOffering offering = new MemberOffering();
-        offering.setAuthentication(authentication);
-        offering.setPayload(payload2);
-
-        MemberOfferingResponse response = authApi.getMemberOffering(offering);
-
-        List<MembersItem> members = response.getOffpayload().getMembers();
+        List<com.example.tried.auth.member.specific.MembersItem> members = response.getSpecpayload().getMembers();
 
         for(MembersItem mem : members) {
             Statement.addCell(new Cell().add(String.valueOf(mem.getTransactionDate()))

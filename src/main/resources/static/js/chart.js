@@ -24,7 +24,7 @@ function getPreviousMonthName(dt){
              password: password
         };
 
-         $.get(hosted_url + "/cfms/auth/church-trust-funds",personal,function(data, status){
+         $.get(hosted_url + "/cfms-web/auth/church-trust-funds",personal,function(data, status){
                 console.log(data);
 
                 var uniqueChars = [...new Set(data.payload.transactions)];
@@ -190,7 +190,7 @@ function getPreviousMonthName(dt){
             password: password
         };
 
-         $.get(hosted_url + "/cfms/auth/report/non_trust_fund", personal,function(responsive, status){
+         $.get(hosted_url + "/cfms-web/auth/report/non_trust_fund", personal,function(responsive, status){
                 // var responsive = JSON.parse(data);
 
                 document.getElementById("transactions1").innerHTML = responsive.transactions;

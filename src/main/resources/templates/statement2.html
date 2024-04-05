@@ -4,8 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <title>Login Dashboard</title>
-  <link rel="stylesheet " type="text/css" href="/cfms/css/style3.css">
-  <link rel="stylesheet" type="text/css" href="/cfms/css/table_statement.css">
+  <link rel="stylesheet " type="text/css" href="/cfms-web/css/style3.css">
+  <link rel="stylesheet" type="text/css" href="/cfms-web/css/table_statement.css">
   <script>
 $(document).ready(function(){
   $("#myInput").on("keyup", function() {
@@ -73,7 +73,26 @@ $(document).ready(function(){
 
       <!-- userImg -->
       <div class="user">
-        <img src="/cfms/images/cfmsLogo.png">
+        <img src="/cfms-web/images/cfmsLogo.png">
+      </div>
+    </div>
+
+    <div class="cardBox">
+      <div class="card" style="background-color:#24478f;color:white;" onclick="showOfferingStatement()">
+        <div>
+          <div class="cardName">Member Offering Statement</div>
+        </div>
+        <div class="iconBx">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+        </div>
+      </div>
+      <div class="card"  style="background-color:#24478f;color:white;" onclick="showSpecificOfferingStatement()">
+        <div>
+          <div class="cardName">Specific Member Offering Statement</div>
+        </div>
+        <div class="iconBx">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+        </div>
       </div>
     </div>
 
@@ -88,8 +107,8 @@ $(document).ready(function(){
             <br>
             <hr>
             <table width="100%">
-              <form action="/cfms/auth/off-statement" method="get" id="statement" onsubmit="exportStatement()">
-                <input type="hidden" id="phone" name="phone_number" th:value="${phone}">
+              <form action="/cfms-web/auth/off-statement" method="get" id="statement" onsubmit="exportStatement()">
+                <input type="hidden" id="phone" name="phone_number" th:value="${phone_number}">
                 <input type="hidden" id="pass" name="pin" th:value="${pin}">
                 <thead>
                 <tr>
@@ -131,8 +150,8 @@ $(document).ready(function(){
           <br>
           <hr>
           <table width="100%">
-            <form action="/cfms/auth/off-statement-specific" method="get" id="statement_specific" onsubmit="exportStatementSpecific()">
-              <input type="hidden" id="phone_specific" name="phone_number_specific" th:value="${phone}">
+            <form action="/cfms-web/auth/off-statement-specific" method="get" id="statement_specific" onsubmit="exportStatementSpecific()">
+              <input type="hidden" id="phone_specific" name="phone_number_specific" th:value="${phone_number}">
               <input type="hidden" id="pass_specific" name="pin_specific" th:value="${pin}">
               <thead>
               <tr>
@@ -142,8 +161,8 @@ $(document).ready(function(){
               </thead>
               <tbody>
               <tr>
-                <td width="50%"><input type="date" id="start_date_specific" name="start_date" required></td>
-                <td width="50%"><input type="date" id="end_date_specific" name="end_date" required></td>
+                <td width="50%"><input type="date" id="start_date_specific" name="start_date_specific" required></td>
+                <td width="50%"><input type="date" id="end_date_specific" name="end_date_specific" required></td>
               </tr>
               <tr>
                 <td width="100%" colspan="2">Account</td>
@@ -152,7 +171,7 @@ $(document).ready(function(){
                 <td width="100%" colspan="2"><select class="login_input" name="account_name" aria-label="Default Select Example" id="specific_account">
                   <option th:each="account_details : ${AccountDetails}"
                           th:value="${account_details}"
-                          th:text="${account_details}"></option>
+                          th:text="${#strings.arraySplit(account_details,'#')[0]}"></option>
                 </select></td>
               </tr>
               <tr>
@@ -237,7 +256,7 @@ $(document).ready(function(){
             <h2 style="text-align:center;margin-top:10px;">Reset Pin</h2>
           </div>
           <table width="100%">
-            <form id="myForm" action="/cfms/authenticate/login">
+            <form id="myForm" action="/cfms-web/authenticate/login">
             <tbody>
             <tr>
               <td><b>Pin</b></td>
@@ -300,7 +319,7 @@ $(document).ready(function(){
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/cfms/js/generate.js"></script>
+<script src="/cfms-web/js/generate.js"></script>
 <script src="myChart.js"></script>
 
 <script type="text/javascript">

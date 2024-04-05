@@ -15,6 +15,8 @@ import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
 import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
+import com.example.tried.auth.member.specific.SpecificOfferingStatement;
+import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelReset;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
@@ -117,4 +119,8 @@ public interface AuthApi {
 
     // Get the Local Church Offering Reports
     public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary);
+
+
+    // Get the Specific Offering Statement
+    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement);
 }

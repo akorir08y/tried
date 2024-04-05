@@ -393,7 +393,7 @@ function getAllFundAccounts(){
         phone_number: phone
     };
 
-	$.post(hosted_url + "/cfms/auth/check-account",profile_data ,function(data, status){
+	$.post(hosted_url + "/cfms-web/auth/check-account",profile_data ,function(data, status){
         // Trust Fund Accounts
         var request = data.trustFundAccounts;
         var request1 = data.departmentalAccounts;
@@ -639,7 +639,7 @@ function checkGuestName(){
    	    phone_number: phone
    	};
 
-   $.post(hosted_url + "/cfms/auth/check-member",profile_data1   ,function(data, status){
+   $.post(hosted_url + "/cfms-web/auth/check-member",profile_data1   ,function(data, status){
         if(data.error == null){
             var statement = "The member "+ data.memberName +" is already registered to "+ data.churchNumber;
             statement += " and can be receipted for as a Visiting Member. Would you Still like to ";
@@ -669,7 +669,7 @@ function checkVisitorName(){
 	    phone_number: phone
 	};
 
-    $.post(hosted_url + "/cfms/auth/check-member",profile_data1   ,function(data, status){
+    $.post(hosted_url + "/cfms-web/auth/check-member",profile_data1   ,function(data, status){
           var statement = "Is "+ data.memberName +" the Visitor you wish to contribute for?";
           if(confirm(statement) == true){
                 getVisitorName(data.memberName,data.phoneNumber,data.membershipNumber);
@@ -900,13 +900,13 @@ function getMemberReceipting(){
 
     // console.log("Funds Object: "+ JSON.stringify(funds));
     if(church_member.checked == true || visiting_member.checked == true){
-        $.post(hosted_url + "/cfms/auth/member_receipt_funds",funds ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/member_receipt_funds",funds ,function(data, status){
              $(".responseDiv").show();
              $(".responseDiv").html("Member Successfully Receipted");
              $(".responseDiv").fadeOut(3000);
         });
     }else if(guest.checked == true){
-        $.post(hosted_url + "/cfms/auth/member_receipt_funds_guest",funds ,function(data, status){
+        $.post(hosted_url + "/cfms-web/auth/member_receipt_funds_guest",funds ,function(data, status){
              $(".responseDiv").show();
              $(".responseDiv").html("Guest Successfully Receipted");
              $(".responseDiv").fadeOut(3000);

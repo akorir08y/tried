@@ -29,7 +29,7 @@ function generateOfferingStatement(){
     contented.style.display = "none";
     loader.style.display = "block";
 
-     $.post(hosted_url + "/cfms/auth/statement",dates ,function(data, status){
+     $.post(hosted_url + "/cfms-web/auth/statement",dates ,function(data, status){
              console.log(data);
              loader.style.display = "none";
              contented.style.display = "block";
@@ -55,10 +55,15 @@ function generateOfferingStatement(){
 
 function generateOfferingStatementSpecific(){
 
-    var phone = document.getElementById("phone").value;
-    var pin = document.getElementById("pass").value;
-    var start_date = document.getElementById("start_date").value;
-    var end_date = document.getElementById("end_date").value;
+    var phone = document.getElementById("phone_specific").value;
+    var pin = document.getElementById("pass_specific").value;
+    var start_date = document.getElementById("start_date_specific").value;
+    var end_date = document.getElementById("end_date_specific").value;
+    var specific_account = document.getElementById("specific_account").value;
+    var account_info = specific_account.split("#");
+    var account_name = account_info[0];
+    var account_number = account_info[1];
+
 
     if(start_date == null || end_date == null){
         alert("Make Sure you input the start and end dates");
@@ -74,7 +79,9 @@ function generateOfferingStatementSpecific(){
         start_date: start_date,
         end_date: end_date,
         phone_number: phone,
-        pin: pin
+        pin: pin,
+        account_name: account_name,
+        account_number: account_number
     }
 
     var loader = document.getElementById("loader_spin1");
@@ -82,7 +89,7 @@ function generateOfferingStatementSpecific(){
     contented.style.display = "none";
     loader.style.display = "block";
 
-     $.post(hosted_url + "/cfms/auth/statement",dates ,function(data, status){
+     $.post(hosted_url + "/cfms-web/auth/statement-specific",dates ,function(data, status){
              console.log(data);
              loader.style.display = "none";
              contented.style.display = "block";
@@ -144,4 +151,20 @@ function passwordVisibility1(){
 	} else {
 		x.type = "password";
 	}
+}
+
+function showOfferingStatement(){
+    var general_account_statement = document.getElementById("general_account_statement");
+    var specific_account_statement = document.getElementById("specific_account_statement");
+
+    specific_account_statement.style.display = "none";
+    general_account_statement.style.display = "block";
+}
+
+function showSpecificOfferingStatement(){
+    var general_account_statement = document.getElementById("general_account_statement");
+    var specific_account_statement = document.getElementById("specific_account_statement");
+
+    specific_account_statement.style.display = "block";
+    general_account_statement.style.display = "none";
 }

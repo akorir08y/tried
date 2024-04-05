@@ -3,9 +3,9 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<title>Login Dashboard</title>
-<link rel="stylesheet " type="text/css" href="/cfms/css/style2_receipt.css">
-<link rel="stylesheet" type="text/css" href="/cfms/css/table_statement.css">
+<title>Personnel Receipting</title>
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/style2_receipt.css">
+<link rel="stylesheet" type="text/css" href="/cfms-web/css/table_statement.css">
 <script>
 $(document).ready(function(){
   $("#myInput").on("keyup", function() {
@@ -40,7 +40,7 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
@@ -97,7 +97,7 @@ $(document).ready(function(){
 			
 			<!-- userImg -->
 			<div class="user">
-				<img src="/cfms/images/cfmsLogo.png">
+				<img src="/cfms-web/images/cfmsLogo.png">
 			</div>
 		</div>
 
@@ -418,7 +418,7 @@ $(document).ready(function(){
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="myChart.js"></script>
-<script src="/cfms/js/member_receipting.js"></script>
+<script src="/cfms-web/js/member_receipting.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');

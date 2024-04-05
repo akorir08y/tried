@@ -15,6 +15,8 @@ import com.example.tried.auth.financial.MemberOffering;
 import com.example.tried.auth.financial.MemberOfferingResponse;
 import com.example.tried.auth.member.*;
 import com.example.tried.auth.member.giving.*;
+import com.example.tried.auth.member.specific.SpecificOfferingStatement;
+import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.auth.personnel.*;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummary;
 import com.example.tried.auth.personnel.reports.non_trust_funds.LocalChurchNonTrustSummaryResponse;
@@ -810,6 +812,32 @@ public class AuthApiImpl implements AuthApi{
             return objectMapper.readValue(response.body().string(),LocalChurchOfferingSummaryResponse.class);
         } catch (Exception e) {
             log.error(String.format("Could not get Local Church Offering Report -> %s", e.getLocalizedMessage()));
+            return null;
+        }
+    }
+
+    @Override
+    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) {
+        statement.setFunction("getMemberSpecificOfferingStatement");
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
+                Objects.requireNonNull(HelperUtility.toJSON(statement)));
+
+        System.out.println("Specific Offering Statement JSON: "+ HelperUtility.toJSON(statement));
+
+        Request request = new Request.Builder()
+                .url(authConfiguration.getFinancial_data())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(),SpecificOfferingStatementResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Specific Offering Statement -> %s", e.getLocalizedMessage()));
             return null;
         }
     }
