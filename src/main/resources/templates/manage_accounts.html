@@ -18,37 +18,37 @@
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -66,7 +66,7 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -96,6 +96,7 @@
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+		<input type="hidden" name="pin" id="pin" th:value="${personal_pin}">
 
 
 
@@ -105,7 +106,6 @@
 				<div id="all_accounts">
 					<div class="cardHeader">
 						<h2>Active Accounts</h2>
-
 					</div>
 					<input type="text" placeholder="Search here" id="myInput">
 					<br>
@@ -127,10 +127,23 @@
 						</table>
 				</div>
 				<div id="single_account"></div>
+				<div id="new_single_account"></div>
 			</div>
 			
 			<!-- New Customers -->
 			<div class="recentCustomers">
+				<div id="add_button">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">Add New Account</h2>
+					</div>
+					<table width="100%" style="border-collapse: separate;">
+						<tbody>
+						<tr onclick="newSingleAccount()">
+							<td class="btn-add">Add Account</a></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
 				<hr>
 				<div id="about_app">
 					<div class="cardHeader">
@@ -144,7 +157,7 @@
 						</tr>
 						<tr>
 							<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
-							<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+							<td colspan="2"><a href="" class="linkers">FAQ</a></td>
 						</tr>
 						<tr>
 							<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
@@ -165,9 +178,9 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="/cfms-web-web/js/manage_accounts.js"></script>
-<script src="/cfms-web-web/js/search.js"></script>
-<script src="/cfms-web-web/js/profile.js"></script>
+<script src="/cfms-web/js/manage_accounts.js"></script>
+<script src="/cfms-web/js/search.js"></script>
+<script src="/cfms-web/js/profile.js"></script>
 
 <script type="text/javascript">
 let toggle = document.querySelector('.toggle');

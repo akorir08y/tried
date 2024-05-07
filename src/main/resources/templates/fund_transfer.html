@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<title>Fund Transfer</title>
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/style2.css">
+<link rel="stylesheet" type="text/css" href="/cfms-web/css/table_profile.css">
+<style>
+	#fund_transfer table tr,#host_church_self table tr,#home_church_self table tr, #host_church_others table tr,
+	#trust_funds_div table tr, #payment_div table tr{
+		padding: 0px;
+	}
+	
+	#fund_transfer table td, #host_church_self table td,#home_church_self table td, #host_church_others table td,
+	#content2 table td, #payment_div table td{
+		padding: 2px;
+	}
+	
+	
+	label{
+		font-size:12px;
+	}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="navigation">
+	<ul>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+		<span class="icon" >Home</span>
+		</a>
+		<li id="dash">
+			<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
+				<span class="title">Dashboard</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
+				<span class="title">Registration</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
+				<span class="title">Manage Accounts</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+				<span class="title">Fund Transfers</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
+				<span class="title">Reports and Statements</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+				<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
+				<span class="title">Receipting and Reconciliation</span>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<span class="icon"><ion-icon name="pie-chart-outline"></ion-icon></span>
+				<span class="title">Budget and Expenditure</span>
+			</a>
+		</li>
+		<li>
+			<a href="#">
+				<span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+				<span class="title">Support Options</span>
+			</a>
+		</li>
+		<li>
+			<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
+				<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+				<span class="title">Sign Out</span>
+			</a>
+		</li>
+	</ul>
+</div>
+	<!-- main -->
+	<div class="main">
+		<div class="topbar">
+			<div class="toggle">
+				<ion-icon name="menu-outline" style="font-size:26px;"></ion-icon>
+			</div>
+
+			<!-- Search -->
+			<div class="search">
+				<h1 style="font-size:16px;">Fund Transfer</h1>
+			</div>
+			
+			<!-- userImg -->
+			<div class="user">
+				<img src="/cfms-web/images/cfmsLogo.png">
+			</div>
+		</div>
+
+		<input type="hidden" name="username" id="username" value="cmk">
+		<input type="hidden" name="password" id="password" value="cfms2024">
+		<input type="hidden" name="phone_number" id="phone_number" value="254797705390">
+		
+		
+		<!-- Order Details List -->
+		<div class="details">
+			<div class="recentOrders">
+				<div id="fund_transfer">
+					<div class="cardHeader">
+						<h2 style="text-align:center;">Fund Transfer</h2>
+						<div class="responseDiv" style="display:none;"></div>
+					</div>
+					
+					<br>
+					<hr>					
+					<table>
+					  <tbody>
+							<tr>
+								<td colspan="4" style="padding-top:10px;"><b>Select a Transaction to proceed</b></td>
+							</tr>
+							<tr>
+								<td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="transfer_to_conference">
+									  <label class="form-check-label" for="transfer_to_conference">
+										Trust Funds To Conference
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="department_to_bank">
+									  <label class="form-check-label" for="department_to_bank">
+										Departmental Funds to Bank
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								  <td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="department_to_another">
+									  <label class="form-check-label" for="department_to_another">
+										Department to Another
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								  <td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault3" id="withdrawal_from_bank">
+									  <label class="form-check-label" for="withdrawal_from_bank">
+										Withdrawal from Bank
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="proposeFundsTransfer()">Proceed</button></td>
+							</tr>
+					  </tbody>
+					</table>
+				</div>
+				
+				
+				
+			<div id="transfer_to_conference_div" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Transfer to Conference</h2>
+					<div class="responseDiv" style="display:none;"></div>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td>From Date</td>
+							<td>To Date</td>
+						</tr>
+						<tr>
+							<td><input type="date" id="start_date" name="from_date"></td>
+							<td><input type="date" id="end_date" name="to_date"></td>
+						</tr>
+						<tr>
+							<td><label class="label_input" for="source_account"><b> Source Account</b></label></td>
+							<td><select class="login_input" aria-label="Default Select Example" id="source_account" onchange="getSourceAccount()">
+							  <option value="Cash">Cash</option>
+							  <option value="Bank Deposits">Bank Deposits</option>
+						  	</select></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div id="cash_option">
+					<table>
+						<tr>
+							<td><label class="label_input" for="cash_source_account"><b>Cash Account</b></label></td>
+							<td colspan="2"><select class="login_input" aria-label="Default Select Example" id="cash_source_account">
+								<option th:each="source_account : ${cashList}"
+										th:value="${source_account}"
+										th:text="${source_account}"></option>
+						  		</select>
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div id="bank_option" style="display:none;">
+					<table>
+						<tr>
+							<td><label class="label_input" for="bank_source_account"><b>Bank Deposit Accounts</b></label></td>
+								<td colspan="2"><select class="login_input" aria-label="Default Select Example" id="bank_source_account">
+									<option th:each="source_account_bank : ${bankList}"
+											th:value="${source_account_bank}"
+											th:text="${source_account_bank}"></option>
+								</select></td>
+						</tr>
+					</table>
+				</div>
+				<tr>
+					<td><button type="button" class="btn" onclick="selectTrustFunds()">Get Fund Data</button></td>
+				</tr>
+				<tr>
+					<td><br></td>
+				</tr>
+				</table>
+				<br>
+				<br>
+				<div class="loader" id="loader_spin_transfer" style="display:none;"></div>
+				<div id="content2"></div>
+			</div>
+
+				<div id="transfer_to_local_bank" style="display:none;">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Transfer to Conference</h2>
+						<div class="responseDiv" style="display:none;"></div>
+					</div>
+					<br>
+					<hr>
+					<table>
+						<tbody>
+						<tr>
+							<td><label class="label_input" for="source_account"><b> Source Account</b></label></td>
+							<td><select class="login_input" aria-label="Default Select Example" id="source_account_bank" readonly>
+								<option value="Cash">Cash</option>
+							</select></td>
+						</tr>
+						<tr id="cash_option_bank">
+							<td><label class="label_input" for="cash_source_account"><b>Cash Account</b></label></td>
+							<td><select class="login_input" aria-label="Default Select Example" id="cash_source_account_bank">
+								<option value="Cash Account:104001(13274)">Cash Account:104001(13274)</option>
+							</select></td>
+						</tr>
+						<tr>
+							<td><button type="button" class="btn">Get Fund Data</button></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			
+			
+			<div id="trust_funds_div"></div>
+			
+			<div id="payment_div" style="display:none;">
+				
+					<table>
+							<tr>
+								<td colspan="4" style="padding-top:10px;"><b>Initiate Payment From:</b></td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number">
+									  <label class="form-check-label" for="registered_number">
+										My Number
+									  </label>
+								</td>
+							</tr>
+							<tr>
+								  <td style="text-align:left;">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number">
+									  <label class="form-check-label" for="my_other_number">
+										My Other Number
+									  </label>	
+								  </td>
+							</tr>
+							<tr>
+								<td colspan="4" style="padding-top:10px;"><b>Other Methods:</b></td>
+							</tr>
+							<tr>
+								  <td>
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="equity_bank">
+									  <label class="form-check-label" for="equity_bank">
+										Equity Over the Counter Deposit
+									  </label>
+								  </td>
+							</tr>
+							<tr>
+								<td><br></td>
+							</tr>
+							<tr>
+								<td><br><p id="payment_line">Ensure 8560 /= has been deposited on the mobile money account for 254786439659</p></td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="fundsTransferToConference()">Initiate Transfer</button></td>
+							</tr>							
+					</table>
+				
+			</div>
+			
+				
+				
+			</div>
+			<div class="recentCustomers">
+				<hr>
+				<br>
+				<div id="about_app">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">About App</h2>
+					</div>
+					<table width="100%">
+						<tbody>
+							<tr>
+								<td><ion-icon name="aperture-outline" class="icons"></ion-icon></td>
+								<td><a href="" class="linkers">SDA CFMS</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
+								<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
+								<td><a href="https://lakeatts.co.ke/data_privacy.html" class="linkers">Privacy Policy</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		
+			
+
+	</div>
+	
+	
+</div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/cfms-web/js/transfer.js"></script>
+
+<script type="text/javascript">
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+</script>
+</body>
+</html>

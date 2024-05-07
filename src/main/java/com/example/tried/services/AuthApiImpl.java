@@ -49,7 +49,7 @@ import static com.example.tried.utils.Constants.JSON_MEDIA_TYPE;
 public class AuthApiImpl implements AuthApi{
 
     // Prepare a Hash Map
-    Map<String, Integer> otpMap = new HashMap<>();
+    HashMap<String, String> otpMap = new HashMap<String, String>();
 
 
     private final AuthConfiguration authConfiguration;
@@ -62,8 +62,9 @@ public class AuthApiImpl implements AuthApi{
         this.objectMapper = objectMapper;
     }
 
+    // Login As a Member
     @Override
-    public AuthMemberResponse getMemberCredentials(LoginCredentials credentials) {
+    public AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException {
 
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -85,10 +86,10 @@ public class AuthApiImpl implements AuthApi{
 
         memberRequest.setPayload(payload);
 
-        System.out.println("OfferingAuthentication Request: "+ Objects.requireNonNull(HelperUtility.toJSON(memberRequest)));
+        String requested = objectMapper.writeValueAsString(memberRequest);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(memberRequest)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -107,14 +108,19 @@ public class AuthApiImpl implements AuthApi{
 
 
     @Override
-    public SMSResponse VerifyPhoneNumber(String recipient) {
+    public SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException {
         // Generate Random OTP
 
         int rand = getOTPPin();
-        otpMap.put(recipient, rand);
-        // OTP Message
-        String message = "<#>Your CFMS Authorization Code is " + rand + " n   nCR3mHWdawrw    n";
 
+        otpMap.put("recipient", recipient);
+        otpMap.put("otp", String.valueOf(rand));
+        // OTP Message
+        String message = "<#>Your CFMS Authorization Code is " + rand + "   \n   nCR3mHWdawrw    \n";
+
+        if(recipient.startsWith("+254")){
+            recipient = recipient.substring(1,recipient.length());
+        }
 
         // OfferingAuthentication Details
         Authentication authentication = new Authentication();
@@ -124,6 +130,7 @@ public class AuthApiImpl implements AuthApi{
         //SMS Request
         SmsRequest smsRequest = new SmsRequest();
         smsRequest.setMessageGroup("Individual");
+
 
         // Receives a List of Phone Number
         List<String> Number = new ArrayList<>();
@@ -149,9 +156,10 @@ public class AuthApiImpl implements AuthApi{
         sms.setFunction(function);
 
         System.out.println("SMS Request: "+ Objects.requireNonNull(HelperUtility.toJSON(sms)));
+        String requested = objectMapper.writeValueAsString(sms);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(sms)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getSms_url())
                 .method("POST", body)
@@ -167,7 +175,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberResetResponse resetMemberPin(Payload payload) {
+    public AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException {
         AuthMemberReset memberReset = new AuthMemberReset();
 
         // Generate Session Number
@@ -181,10 +189,10 @@ public class AuthApiImpl implements AuthApi{
         payload.setSessionNumber(session);
         memberReset.setPayload(payload);
 
-        System.out.println("Reset PIN Request: "+ Objects.requireNonNull(HelperUtility.toJSON(memberReset)));
+        String requested = objectMapper.writeValueAsString(memberReset);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(memberReset)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -200,7 +208,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberRegistrationResponse registerMember(MemberRegister register) {
+    public AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
         System.out.println("The Session Number is: " + session_number);
@@ -211,9 +219,12 @@ public class AuthApiImpl implements AuthApi{
         registration.setFunction("mobileRegistration");
         registration.setPayload(register);
 
+        System.out.println("Registration Payload: "+ HelperUtility.toJSON(registration));
+
+        String requested = objectMapper.writeValueAsString(registration);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registration)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -229,14 +240,18 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) {
+    public AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException {
 
         MemberRegistrationUpdate registration = new MemberRegistrationUpdate();
         registration.setFunction("mobileRegistrationUpdates");
         registration.setUpdatepayload(register);
 
+        System.out.println("Update Profile Info: "+ registration);
+
+        String requested = objectMapper.writeValueAsString(registration);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registration)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -252,16 +267,16 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) {
+    public MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException {
         // Function Name
         personnel.setFunction("login");
         personnel.setConnectionPurpose("Web Administration");
         System.out.println("Login Personnel Credentials: "+personnel.toString());
 
-        System.out.println("Personnel JSON Request: "+Objects.requireNonNull(HelperUtility.toJSON(personnel)));
+        String requested = objectMapper.writeValueAsString(personnel);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(personnel)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -277,13 +292,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) {
+    public PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException {
         reset.setFunction("resetPassword");
 
-        System.out.println("Member Personnel Reset JSON: "+
-                Objects.requireNonNull(HelperUtility.toJSON(reset)));
+        String requested = objectMapper.writeValueAsString(reset);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(reset)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -300,22 +315,21 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public String validateOTPPassword(OtpValidationRequest otpValidationRequest) {
-        // System.out.println("Otp Validation Request: "+otpValidationRequest.toString());
-        int rand = otpMap.get(otpValidationRequest.getUsername());
+    public String validateOTPPassword(OtpValidationRequest otpValidationRequest)  {
+
+        String rand = String.valueOf(otpMap.get("otp"));
         System.out.println("Rand: "+rand);
 
-        Set<String> keys = otpMap.keySet();
-        int otp = Integer.parseInt(otpValidationRequest.getOtpNumber());
+        String otp = otpValidationRequest.getOtpNumber();
         System.out.println("Otp: "+otp);
-        // System.out.println("Input from the Form: "+otpValidationRequest.getOtpNumber());
-        // System.out.println("Keys :"+ keys);
-        // otpMap.get()
-        String username = null;
-        for(String key : keys)
-            username = key;
-        if (otpValidationRequest.getUsername().equals(username)) {
-            if(rand == otp) {
+        String username = otpMap.get("recipient");
+        String obtained = otpValidationRequest.getUsername();
+
+        System.out.println("Phone Number: "+ username);
+        System.out.println("Obtained Phone Number: "+ obtained);
+
+        if (obtained.contains(username)) {
+            if(rand.contains(otp)) {
                 return "OTP is valid!";
             }else{
                 return "OTP is invalid!";
@@ -329,20 +343,18 @@ public class AuthApiImpl implements AuthApi{
     public int getOTPPin() {
         // Generate Random OTP
        final int rand = (int) ((Math.random() * 9000) + 1000);
-       System.out.println("The Authorization Code is: " + rand);
        return rand;
     }
 
     // Get the Member Details
     @Override
-    public MemberProfileResponse getMemberDetails(MemberProfile profile) {
+    public MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException {
         profile.setFunction("mobileFetchProfile");
 
-        System.out.println("Member Profile Request JSON: "+
-                Objects.requireNonNull(HelperUtility.toJSON(profile)));
+        String requested = objectMapper.writeValueAsString(profile);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(profile)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getCfms_data())
                 .method("POST", body)
@@ -359,15 +371,17 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberOfferingResponse getMemberOffering(MemberOffering offering) {
+    public MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException {
         // Profile
         offering.setFunction("getMemberOfferingStatement");
 
         System.out.println("Member Offering Request JSON: "+
                 Objects.requireNonNull(HelperUtility.toJSON(offering)));
 
+        String requested = objectMapper.writeValueAsString(offering);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(offering)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getFinancial_data())
                 .method("POST", body)
@@ -391,11 +405,10 @@ public class AuthApiImpl implements AuthApi{
         requestChurchDetails.setAccessPoint("Web App");
         requestChurchDetails.setConnectionPurpose("Registration");
 
-        System.out.println("Member Church Details Request JSON: "+
-                Objects.requireNonNull(HelperUtility.toJSON(requestChurchDetails)));
+        String requested = objectMapper.writeValueAsString(requestChurchDetails);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(requestChurchDetails)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -412,8 +425,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) {
-        // Member Transfer Payload
+    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException {
+        // Member Transfer RPayload
         transfer.setFunction("memberTransfer");
 
         TransferAuthentication authentication = new TransferAuthentication();
@@ -422,11 +435,10 @@ public class AuthApiImpl implements AuthApi{
 
         transfer.setTransferauthentication(authentication);
 
-        System.out.println("Member Transfer Details: "+
-                Objects.requireNonNull(HelperUtility.toJSON(transfer)));
+        String requested = objectMapper.writeValueAsString(transfer);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(transfer)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -447,11 +459,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails requestMember) {
+    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails requestMember) throws JsonProcessingException {
         requestMember.setFunction("mobileRequestMemberDetails");
 
+        String requested = objectMapper.writeValueAsString(requestMember);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(requestMember)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -472,11 +486,15 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) {
+    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException {
         requestChurchDetails.setFunction("mobileRequestChurchDetailsWithChurchCode");
 
+        System.out.println("RequestChurchDetailsWithCode:"+ requestChurchDetails);
+
+        String requested = objectMapper.writeValueAsString(requestChurchDetails);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(requestChurchDetails)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -497,11 +515,15 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) {
+    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException {
         registrationUpdate.setFunction("mobileRegistrationUpdates");
 
+        System.out.println("Registration Update: "+ HelperUtility.toJSON(registrationUpdate));
+
+        String register = objectMapper.writeValueAsString(registrationUpdate);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registrationUpdate)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, register);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -522,11 +544,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ListMembersResponse getChurchMembers(ListMembers members) {
+    public ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException {
         members.setFunction("getListOfChurchMembers");
 
+        String register = objectMapper.writeValueAsString(members);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(members)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, register);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -547,11 +571,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) {
+    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException {
         members.setFunction("mobileRequestDeactivatedMemberDetails");
 
+        String register = objectMapper.writeValueAsString(members);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(members)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, register);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -572,11 +598,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) {
+    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException {
         paymentAccount.setFunction("getLocalChurchPaymentAccounts");
 
+        String requested = objectMapper.writeValueAsString(paymentAccount);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(paymentAccount)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -597,11 +625,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) {
+    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException {
         trustFundSummary.setFunction("getLocalChurchTrustFundsSummary");
 
+        String requested = objectMapper.writeValueAsString(trustFundSummary);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(trustFundSummary)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getTrust_funds_url())
                 .method("POST", body)
@@ -622,11 +652,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) {
+    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException {
         homePayment.setFunction("");
 
+        String requested = objectMapper.writeValueAsString(homePayment);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(homePayment)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -646,11 +678,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) {
+    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException {
         hostChurchPayment.setFunction("mobileInitiateHostChurchPayment");
 
+        String requested = objectMapper.writeValueAsString(hostChurchPayment);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(hostChurchPayment)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
@@ -670,27 +704,21 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonParseException {
+    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException {
         giving.setFunction("mobileReceiveFunds");
-
-        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getTrustFunds());
-        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getNonTrustFunds());
-        System.out.println("Getting Trust Funds: " + giving.getPayload().getFundDistribution().getSpecialTrustFunds());
-        System.out.println("Mobile Giving JSON: "+ HelperUtility.toJSON(giving));
+        String requested = objectMapper.writeValueAsString(giving);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(giving)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
-        System.out.println("Request Body: " + body.toString());
+        System.out.println("Member Giving: " + HelperUtility.toJSON(giving));
+
         Request request = new Request.Builder()
                 .url(authConfiguration.getAuth_login_url())
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        System.out.println("Request: " + request);
-        System.out.println("Request: " + HelperUtility.toJSON(request));
 
         try {
             Response response = client.newCall(request).execute();
@@ -706,12 +734,13 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest stkRequest) {
+    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest stkRequest) throws JsonProcessingException {
         stkRequest.setChannel("M-PESA");
 
+        String requested = objectMapper.writeValueAsString(stkRequest);
+
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(stkRequest)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
         System.out.println("Request Body: " + body.toString());
         Request request = new Request.Builder()
@@ -734,12 +763,12 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) {
+    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException {
         transactionTracing.setFunction("getLocalChurchPaymentTraceReport");
+        String requested = objectMapper.writeValueAsString(transactionTracing);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(transactionTracing)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
         System.out.println("Request Body: " + HelperUtility.toJSON(transactionTracing));
         Request request = new Request.Builder()
@@ -762,12 +791,12 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) {
+    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException {
         nonTrustSummary.setFunction("getLocalChurchNonTrustFundsOfferingsReport");
+        String requested = objectMapper.writeValueAsString(nonTrustSummary);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(nonTrustSummary)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
         System.out.println("Request Body JSON: " + HelperUtility.toJSON(nonTrustSummary));
         Request request = new Request.Builder()
@@ -791,12 +820,12 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) {
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException {
         churchOfferingSummary.setFunction("getLocalChurchOfferingsReport");
+        String requested = objectMapper.writeValueAsString(churchOfferingSummary);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(churchOfferingSummary)));
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
         System.out.println("Offering JSON: "+ HelperUtility.toJSON(churchOfferingSummary));
 
@@ -805,7 +834,6 @@ public class AuthApiImpl implements AuthApi{
                 .method("POST", body)
                 .addHeader("Content-Type", "application/json")
                 .build();
-
 
         try {
             Response response = client.newCall(request).execute();
@@ -817,15 +845,12 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) {
+    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException {
         statement.setFunction("getMemberSpecificOfferingStatement");
+        String requested = objectMapper.writeValueAsString(statement);
 
         //Request Body
-        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE,
-                Objects.requireNonNull(HelperUtility.toJSON(statement)));
-
-        System.out.println("Specific Offering Statement JSON: "+ HelperUtility.toJSON(statement));
-
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
         Request request = new Request.Builder()
                 .url(authConfiguration.getFinancial_data())
                 .method("POST", body)

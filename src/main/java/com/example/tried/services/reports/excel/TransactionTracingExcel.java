@@ -70,7 +70,7 @@ public class TransactionTracingExcel {
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(12);
+        font.setFontHeight(10);
         style.setFont(font);
 
         // Session Numbers
@@ -80,9 +80,25 @@ public class TransactionTracingExcel {
 
             createCell(row, columnCount++,transactionItem.getCfmsTransactionId() , style);
             createCell(row, columnCount++, transactionItem.getReceiverId(), style);
-            createCell(row, columnCount++, transactionItem.getTrustFund(), style);
-            createCell(row, columnCount++, transactionItem.getNonTrustFund(), style);
-            createCell(row, columnCount++, transactionItem.getSpecialTrustFunds(), style);
+
+            if(transactionItem.getTrustFund() != null){
+                createCell(row, columnCount++, transactionItem.getTrustFund(), style);
+            }else{
+                createCell(row, columnCount++, "0.0", style);
+            }
+
+            if(transactionItem.getNonTrustFund() != null){
+                createCell(row, columnCount++, transactionItem.getNonTrustFund(), style);
+            }else{
+                createCell(row, columnCount++, "0.0", style);
+            }
+
+            if(transactionItem.getSpecialTrustFunds() != null){
+                createCell(row, columnCount++, transactionItem.getSpecialTrustFunds(), style);
+            }else{
+                createCell(row, columnCount++, "0.0", style);
+            }
+
             createCell(row, columnCount++, transactionItem.getGivingStatus(), style);
             createCell(row, columnCount++, transactionItem.getSettlementStatus(), style);
         }

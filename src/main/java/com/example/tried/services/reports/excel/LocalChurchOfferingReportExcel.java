@@ -12,12 +12,17 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class LocalChurchOfferingReportExcel {
 
+    List<String> keys = new ArrayList<String>();
+    List<String> keys_unfiltered = new ArrayList<String>();
+
+    Map<String, Object> otpMap = new HashMap<>();
 
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
@@ -36,26 +41,40 @@ public class LocalChurchOfferingReportExcel {
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(16);
+        font.setFontHeight(12);
         style.setFont(font);
 
         createCell(row, 0, "Receipt No", style);
-        createCell(row, 1, "Member Name", style);
-        createCell(row, 2, "Member Number", style);
-        createCell(row, 3, "Mode of Payment", style);
-        createCell(row, 4, "Tithe", style);
-        createCell(row, 5, "Combined", style);
-        createCell(row, 6, "Camp", style);
-        createCell(row, 7, "Conf Dev.", style);
-        createCell(row, 8, "Thirteenth", style);
+        createCell(row, 1, "Transaction Date", style);
+        createCell(row, 2, "Member Name", style);
+        createCell(row, 3, "Member Number", style);
+        createCell(row, 4, "Mode of Payment", style);
+        createCell(row, 5, "Tithe", style);
+        createCell(row, 6, "Combined", style);
+        createCell(row, 7, "Camp", style);
+        createCell(row, 8, "Conference Development", style);
+        createCell(row, 9, "Thirteenth", style);
 
         HashMap<String, Integer> churchFunds = offeringSummaryResponse.getPayload().getLocalChurchFunds();
-        churchFunds.put("Total",0);
         for (Map.Entry<String,Integer> mapElement : churchFunds.entrySet()) {
             String key = mapElement.getKey();
-            createCell(row, columnCount++, key, style);
-        }
+            keys_unfiltered.add(key);
+            if(key.contains("_")) {
+                key = key.replace("_", " ");
+                keys.add(key);
+            }else{
+                keys.add(key);
+            }
 
+        }
+        keys.add("Total");
+        keys_unfiltered.add("totalAmount");
+
+        int count = 10;
+
+        for(int i=0; i < keys.size(); i++) {
+            createCell(row, count++, keys.get(i), style);
+        }
     }
 
     private void createCell(Row row, int columnCount, Object value, CellStyle style) {
@@ -79,7 +98,7 @@ public class LocalChurchOfferingReportExcel {
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
+        font.setFontHeight(10);
         style.setFont(font);
 
         List<HashMap<String, Object>> Members = offeringSummaryResponse.getPayload().getMembers();
@@ -89,52 +108,31 @@ public class LocalChurchOfferingReportExcel {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
-            for (Map.Entry<String, Object> entry : hashMap.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if(key.contains("receiptNumber")){
-                    createCell(row, columnCount++,value , style);
-                }
+            createCell(row, 0, hashMap.get("receiptNumber"), style);
+            createCell(row, 1, hashMap.get("transactionDate"), style);
+            createCell(row, 2, hashMap.get("memberName"), style);
+            createCell(row, 3, hashMap.get("memberNumber"), style);
+            createCell(row, 4, hashMap.get("meansOfPayment"), style);
+            createCell(row, 5, hashMap.get("tithe"), style);
+            createCell(row, 6, hashMap.get("combined"), style);
+            createCell(row, 7, hashMap.get("camp"), style);
+            createCell(row, 8, hashMap.get("cdf"), style);
+            createCell(row, 9, hashMap.get("thirteenth"), style);
 
-                if(key.contains("memberName")){
-                    createCell(row, columnCount++,value , style);
-                }
+            int count = 10;
 
-                if(key.contains("memberNumber")){
-                    createCell(row, columnCount++,value , style);
-                }
 
-                if(key.contains("meansOfPayment")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                if(key.contains("tithe")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                if(key.contains("combined")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                if(key.contains("camp")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                if(key.contains("Development")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                if(key.contains("thirteenth")){
-                    createCell(row, columnCount++,value , style);
-                }
-
-                createCell(row, columnCount++,value , style);
-
-                if(key.contains("totalAmount")){
-                    createCell(row, columnCount++,value , style);
+            for(int i = 0; i < keys_unfiltered.size(); i++){
+                if(hashMap.get("receiptNumber") != null){
+                    createCell(row, count++, hashMap.get(keys_unfiltered.get(i)), style);
+                }else{
+                    createCell(row, 4,"Total Amount" , style);
+                    createCell(row, count++, hashMap.get(keys_unfiltered.get(i)), style);
                 }
             }
         }
+
+
     }
 
     public void export(HttpServletResponse response, LocalChurchOfferingSummaryResponse offeringSummaryResponse) throws IOException, java.io.IOException {

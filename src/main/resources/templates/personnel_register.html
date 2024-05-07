@@ -18,37 +18,37 @@
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a  th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
+		<a  th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -66,7 +66,7 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -97,6 +97,7 @@
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
 		<input type="hidden" name="church_code" id="church_code" th:value="${church_code}">
+		<input type="hidden" name="pin" id="pin" th:value="${personal_pin}">
 
 
 		<!-- Order Details List -->
@@ -107,30 +108,30 @@
 						<h2>Active Members</h2>
 					</div>
 					<input type="text" placeholder="Search here" id="myInput">
-					<span class="right-icon" onclick="getNewMember()"><ion-icon name="add-circle-outline" style="background-color:#24478f;color:white;border-radius:50%;font-size:40px;float:right;"></ion-icon>
 					<br>
 					<div class="responseDiv" style="display:none;"></div>
 					<hr>
 					<table>
-						<thead>
-						</thead>
 						<tbody id="myTable">
-							<tr tabindex="0" th:each="members : ${Members}" th:onclick="getMemberProfile([[${members.phoneNumber}]])">
-								<td class="con"><span class='left' th:text="${members.phoneNumber}"></span>
+							<tr tabindex="0" th:each="members : ${Members}">
+								<td class="con" th:onclick="getMemberProfile([[${members.phoneNumber}]])"><span class='left' th:text="${members.phoneNumber}"></span>
 									<span class='right' th:text="${members.name}"></span><br><br>
 									<span class="left-below" th:text="${members.churchNumber}"></span>
-									<a class="right-blue-red" th:onclick="getMemberProfile([[${members.phoneNumber}]])">Deactivate Member</a></td>
+								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
+
 				<div id="member_profile" style="display:none;"></div>
 				<div id="new_member" style="display:none;"></div>
+				<div class="loader" id="loader_spin_profile" style="display:none;"></div>
+
 				<div id="transfer_church" style="display:none;">
+					<hr>
 					<div class="cardHeader">
 						<h2 style="text-align:center;margin-top:10px;">Transfer Church</h2>
 					</div>
-					<div class="responseDiv"></div>
 					<table width="100%">
 						<tbody>
 							<tr>
@@ -152,6 +153,20 @@
 			
 			<!-- New Customers -->
 			<div class="recentCustomers">
+				<div id="add_button">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">Add New Member</h2>
+					</div>
+					<table width="100%" style="border-collapse: separate;">
+						<tbody>
+							<tr onclick="getNewMember()">
+								<td class="btn-add">Add Member</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<br>
+				<hr>
 				<div class="cardHeader">
 					<h2>Deactivated Members</h2>
 				</div>
@@ -166,7 +181,7 @@
 						<td class="con"><span class='left' th:text="${members1.phoneNumber}"></span>
 							<span class='right' th:text="${members1.memberName}"></span><br><br>
 							<span class="left-below" th:text="${members1.membershipNumber}"></span>
-							<a href="https://www.google.com" class="right-blue">Activate Member</a></td>
+							<a onclick="activateMember([[${members.phoneNumber}]])" class="right-blue">Activate Member</a></td>
 					</tr>
 					</tbody>
 				</table>

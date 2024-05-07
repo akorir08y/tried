@@ -15,6 +15,7 @@ import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.config.FileStorageProperties;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.exception.FileStorageException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -379,7 +380,7 @@ public class OfferingSpecificStatementService {
                 .setBackgroundColor(Color.WHITE));
     }
 
-    private void getOfferingData(Table Statement, SpecificOfferingStatement statement,MemberProfileResponse profile){
+    private void getOfferingData(Table Statement, SpecificOfferingStatement statement,MemberProfileResponse profile) throws JsonProcessingException {
 
         // Table Headers
         Statement.addCell(new Cell().add("Date")

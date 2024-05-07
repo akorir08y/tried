@@ -37,6 +37,9 @@ public class RmPayload{
 	@JsonProperty("contributorContact")
 	private String contributorContact;
 
+	@JsonProperty("receiverContact")
+	private String receiverContact;
+
 	@JsonProperty("contributorType")
 	private String contributorType;
 

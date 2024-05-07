@@ -18,37 +18,37 @@
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -66,7 +66,7 @@
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -96,6 +96,7 @@
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personnel_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personnel_phone}">
+		<input type="hidden" name="pin" id="pin" th:value="${personnel_pin}">
 
 		<div class="cardBox">
 				<div class="card" style="background-color:#24478f;color:white;" onclick="showNonTrustFunds()">
@@ -122,9 +123,9 @@
 						<ion-icon name="bar-chart-outline"></ion-icon>
 					</div>
 				</div>
-				<div class="card"  style="background-color:#24478f;color:white;">
+				<div class="card"  style="background-color:#24478f;color:white;" onclick="showAllReports()">
 					<div>
-						<div class="cardName" th:text="|Transaction Tracing ${PreviousMonth} Report|"></div>
+						<div class="cardName" th:text="|All Reports|"></div>
 					</div>
 					<div class="iconBx">
 						<ion-icon name="bar-chart-outline"></ion-icon>
@@ -285,6 +286,81 @@
 				<div class="box1"><canvas id="myChart6"></canvas></div>
 			</div>
 		</div>
+		<!-- The Modal -->
+		<div id="myModal1" class="modal">
+
+			<!-- Modal content -->
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="close">&times;</span>
+				</div>
+				<div class="modal-body">
+					<div id="otp_verify1">
+						<h2 style="margin-top:10px;">OTP Verification</h2>
+						<hr>
+						<div id="personnel_reset_div" style="margin-top:10px;padding:20px;border-radius:15px;box-shadow: 10px 10px 5px lightblue;font-size:12px;text-align:center;" onclick="sendPersonnelResetOTP()"></div>
+						<br>
+						<input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone_number_reset">
+						<table>
+							<tr class="otp-field">
+								<td id="otp-field12" colspan="2" style="text-align:center;">
+									<input type="text" id="ist2" maxlength="1" onkeyup="clickEvent(this,'sec2')" style="width:10%"/>
+									<input type="text" id="sec2" maxlength="1" onkeyup="clickEvent(this,'third2')" style="width:10%"/>
+									<input type="text" id="third2" maxlength="1" onkeyup="clickEvent(this,'forth2')" style="width:10%"/>
+									<input type="text" id="forth2" maxlength="1" style="width:10%"/>
+								</td>
+							</tr>
+							<tr>
+								<td id="time2" style="font-size:16px;font-weight: bold;text-align:center;"></td>
+							</tr>
+						</table>
+						<table>
+							<tr>
+								<td  colspan="4"><!--<button type="button" class="button" onclick="sendOTP()" id="send_otp_button">Send OTP</button>-->
+									<button type="button" class="button" onclick="confirmPersonnelResetOTP()" id="verify_otp_button_reset" style="width:100%;">Verify OTP</button></td>
+							</tr>
+						</table>
+					</div>
+					<div id="reset_password_div" style="display:none;">
+						<h2>Reset Password</h2>
+						<div class="responseDiv4"></div>
+						<table>
+							<tbody>
+							<form method="post" id="resetForm">
+								<tr>
+									<td colspan="2">
+										<i class="bi bi-lock-fill" style="float:left;font-size:18px;margin-top:9px;position:absolute;color:black;margin-left:5px;"></i>
+										<input type="password" class="password_input" id="password1" name="password1" placeholder="Password" style="padding-left:40px">
+										<i class="bi bi-eye-slash" id="togglePassword1" onclick="passwordVisibility1()" style="float:right;margin-top:-27px;font-size:18px;position:relative;color:black;right:3%;"></i>
+									</td>
+								</tr>
+								<tr>
+									<td><br></td>
+								</tr>
+								<tr>
+									<td colspan="2">
+										<i class="bi bi-lock-fill" style="float:left;font-size:18px;margin-top:9px;position:absolute;color:black;margin-left:5px;"></i>
+										<input type="password" class="password_input" id="password2" name="password2" placeholder="Confirm Password" style="padding-left:40px">
+										<i class="bi bi-eye-slash" id="togglePassword2" onclick="passwordVisibility2()" style="float:right;margin-top:-27px;font-size:18px;position:relative;color:black;right:1%;left:18%;"></i>
+									</td>
+								</tr>
+								<tr>
+									<td><button class="button" onclick="resetPersonnelPassword()">Reset Password</button></td>
+									<td><button class="button" onclick="showLogin()">Login</button></td>
+								</tr>
+								<tr>
+									<td><br></td>
+								</tr>
+							</form>
+							<tbody>
+						</table>
+					</div>
+
+				</div>
+				<div class="modal-footer">
+
+				</div>
+			</div>
 </div>
 
 

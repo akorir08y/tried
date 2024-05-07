@@ -12,6 +12,7 @@ public class AuthConfiguration {
     private final String sms_url;
     private final String cfms_data;
     private final String financial_data;
+    private final String financial_data_https_url;
     private final String trust_funds_url;
     private final String mpesa_stk_request_url;
     private final String reports_url;

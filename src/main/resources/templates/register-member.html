@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<title>Responsive Admin Dashboard | Redesign</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link rel="stylesheet " type="text/css" href="/cfms-web/css/style2.css">
+<link rel="stylesheet" type="text/css" href="/cfms-web/css/table_register.css">
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+</script>
+<style>
+	#about_app table{
+		margin-top:15px;
+	}
+
+	#about_app table tr{
+		padding:0px;
+	}
+	
+	#about_app table td{
+		padding-top:10px;
+	}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="navigation">
+	<ul>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="home-outline"></ion-icon></span>
+		<span class="icon" >Home</span>
+		</a>
+		</li>
+		<li>
+		<a th:href="@{/cfms-web/authenticate/login}">
+		<span class="icon"><ion-icon name="log-in-outline"></ion-icon></span>
+		<span class="title">Member Login</span>
+		</a>
+		</li>
+		<!--
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="settings-outline"></ion-icon></span>
+		<span class="title">Settings</span>
+		</a>
+		</li>		
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
+		<span class="title">Account Statements</span>
+		</a>
+		</li>
+		-->
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
+		<span class="title">Offerings</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="person-outline"></ion-icon></span>
+		<span class="title">Profile</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="cog-outline"></ion-icon></span>
+		<span class="title">Support Options</span>
+		</a>
+		</li>
+		<li>
+		<a href="#">
+		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
+		<span class="title">Sign Out</span>
+		</a>
+		</li>
+	</ul>
+</div>
+	<!-- main -->
+	<div class="main">
+		<div class="topbar">
+			<div class="toggle">
+				<ion-icon name="menu-outline" style="font-size:24px;"></ion-icon>
+			</div>
+
+			<!-- Search -->
+			<div class="search">
+				<h1 style="font-size:16px;">New Member</h1>				
+			</div>
+			
+			<!-- userImg -->
+			<div class="user">
+				<img src="/cfms-web/images/cfmsLogo.png">
+			</div>
+			
+		</div>
+		
+		
+		<!-- Profile List -->
+		<div class="details">
+			<div class="recentOrders">
+				<div th:if="${param.q}">
+					<div class="alert alert-danger" id="response_error" th:text="${param.q}" style="text-align:center;font-size:14px;"></div>
+				</div>
+				<div id="my_profile">
+				<div class="cardHeader">
+					<h2 style="text-align:center;">Member Registration</h2>
+				</div>
+				<div class="responseDiv" style="display:none;"></div>
+				<br>
+				<hr>
+				<table width="100%">
+					<form method="post" action="/cfms-web/authenticate/registration">
+					<tbody>
+						<tr>
+							<td><b>Full Name</b></td>
+							<td><b>Email</b></td>
+							<td><b>Phone Number</b></td>
+						</tr>
+						<tr>
+							<td width="33%"><input type="text" id="fullname" placeholder="Full Name" name="fullname"  th:value="*{fullname}" required></td>
+							<td width="33%"><input type="email" id="email" placeholder="Email" name="email" th:value="*{email}" required></td>
+							<td width="33%"><input type="text" id="phone" placeholder="Phone Number" name="phone" th:value="*{phone}" required readonly>
+								<input type="hidden" id="pin" placeholder="Phone Number" name="pin" th:value="*{pin}" required readonly></td>
+						</tr>
+						<tr>
+							<td><b>Church Code</b></td>
+							<td><b>Mobile Service Provider</b></td>
+							<td><b>Church Group</b></td>
+						</tr>
+						<tr>
+							<td width="33%"><input type="text" id="church_code" name="churchCode" placeholder="Church Code" th:value="*{church_code}" required readonly></td>
+							<td width="33%"><select class="login_input" aria-label="Default Select Example" id="mobileprovider" name="mobileprovider">
+							  <option value="Safaricom">Safaricom</option>
+							  <option value="Airtel">Airtel</option>
+							  <option value="Equitel">Equitel</option>
+							  <option value="TIGO">TIGO</option>
+							  <option value="MTN">MTN</option>
+						  </select></td>
+							<td width="33%"><select class="login_input" aria-label="Default Select Example" name="church_group" id="church_group">
+							  <option value="Moi University" selected>Moi University</option>
+							  <option value="None">None</option>
+						 </select></td>
+						</tr>
+						<tr>
+							<td><b>Mobile Service Provider</b></td>
+							<td><b>Preferred Language</b></td>
+							<td><b>Phone Number Privacy</b></td>
+						</tr>
+						<tr>
+							<td width="33%"><select class="login_input" aria-label="Default Select Example" name="mobileprovider1" id="mobileprovider1">
+							  <option value="Safaricom">Safaricom</option>
+							  <option value="Airtel">Airtel</option>
+							  <option value="Equitel">Equitel</option>
+							  <option value="TIGO">TIGO</option>
+							  <option value="MTN">MTN</option>
+						  </select></td>
+							<td width="33%"><select class="login_input"  aria-label="Default Select Example" name="language" id="PreferredLanguage" style="padding-left:5px;">
+							  <option value="English">English</option>
+							  <option value="Kiswahili">Kiswahili</option>
+							  <option value="French">French</option>
+							  <option value="Kinyandarua">Kinyandarua</option>
+							  <option value="Buganda">Buganda</option>
+						  </select></td>
+							<td class="now"><input type="radio" name="phone_number_privacy" id="normal" value="normal">
+							  <label class="form-check-label" for="normal">
+								Normal
+							  </label><input type="radio" name="phone_number_privacy" id="secret" value="secret">
+							  <label class="form-check-label" for="secret">
+								Secret
+							  </label></td>
+						</tr>
+						<tr>
+							<td><b>Phone Owner</b></td>
+							<td><b>Church Member</b></td>
+							<td><b>Other Phone Number</b></td>
+						</tr>
+						<tr>
+							<td><input class="form-check-input" type="checkbox" value="true" id="phoneOwner" name="phoneOwner" checked>
+							<label for="phoneOwner" class="label_input">Phone Owner</label></td>
+							<td><input class="form-check-input" type="checkbox" value="true" id="churchMember" name="church_member" checked>
+							<label for="churchMember" class="label_input">Church Member</label></td>
+							<td><input type="text" id="otherPhoneNumber" name="otherPhoneNumber" placeholder="Other Phone Number"></td>							
+						</tr>
+						<tr>
+							<td><b>Giving Receipt To</b></td>
+							<td><b>Residence</b></td>
+						</tr>
+						<tr>
+							<td><input class="form-check-input" type="radio" name="receipt_to" id="self" value="Self" checked>
+							 <label class="label_input">Self</label>
+							<input class="form-check-input" type="radio" name="receipt_to" id="family" value="Family">
+							<label class="label_input">Family</label><br>
+							<input class="form-check-input" type="radio" name="receipt_to" id="anonymous" value="Anonymous">
+							<label class="label_input">Anonymous</label>
+							</td>
+							<td><input type="text" id="residence" name="residence" placeholder="Residence"></td>
+						</tr>
+						<tr>
+							<td colspan="2"><button type="submit" class="btn" style="width:100%;">Submit</button></td>
+						</tr>
+					</tbody>
+					</form>
+				</table>
+				</div>
+			</div>
+			<div class="recentCustomers">
+				<div id="about_app">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;">About App</h2>
+					</div>
+					<table width="100%">
+						<tbody>
+							<tr>
+								<td><ion-icon name="aperture-outline" class="icons"></ion-icon></td>
+								<td><a href="" class="linkers">SDA CFMS</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
+								<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+							</tr>
+							<tr>
+								<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>
+								<td><a href="https://lakeatts.co.ke/data_privacy.html" class="linkers">Privacy Policy</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		
+		
+			
+
+	</div>
+	
+	
+</div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="member_receipting.js"></script>
+<script src="myChart.js"></script>
+
+<script type="text/javascript">
+let toggle = document.querySelector('.toggle');
+let navigation = document.querySelector('.navigation');
+let main = document.querySelector('.main');
+
+toggle.onclick = function(){
+	navigation.classList.toggle('active');
+	main.classList.toggle('active');
+}
+
+// add hovered class in selected list item
+let list = document.querySelectorAll('.navigation li');
+	function activeLink(){
+	list.forEach((item) =>
+		item.classList.remove('hovered'));
+		this.classList.add('hovered');
+	}
+	list.forEach((item) =>
+	item.addEventListener('mouseover',activeLink));
+	
+function loadResponse(){
+	$(".responseDiv").show();
+    $(".responseDiv").html("Profile Updated Successfully");
+    $(".responseDiv").fadeOut(3000);
+}	
+	
+</script>
+</body>
+</html>

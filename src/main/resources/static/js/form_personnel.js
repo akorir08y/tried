@@ -2,8 +2,9 @@ var hosted_url = location.origin;
 
 // OTP Timer
 function startPersonnelTimer(duration, display) {
+    document.getElementById('otp-field13').style.display='block';
     var timer = duration, minutes, seconds;
-    var username2 = document.getElementById("mobile_number").innerText;
+    var username2 = document.getElementById("mobile_number").value;
 
 
     var x = setInterval(function () {
@@ -23,8 +24,9 @@ function startPersonnelTimer(duration, display) {
                 input.disabled = true;
                 //input.classList.add("disabled");
             });
-            document.getElementById('otp-field12').style.display='none';
-            document.getElementById('time').style.display='none';
+            document.getElementById('otp-field13').style.display='none';
+            document.getElementById('time1').style.display='none';
+            display.textContent = "00:00"
             clearInterval(x);
         }
     }, 1000);
@@ -32,6 +34,7 @@ function startPersonnelTimer(duration, display) {
 
 // OTP Timer
 function startPersonnelResetTimer(duration, display) {
+    document.getElementById('otp-field11').style.display='block';
     var timer = duration, minutes, seconds;
     var username2 = document.getElementById("mobile_number").innerText;
     var phone_number = "Resend OTP Code to Number" + username2.substring(0, 6) + "***" +
@@ -58,6 +61,7 @@ function startPersonnelResetTimer(duration, display) {
             });
             document.getElementById('otp-field11').style.display='none';
             document.getElementById('time1').style.display='none';
+            display.textContent = "00:00";
             clearInterval(x);
 
         }
@@ -67,9 +71,9 @@ function startPersonnelResetTimer(duration, display) {
 // Start OTP Function
 function startPersonnelOTP() {
     // document.getElementById('otp-zone').style.display='block';
-    document.getElementById('time').style.display='block';
+    document.getElementById('time1').style.display='block';
     var fiveMinutes = 60 * 1;
-    display = document.querySelector('#time');
+    display = document.querySelector('#time1');
     startPersonnelTimer(fiveMinutes, display);
 }
 
@@ -91,9 +95,9 @@ function sendPersonnelOTP(){
          input.value = "";
     });
 
-    var username = document.getElementById("phone_number").value;
+    var username = document.getElementById("mobile_number").value;
     var sendCode = document.getElementById('sendCode');
-    var otp_field12 = document.getElementById('otp-field12');
+    var otp_field12 = document.getElementById('otp-field13');
 
 
     console.log("Sending OTP");
@@ -118,7 +122,7 @@ function sendPersonnelOTP(){
                 },
                 error: function(response){
                     console.log(response);
-                     $(".responseDiv").html("<div class=\"alert alert-danger\">OTP has not been sent. Please Try Again</div>");
+                     $(".responseDiv4").html("<div class=\"alert alert-danger\">OTP has not been sent. Please Try Again</div>");
                 }
 
          });
@@ -134,9 +138,10 @@ function sendPersonnelResetOTP(){
          input.value = "";
     });
 
-    var phone_number = document.getElementById("mobile_number").innerText;
+    var phone_number = document.getElementById("mobile_number").value;
     var trimmed = phone_number.trim();
     var sendCode = document.getElementById('sendCode1');
+    var personnel_reset_div = document.getElementById('personnel_reset_div');
     console.log("Sending OTP");
 
     // Ajax STK Push Request
@@ -165,7 +170,7 @@ function sendPersonnelResetOTP(){
 function confirmPersonnelOTP(){
 
      // Form data
-     var username = document.getElementById("phone_number").value;
+     var username = document.getElementById("mobile_number").value;
      var trimmed = username.trim();
      const inputs = document.querySelectorAll(".otp-field input");
      var password = "";
@@ -191,7 +196,7 @@ function confirmPersonnelOTP(){
                 if(response === "OTP is valid!"){
                     sendToServer();
                 }else{
-                    $(".responseDiv").html("<div class=\"alert alert-danger\">Login Response : "+response+". Try Again</div>");
+                    alert(response+". Try Again");
                 }
             },
             error: function(response){
@@ -206,10 +211,16 @@ function sendToServer(){
     var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
 
+    if(username == ""){
+        alert("Enter your Username");
+    }else if(password == ""){
+        alert("Enter your Password");
+    }
+
     console.log("Username: "+ username);
     console.log("Password: "+ password);
 
-    $("#myForm").submit();
+    $("#personnelForm").submit();
 }
 
 
@@ -217,7 +228,7 @@ function sendToServer(){
 function confirmPersonnelResetOTP(){
 
      // Form data
-     var username = document.getElementById("mobile_number").innerText;
+     var username = document.getElementById("mobile_number").value;
      var trimmed = username.trim();
      const inputs = document.querySelectorAll(".otp-field input");
      var password = "";
@@ -270,7 +281,17 @@ function personnelLogin(){
 	var username = document.getElementById("username").value;
     var password = document.getElementById("password").value;
 
-    var username2 = document.getElementById("mobile_number").innerText;
+    if(username == ""){
+        alert("Please enter your username");
+        return false;
+    }else if(password == ""){
+        alert("please enter your password");
+        return false;
+    }
+
+    var otp_id_personnel = document.getElementById("otp_id_personnel");
+
+    var username2 = document.getElementById("mobile_number").value;
     var trimmed = username2.trim();
     console.log("Username: " + username2);
 
@@ -279,7 +300,7 @@ function personnelLogin(){
     console.log("Password: "+ password);
 
     // Ajax STK Push Request
-    let myObj = { user: username, password:password };
+    let myObj = { user: username, password:password, username: username2 };
     console.log(myObj)
 
     $.ajax({
@@ -290,10 +311,10 @@ function personnelLogin(){
         success: function(response){
             console.log(response);
             if (response.payload != null){
-                document.getElementById("phone_number").value = username2;
-                document.getElementById("otp_id").style.display = "block";
+                otp_id_personnel.style.display = "block";
+                sendPersonnelOTP();
             }else{
-                $(".responseDiv").html("<div class=\"alert alert-danger\">Check Your Login Credentials Again</div>");
+                alert("Check Your Login Credentials Again");
             }
         },
         error: function(response){
@@ -326,7 +347,7 @@ function resetPersonnelPassword(){
         data: myObj,
         success: function(response){
             console.log(response);
-            $(".responseDiv").html("<div class=\"alert alert-success\">Login Response : "+response.notice+"</div>");
+            alert(response.notice);
         },
         error: function(response){
             console.log(response);
@@ -390,10 +411,4 @@ function loadResetFields(){
     var phone_number = "Send OTP Code to Number "+ trimmed.substring(0, 6) + "***" + trimmed.substring(9, 12);
     document.getElementById("sendCode1").innerHTML = phone_number;
     document.getElementById("phone_number1").innerHTML = trimmed;
-}
-
-
-
-function getMemberOffering(){
-
 }

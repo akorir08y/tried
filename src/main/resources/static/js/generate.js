@@ -30,6 +30,8 @@ function generateOfferingStatement(){
     loader.style.display = "block";
 
      $.post(hosted_url + "/cfms-web/auth/statement",dates ,function(data, status){
+
+         if(data != null){
              console.log(data);
              loader.style.display = "none";
              contented.style.display = "block";
@@ -49,8 +51,18 @@ function generateOfferingStatement(){
              });
              html += "</tbody></table>";
              container.html(html); //Append the table to the container element
+             }else{
+                loader.style.display = "none";
+                contented.style.display = "block";
+
+                let container = $("#content2");
+                let html = new String("");
+                html += "<p>No Data to Display</p>";
+                container.html(html);
+             }
 
         });
+
 }
 
 function generateOfferingStatementSpecific(){
@@ -90,25 +102,35 @@ function generateOfferingStatementSpecific(){
     loader.style.display = "block";
 
      $.post(hosted_url + "/cfms-web/auth/statement-specific",dates ,function(data, status){
-             console.log(data);
-             loader.style.display = "none";
-             contented.style.display = "block";
+            if(data != null){
+                 console.log(data);
+                 loader.style.display = "none";
+                 contented.style.display = "block";
 
-             let container = $("#content3");
-             let html = new String("");
-             html += "<table id=\"statement\"><tbody id=\"myTable1\">";
+                 let container = $("#content3");
+                 let html = new String("");
+                 html += "<table id=\"statement\"><tbody id=\"myTable1\">";
 
-             $.each(data.payload.members, (i, statement) => {
-                  console.log("Statement:" +statement);
-                  html += "<tr tabindex=\"0\"><td>";
-                  html += "<span class='left'>"+statement.narration+"</span>";
-                  html += "<span class='right-blue'>"+statement.amountRefunded +"(Balance: "+ statement.balance + ")</span><br><br>";
-                  html += "<span class='left-below'>Receipt No: "+statement.receiptNumber+"</span><br>";
-                  html += "<span class='right'>"+statement.transactionDate+"</span>";
-                  html += "</td></tr>";
-             });
-             html += "</tbody></table>";
-             container.html(html); //Append the table to the container element
+                 $.each(data.payload.members, (i, statement) => {
+                      console.log("Statement:" +statement);
+                      html += "<tr tabindex=\"0\"><td>";
+                      html += "<span class='left'>"+statement.narration+"</span>";
+                      html += "<span class='right-blue'>"+statement.amountRefunded +"(Balance: "+ statement.balance + ")</span><br><br>";
+                      html += "<span class='left-below'>Receipt No: "+statement.receiptNumber+"</span><br>";
+                      html += "<span class='right'>"+statement.transactionDate+"</span>";
+                      html += "</td></tr>";
+                 });
+                 html += "</tbody></table>";
+                 container.html(html); //Append the table to the container element
+              }else{
+                    loader.style.display = "none";
+                    contented.style.display = "block";
+
+                    let container = $("#content2");
+                    let html = new String("");
+                    html += "<p>No Data to Display for "+account_name+" Account</p>";
+                    container.html(html);
+              }
 
         });
 }

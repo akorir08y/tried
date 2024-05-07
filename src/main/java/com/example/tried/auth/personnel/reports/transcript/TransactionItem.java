@@ -12,8 +12,11 @@ public class TransactionItem{
 	@JsonProperty("trustFundsLessSpecialTrustFund")
 	private String trustFundsLessSpecialTrustFund;
 
-	@JsonProperty("eMoneyNotificationTime")
-	private String eMoneyNotificationTime;
+	@JsonProperty("conferenceSettlementComment")
+	private String conferenceSettlementComment;
+
+	@JsonProperty("conferenceSettlementReference")
+	private String conferenceSettlementReference;
 
 	@JsonProperty("specialTrustFunds")
 	private String specialTrustFunds;
@@ -24,14 +27,14 @@ public class TransactionItem{
 	@JsonProperty("tithe")
 	private String tithe;
 
+	@JsonProperty("combinedOfferings")
+	private String combinedOfferings;
+
 	@JsonProperty("contributorName")
 	private String contributorName;
 
 	@JsonProperty("conferenceSettlementConfirmation")
 	private String conferenceSettlementConfirmation;
-
-	@JsonProperty("conferenceAccountName")
-	private String conferenceAccountName;
 
 	@JsonProperty("contributorContact")
 	private String contributorContact;
@@ -66,6 +69,12 @@ public class TransactionItem{
 	@JsonProperty("telcoTransactionTime")
 	private String telcoTransactionTime;
 
+	@JsonProperty("transactionCompletionTime")
+	private String transactionCompletionTime;
+
+	@JsonProperty("campMeeting")
+	private String campMeeting;
+
 	@JsonProperty("transactionTotalAmount")
 	private String transactionTotalAmount;
 
@@ -80,4 +89,14 @@ public class TransactionItem{
 
 	@JsonProperty("trustFund")
 	private String trustFund;
+
+	@JsonProperty("thirteenthSabbath")
+	private String thirteenthSabbath;
+
+	@JsonProperty("conferenceDevelopment")
+	private String conferenceDevelopment;
+
+	@JsonProperty("eMoneyNotificationTime")
+	private String eMoneyNotificationTime;
+
 }

@@ -5,7 +5,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <title>Personnel Receipting</title>
 <link rel="stylesheet " type="text/css" href="/cfms-web/css/style2_receipt.css">
-<link rel="stylesheet" type="text/css" href="/cfms-web/css/table_statement.css">
+<link rel="stylesheet" type="text/css" href="/cfms-web/css/table_receipting.css">
 <script>
 $(document).ready(function(){
   $("#myInput").on("keyup", function() {
@@ -28,37 +28,37 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -76,7 +76,7 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li>
-		<a href="#">
+		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -101,6 +101,24 @@ $(document).ready(function(){
 			</div>
 		</div>
 
+		<div class="cardBox">
+			<div class="card" style="background-color:#24478f;color:white;" onclick="showCashReceipting()">
+				<div>
+					<div class="cardName">Receipting</div>
+				</div>
+			</div>
+			<div class="card" style="background-color:#24478f;color:white;" onclick="showReconciliation()">
+				<div>
+					<div class="cardName">Reconciliation</div>
+				</div>
+			</div>
+			<div class="card" style="background-color:#24478f;color:white;" onclick="showTransactionTracing()">
+				<div>
+					<div class="cardName">Transaction Tracing</div>
+				</div>
+			</div>
+		</div>
+
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
@@ -113,7 +131,7 @@ $(document).ready(function(){
 						<h2 style="text-align:center;">Cash Receipting</h2>
 						<div class="responseDiv" style="display:none;"></div>
 					</div>
-					<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>
+					<!--<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>-->
 					<br>
 					<hr>
 				
@@ -188,8 +206,9 @@ $(document).ready(function(){
 					<div class="cardHeader">
 						<h2>Search Members</h2>
 					</div>
-					<input type="text" placeholder="Search here" id="myInput">
 					<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>
+					<input type="text" placeholder="Search here" id="myInput">
+
 					<br>
 					<div class="responseDiv" style="display:none;"></div>
 					<br>
@@ -376,10 +395,79 @@ $(document).ready(function(){
 					</table>
 				
 			</div>
-			
-				
-				
+			<div id="transaction_tracing" style="display:none;">
+				<div class="cardHeader">
+					<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Transaction Tracing</h2>
+				</div>
+				<br>
+				<hr>
+				<table>
+					<tbody>
+						<tr>
+							<td colspan="2">From Date</td>
+							<td colspan="2">To Date</td>
+						</tr>
+						<tr>
+							<td colspan="2"><input type="date" id="start_date" name="start_date"></td>
+							<td colspan="2"><input type="date" id="end_date" name="end_date"></td>
+						</tr>
+						<tr>
+							<td>Trace Transaction By</td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<input class="form-check-input" type="radio" name="transaction_trace" id="phone_number_trace" onclick="showMoreDetails()">
+								<label class="form-check-label" for="phone_number_trace">
+									Phone Number
+								</label>
+							</td>
+							<td colspan="2">
+								<input class="form-check-input" type="radio" name="transaction_trace" id="receipt_number_trace" onclick="showMoreDetails()">
+								<label class="form-check-label" for="receipt_number_trace">
+									Receipt Number
+								</label>
+							</td>
+						</tr>
+					</table>
+					<div id="associated_phone_div">
+						<table>
+							<tbody>
+							<tr>
+								<td><label class="label_input" for="department_phone"><b> Associated Phone Number</b></label></td>
+								<td><input type="text" id="associated_phone_number" name="associated_phone_number" placeholder="Phone Number"></td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="traceTransactionPhone()">Submit</button></td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+					<div id="associated_receipt_div" style="display:none;">
+						<table>
+							<tbody>
+							<tr>
+								<td><label class="label_input" for="department_phone"><b> Associated Receipt Number</b></label></td>
+								<td><input type="text" id="associated_receipt_number" name="associated_receipt_number" placeholder="Receipt Number"></td>
+							</tr>
+							<tr>
+								<td><button type="button" class="btn" onclick="traceTransactionReceipt()">Submit</button></td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+					<br>
+					<hr>
+					<div class="loader" id="loader_spin_tracing" style="display:none;"></div>
+					<div id="content_phone"></div>
+					<div id="content_receipt"></div>
+				</div>
+
+				<!-- Reconciliation -->
+				<div id="cash_reconciliation" style="display:none;">
+				</div>
 			</div>
+			
+
 			<div class="recentCustomers">
 				<hr>
 				<div id="about_app">
@@ -394,7 +482,7 @@ $(document).ready(function(){
 							</tr>
 							<tr>
 								<td><ion-icon name="bookmarks-outline" class="icons"></ion-icon></ion-icon></td>
-								<td colspan="2"><a href="" class="linkers">Frequently Asked Questions</a></td>
+								<td colspan="2"><a href="" class="linkers">FAQ</a></td>
 							</tr>
 							<tr>
 								<td><ion-icon name="cloud-done-outline" class="icons"></ion-icon></td>

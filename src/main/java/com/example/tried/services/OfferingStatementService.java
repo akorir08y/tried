@@ -11,6 +11,7 @@ import com.example.tried.auth.member.RequestChurchDetailsResponse;
 import com.example.tried.config.FileStorageProperties;
 import com.example.tried.dto.account.OfferStatement;
 import com.example.tried.exception.FileStorageException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -375,7 +376,7 @@ public class OfferingStatementService {
                 .setBackgroundColor(Color.WHITE));
     }
 
-    private void getOfferingData(Table Statement, OfferStatement statement,MemberProfileResponse profile){
+    private void getOfferingData(Table Statement, OfferStatement statement,MemberProfileResponse profile) throws JsonProcessingException {
 
         // Table Headers
         Statement.addCell(new Cell().add("Date")
@@ -449,7 +450,7 @@ public class OfferingStatementService {
         authentication.setUser("");
         authentication.setPassword("");
 
-        // Offering Payload
+        // Offering RPayload
         OfferingPayload payload2 = new OfferingPayload();
         payload2.setMemberNumber(profile.getPayload().getMembershipNumber());
         payload2.setMemberName(profile.getPayload().getMemberName());
@@ -457,7 +458,7 @@ public class OfferingStatementService {
         payload2.setStartDate(statement.getStart_date());
         payload2.setEndDate(statement.getEnd_date());
 
-        // Get the Member Offering Payload
+        // Get the Member Offering RPayload
         MemberOffering offering = new MemberOffering();
         offering.setAuthentication(authentication);
         offering.setPayload(payload2);
@@ -555,7 +556,7 @@ public class OfferingStatementService {
     }
 
 
-    public ByteArrayInputStream generatePdfStream(OfferStatement statement) throws FileNotFoundException {
+    public ByteArrayInputStream generatePdfStream(OfferStatement statement) throws FileNotFoundException, JsonProcessingException {
         String PhoneNumber = statement.getPhone_number();
 
         // Load Resource Fonts

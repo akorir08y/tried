@@ -3,23 +3,23 @@ package com.example.tried.services.reports.excel;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
 import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
 import com.example.tried.auth.dashboard.trust_funds.TransactionsItem;
-import com.example.tried.auth.personnel.MemberPersonnel;
-import com.example.tried.auth.personnel.MemberPersonnelResponse;
+import com.example.tried.auth.reports.payment_mode.TrustFundsSummaryWithPaymentMode;
+import com.example.tried.auth.reports.payment_mode.TrustFundsSummaryWithPaymentModeResponse;
 import com.example.tried.services.AuthApi;
-import com.example.tried.utils.HelperUtility;
+import com.example.tried.services.PersonnelApi;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.io.IOException;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -28,56 +28,66 @@ public class TrustFundSummaryExcel {
     private XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
-    @Autowired
     private AuthApi authApi;
 
-    public TrustFundSummaryExcel() {
+    private PersonnelApi personnelApi;
+
+    public TrustFundSummaryExcel(PersonnelApi personnelApi) {
+        this.personnelApi = personnelApi;
         this.workbook = new XSSFWorkbook();
     }
 
     private void writeHeaderLine() {
-        sheet = workbook.createSheet("Users");
+        sheet = workbook.createSheet("Trust Fund Summary With Payment Mode Report");
 
         Row row = sheet.createRow(0);
+        Row row1 = sheet.createRow(1);
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(16);
+        font.setFontHeight(12);
         style.setFont(font);
+        style.setAlignment(HorizontalAlignment.CENTER);
 
         // Row Number 1
-
         createCell(row, 0, "Receipt No", style);
         createCell(row, 1, "Time", style);
-        createCell(row, 2, "ContributorName", style);
+        createCell(row, 2, "Contributor Name", style);
         createCell(row, 3, "Mode Of Payment", style);
         createCell(row, 4, "Tithe", style);
-        createCell(row, 5, "Combined", style);
-        createCell(row, 6, "Camp", style);
-        createCell(row, 7, "Conf. Dev", style);
-        createCell(row, 8, "Thirteenth", style);
-        createCell(row, 9, "Total", style);
-        createCell(row, 10, "Balance", style);
+        createCell(row, 6, "Combined", style);
+        createCell(row, 8, "Camp", style);
+        createCell(row, 10, "Conf. Dev", style);
+        createCell(row, 12, "Thirteenth", style);
+        createCell(row, 14, "Total", style);
+        createCell(row, 16, "Balance", style);
+
+        sheet.addMergedRegion(new CellRangeAddress(0,0,4,5));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,6,7));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,8,9));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,10,11));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,12,13));
+        sheet.addMergedRegion(new CellRangeAddress(0,0,14,15));
 
         // Row Number 2
-        createCell(row, 0, "", style);
-        createCell(row, 1, "", style);
-        createCell(row, 2, "", style);
-        createCell(row, 3, "", style);
-        createCell(row, 4, "Received", style);
-        createCell(row, 4, "Paid", style);
-        createCell(row, 5, "Received", style);
-        createCell(row, 5, "Paid", style);
-        createCell(row, 6, "Received", style);
-        createCell(row, 6, "Paid", style);
-        createCell(row, 7, "Received", style);
-        createCell(row, 7, "Paid", style);
-        createCell(row, 8, "Received", style);
-        createCell(row, 8, "Paid", style);
-        createCell(row, 9, "Received", style);
-        createCell(row, 9, "Paid", style);
-        createCell(row, 10, "", style);
+        createCell(row1, 0, "", style);
+        createCell(row1, 1, "", style);
+        createCell(row1, 2, "", style);
+        createCell(row1, 3, "", style);
+        createCell(row1, 4, "Received", style);
+        createCell(row1, 5, "Paid", style);
+        createCell(row1, 6, "Received", style);
+        createCell(row1, 7, "Paid", style);
+        createCell(row1, 8, "Received", style);
+        createCell(row1, 9, "Paid", style);
+        createCell(row1, 10, "Received", style);
+        createCell(row1, 11, "Paid", style);
+        createCell(row1, 12, "Received", style);
+        createCell(row1, 13, "Paid", style);
+        createCell(row1, 14, "Received", style);
+        createCell(row1, 15, "Paid", style);
+        createCell(row1, 16, "", style);
 
     }
 
@@ -94,89 +104,24 @@ public class TrustFundSummaryExcel {
         cell.setCellStyle(style);
     }
 
-    private void writeDataLines() {
+    private void writeDataLines(TrustFundsSummaryWithPaymentMode localChurchTrustFundSummary) throws JsonProcessingException {
         int rowCount = 2;
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
+        font.setFontHeight(10);
         style.setFont(font);
 
+        System.out.println("Trust Fund Summary With Payment Mode: "+ localChurchTrustFundSummary);
 
-        String username = "mwakesho";
-        String password = "0389";
+        TrustFundsSummaryWithPaymentModeResponse localChurchTrustFund =
+                personnelApi.getTrustFundSummaryWithPaymentMode(localChurchTrustFundSummary);
 
-        // Session Numbers
-        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+        System.out.println("Trust Fund Summary With Payment Mode Response: "+ localChurchTrustFund);
 
-        // Get the Login Details to get the Number of Church Members
-        // Login Credentials
-        MemberPersonnel personnel = new MemberPersonnel();
-        personnel.setUser(username);
-        personnel.setPassword(password);
+        List<com.example.tried.auth.reports.payment_mode.TransactionsItem> transactions = localChurchTrustFund.getPayload().getTransactions();
 
-        // Get the Personnel Response
-        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
-
-        // Personnel Details
-        String church_code = response.getPayload().getOrganisationNumber();
-        String church_name = response.getPayload().getOrganisationName();
-        String church_level = response.getPayload().getOrganisationLevel();
-        String personnel_name = response.getPayload().getPersonnelName();
-        String member_no = response.getPayload().getPersonnelCfmsNumber();
-
-        // Get the Previous Month Trust Fund Summary
-        LocalChurchTrustFundSummary trustFundSummary = new LocalChurchTrustFundSummary();
-        com.example.tried.auth.dashboard.trust_funds.Payload payload = new com.example.tried.auth.dashboard.trust_funds.Payload();
-
-        // Get the Current Year
-        LocalDate localdate = LocalDate.now();
-
-        // Trust Fund Summary Payload
-        payload.setYear(localdate.getYear());
-        payload.setMonth(localdate.getMonthValue() - 1);
-        payload.setChurchName(church_name);
-        payload.setLocalChurchNumber(church_code);
-        trustFundSummary.setPayload(payload);
-
-        //
-        com.example.tried.auth.dashboard.trust_funds.Authentication authentication1 = new com.example.tried.auth.dashboard.
-                trust_funds.Authentication();
-
-        authentication1.setInstututionLevel(church_level);
-        authentication1.setUser(username);
-        authentication1.setPersonnelName(personnel_name);
-        authentication1.setPassword(password);
-        authentication1.setSessionNumber(rand);
-        authentication1.setInstututionName(church_name);
-        authentication1.setInstututionNumber(church_code);
-        trustFundSummary.setAuthentication(authentication1);
-
-        System.out.println("Local Church Trust Fund Summary: " + HelperUtility.toJSON(trustFundSummary));
-
-        LocalChurchTrustFundSummaryResponse localChurchTrustFund = authApi.getLocalChurchTrustFundSummary(trustFundSummary);
-
-        System.out.println("Local Church Trust Fund Summary Response: " + HelperUtility.toJSON(localChurchTrustFund));
-
-        List<TransactionsItem> transactions = localChurchTrustFund.getTrupayload().getTransactions();
-
-
-        /*
-             createCell(row, 0, "Receipt No", style);
-        createCell(row, 1, "Time", style);
-        createCell(row, 2, "ContributorName", style);
-        createCell(row, 3, "Mode Of Payment", style);
-        createCell(row, 4, "Tithe", style);
-        createCell(row, 5, "Combined", style);
-        createCell(row, 6, "Camp", style);
-        createCell(row, 7, "Conf. Dev", style);
-        createCell(row, 8, "Thirteenth", style);
-        createCell(row, 9, "Total", style);
-        createCell(row, 10, "Balance", style);
-
-         */
-
-        for (TransactionsItem transaction : transactions) {
+        for (com.example.tried.auth.reports.payment_mode.TransactionsItem transaction : transactions) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
@@ -184,13 +129,25 @@ public class TrustFundSummaryExcel {
             createCell(row, columnCount++, transaction.getTransactionDate(), style);
             createCell(row, columnCount++, transaction.getContributorName(), style);
             createCell(row, columnCount++, transaction.getModeOfPayment(), style);
-            createCell(row, columnCount++, "Active", style);
+            createCell(row, columnCount++, transaction.getTithe(), style);
+            createCell(row, columnCount++, transaction.getTithePaid(), style);
+            createCell(row, columnCount++, transaction.getCombinedOfferings(), style);
+            createCell(row, columnCount++, transaction.getCombinedOfferingsPaid(), style);
+            createCell(row, columnCount++, transaction.getCampMeeting(), style);
+            createCell(row, columnCount++, transaction.getCampMeetingPaid(), style);
+            createCell(row, columnCount++, transaction.getConferenceDevelopment(), style);
+            createCell(row, columnCount++, transaction.getConferenceDevelopmentPaid(), style);
+            createCell(row, columnCount++, transaction.getThirteenthSabbath(), style);
+            createCell(row, columnCount++, transaction.getThirteenthSabbathPaid(), style);
+            createCell(row, columnCount++, transaction.getTotalReceiptedAmount(), style);
+            createCell(row, columnCount++, transaction.getTotalReceiptedAmountPaid(), style);
+            createCell(row, columnCount++, transaction.getBalance(), style);
         }
     }
 
-    public void export(HttpServletResponse response) throws IOException, java.io.IOException {
+    public void export(HttpServletResponse response, TrustFundsSummaryWithPaymentMode localChurchTrustFundSummary) throws IOException, java.io.IOException {
         writeHeaderLine();
-        writeDataLines();
+        writeDataLines(localChurchTrustFundSummary);
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

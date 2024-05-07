@@ -13,6 +13,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
+import java.util.concurrent.TimeUnit;
+
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableConfigurationProperties({MpesaConfiguration.class})
@@ -24,7 +26,12 @@ public class TriedApplication extends SpringBootServletInitializer {
 
 	@Bean
 	public OkHttpClient getOkHttpClient() {
-		return new OkHttpClient();
+		OkHttpClient okHttpClient = new OkHttpClient.Builder()
+				.connectTimeout(60, TimeUnit.SECONDS)
+				.readTimeout(60, TimeUnit.SECONDS)
+				.writeTimeout(60, TimeUnit.SECONDS)
+				.build();
+		return okHttpClient;
 	}
 
 	// Global Instance of Object Mapper

@@ -1,0 +1,342 @@
+#about_app table{
+	margin-top:15px;
+}
+
+#about_app table tr{
+	padding:0px;
+}
+
+#about_app table td{
+	padding-top:10px;
+}
+
+
+body{
+	font-size: 12px;
+}
+
+
+table {
+  font-family: arial, sans-serif;
+  border-spacing: 2px;
+  border: none;
+  width: 100%;
+}
+
+td, th {
+  text-align: left;
+  padding: 8px;
+}
+
+input[type=text],input[type=number],input[type=password],input[type=email],input[type=date]{
+	border:none;
+    padding:10px;
+    box-shadow: 10px 10px 5px lightblue;
+	background: #f1f1f1;
+    border-radius: 10px;
+    font-size:12px;
+	width:100%;
+}
+
+input[type=checkbox]{
+	border:none;
+    padding:10px;
+	margin: 10px;
+	height: 13px;
+	width: 13px;
+	font-size:12px;
+	background: #f1f1f1;
+}
+
+select{
+	border:none;
+    padding:10px;
+    font-size:12px;
+    width: 100%;
+    min-width: 15ch;
+    max-width: 30ch;
+	box-shadow: 10px 10px 5px lightblue;
+	background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.now{
+	border-radius: 10px;
+	font-size: 14px;
+}
+
+.con{
+	width: 100%;
+    padding: 10px;
+    box-shadow: 10px 10px 5px lightblue;
+    padding-top:10px;
+    border-radius:15px;
+    height:auto;
+}
+
+.con:focus, .con:hover{
+    background-color: #24478f;
+    color: white;
+}
+
+
+.con table:focus,.con table tr:focus{
+    color: white;
+}
+
+.con table:hover,.con table tr:hover{
+    color: white;
+}
+
+
+
+.left{
+	float:left;
+}
+
+.right{
+	float:right;
+}
+
+
+.left-below{
+	float: left;
+    padding-top: 10px;
+}
+
+.right-blue{
+	float:right;
+	padding: 10px;
+	background-color: #24478f;
+	color: white;
+	border-radius:10px;
+}
+
+.right-blue-red{
+    position: relative;
+    padding: 10px 15px;
+    background-color: #560319;
+    text-decoration: none;
+    color: var(--white);
+    border:none;
+    font-size:12px;
+    border-radius: 6px;
+	float:right;
+}
+
+.second{
+	margin-top: 5px;
+	float:left;
+}
+
+.responseDiv{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+.responseDiv1{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+.responseDiv2{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+.responseDiv3{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+.responseDiv4{
+    background-color: #24478f;
+    padding:10px;
+    color:white;
+    text-align:center;
+    border-radius:10px;
+}
+
+.otp-field input{
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#time{
+	font-size:18px;
+	font-weight: bold;
+	text-align:center;
+}
+
+.eye-icon{
+    float:right;
+    font-size:23px;
+    margin-right:10px;
+    margin-top:-28px;
+}
+
+
+.loader {
+    border: 6px solid #24478f;
+    border-radius: 50%;
+    border-top: 6px solid #3498db;
+    width: 50px;
+    height: 50px;
+    margin-top:15px;
+    margin-left: auto;
+    margin-right: auto;
+    -webkit-animation: spin 1s linear infinite; /* Safari */
+    animation: spin 1s linear infinite;
+}
+
+.right-icon{
+	float: right;
+	text-align: right;
+	font-size:25px;
+}
+
+.add-circle, .remove-circle{
+	font-size:28px;
+}
+
+#remove_icon, #remove_icon1, #remove_icon2{
+	font-size:28px;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#cash_receipting table tr,#host_church_self table tr,#home_church_self table tr, #host_church_others table tr,
+#trust_funds_div table tr, #payment_div table tr{
+	padding: 0px;
+}
+
+#cash_receipting table td, #host_church_self table td,#home_church_self table td, #host_church_others table td,
+#trust_funds_div table td, #payment_div table td{
+	padding: 2px;
+}
+
+
+label{
+	font-size:12px;
+}
+
+input[type=month]{
+	padding: 10px;
+	border-radius: 10px;
+    border:none;
+}
+
+
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+h2{
+	font-size:14px;
+	text-align: center;
+}
+
+
+/* Modal Content */
+.modal-content {
+  position: relative;
+  border-radius: 15px;
+  background-color: #fefefe;
+  margin: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px solid #888;
+  width: 25%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+/* The Close Button */
+.close {
+  color: black;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 2px 16px;
+  color: black;
+}
+
+.modal-body {
+  padding: 2px 16px;
+}
+
+.modal-footer {
+  padding: 2px 16px;
+  color: black;
+}
+
+.button {
+  background-color: #24478f;
+  color: white;
+  padding: 8px 14px;
+  margin: 10px 10px;
+  border: none;
+  width: 100%;
+  white-space: nowrap;
+  border-radius:10px;
+  opacity: 0.9;
+  font-size: 13px;
+}

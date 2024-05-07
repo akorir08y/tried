@@ -24,9 +24,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LocalNonTrustFundReportExcel {
+
+    List<String> keys = new ArrayList<String>();
+    List<String> keys_unfiltered = new ArrayList<String>();
 
 
     private XSSFWorkbook workbook;
@@ -36,7 +42,7 @@ public class LocalNonTrustFundReportExcel {
         this.workbook = new XSSFWorkbook();
     }
 
-    private void writeHeaderLine() {
+    private void writeHeaderLine(HashMap<String, Integer> churchFunds) {
         sheet = workbook.createSheet("Local Non Trust Fund Report");
 
         Row row = sheet.createRow(0);
@@ -44,7 +50,7 @@ public class LocalNonTrustFundReportExcel {
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
         font.setBold(true);
-        font.setFontHeight(16);
+        font.setFontHeight(12);
         style.setFont(font);
 
         createCell(row, 0, "Receipt Number", style);
@@ -52,7 +58,36 @@ public class LocalNonTrustFundReportExcel {
         createCell(row, 2, "Member Number", style);
         createCell(row, 3, "Mode of Payment", style);
         createCell(row, 4, "Local Combined Offerings", style);
-        createCell(row, 5, "Total Amount", style);
+
+
+
+        System.out.println("HashMap:"+ churchFunds);
+
+        for (Map.Entry<String,Integer> mapElement : churchFunds.entrySet()) {
+            String key = mapElement.getKey();
+            if(!key.contains("local_combined_offerings")){
+                keys_unfiltered.add(key);
+            }
+            if(key.contains("_")) {
+                key = key.replace("_", " ");
+                if(!key.contains("local combined offerings")){
+                    keys.add(key);
+                }
+            }else{
+                keys.add(key);
+            }
+        }
+
+        keys.add("Total Amount");
+        keys_unfiltered.add("totalAmount");
+
+        int count = 5;
+        System.out.println("Keys Unfiltered: "+ keys_unfiltered);
+        System.out.println("Keys Unfiltered Size: "+ keys_unfiltered.size());
+
+        for(int i=0; i < keys.size(); i++){
+            createCell(row, count++, keys.get(i), style);
+        }
 
     }
 
@@ -63,52 +98,59 @@ public class LocalNonTrustFundReportExcel {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
             cell.setCellValue((Boolean) value);
-        }else {
+        }else if(value instanceof String){
             cell.setCellValue((String) value);
+        }else if(value instanceof Double){
+            cell.setCellValue((Double) value);
+        }else if(value instanceof Float){
+            cell.setCellValue((Float) value);
         }
         cell.setCellStyle(style);
     }
 
-    public void getNonTrustFundReport(List<MembersItem> membersItems){
+    public void getNonTrustFundReport(List<HashMap<String, Object>> membersItems, HashMap<String, Integer> accounts){
 
         int rowCount = 1;
 
         CellStyle style = workbook.createCellStyle();
         XSSFFont font = workbook.createFont();
-        font.setFontHeight(14);
+        font.setFontHeight(10);
         style.setFont(font);
 
 
 
-        for (MembersItem membersItem: membersItems) {
+        for (HashMap<String, Object> membersItem: membersItems) {
             Row row = sheet.createRow(rowCount++);
             int columnCount = 0;
 
+            createCell(row, columnCount++,membersItem.get("receiptNumber") , style);
+            createCell(row, columnCount++, membersItem.get("memberName"), style);
+            createCell(row, columnCount++, membersItem.get("memberNumber"), style);
+            createCell(row, columnCount++, membersItem.get("meansOfPayment"), style);
+            createCell(row, columnCount++, membersItem.get("local_combined_offerings"), style);
 
-            if(membersItem.getMemberNumber() != null) {
+            int count = 5;
 
-                createCell(row, columnCount++,membersItem.getReceiptNumber() , style);
-                createCell(row, columnCount++, membersItem.getMemberName(), style);
-                createCell(row, columnCount++, membersItem.getMemberNumber(), style);
-                createCell(row, columnCount++, membersItem.getMeansOfPayment(), style);
-                createCell(row, columnCount++, membersItem.getLocalCombinedOfferings(), style);
-                createCell(row, columnCount++, membersItem.getTotalAmount(), style);
+            int total = 3 + keys_unfiltered.size();
 
-            }else{
-
-                createCell(row, columnCount++,"" , style);
-                createCell(row, columnCount++, "", style);
-                createCell(row, columnCount++,"Local Combined Offerings" , style);
-                createCell(row, columnCount++, membersItem.getLocalCombinedOfferings(), style);
-                createCell(row, columnCount++,"Total Amount" , style);
-                createCell(row, columnCount++, membersItem.getTotalAmount(), style);
+            for(int i = 0; i < keys_unfiltered.size(); i++){
+                if(membersItem.get("receiptNumber") != null){
+                    createCell(row, count++, membersItem.get(keys_unfiltered.get(i)), style);
+                }else{
+                    createCell(row, 3,"Total Local Combined Offerings" , style);
+                    createCell(row, count++, membersItem.get(keys_unfiltered.get(i)), style);
+                    createCell(row, total,"Total Amount" , style);
+                }
             }
+
+
+
         }
     }
 
-    public void export(HttpServletResponse response, List<MembersItem> membersItems) throws IOException, java.io.IOException {
-        writeHeaderLine();
-        getNonTrustFundReport(membersItems);
+    public void export(HttpServletResponse response, List<HashMap<String, Object>> membersItems, HashMap<String, Integer> accounts) throws IOException, java.io.IOException {
+        writeHeaderLine(accounts);
+        getNonTrustFundReport(membersItems, accounts);
 
         ServletOutputStream outputStream = response.getOutputStream();
         workbook.write(outputStream);

@@ -1,276 +1,287 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <title>CFMS Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!--=============== REMIXICONS ===============-->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css">
 
-    <link th:href="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css}" th:rel="@{stylesheet}" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <!--=============== CSS ===============-->
+  <link rel="stylesheet" href="/cfms-web/css/login.css">
 
-    <!-- ==== Stylesheets and Javascript Files ==== -->
-    <link th:rel="stylesheet" th:href="@{/css/dark.css}" type="text/css">
-    <link th:rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css}" type="text/css">
+  <title>CFMS Web App Login</title>
 </head>
 <body>
-<div class="container" style="margin:10px;">
+<!--==================== HEADER ====================-->
+<header class="header" id="header">
+  <nav class="nav container">
+    <img src="/cfms-web/images/cfmsLogo.png" class="nav__logo" alt="Logo">
 
-    <div th:if="${param.q}">
-        <div class="alert alert-danger" id="response_error" th:text="${param.q}" style="text-align:center;font-size:14px;"></div>
+    <div class="nav__menu" id="nav-menu">
+      <ul class="nav__list">
+        <li class="nav__item">
+          <a href="https://lakeatts.co.ke/" class="nav__link">About Us</a>
+        </li>
+
+        <li class="nav__item">
+          <a href="#" class="nav__link">Services</a>
+        </li>
+
+        <li class="nav__item">
+          <a href="#" class="nav__link">Contact Us</a>
+        </li>
+      </ul>
+
+      <!-- Close button -->
+      <div class="nav__close" id="nav-close">
+        <i class="ri-close-line"></i>
+      </div>
     </div>
 
+    <div class="nav__actions">
+      <!-- Search button -->
 
-    <h3 style="text-align:center;font-size:16px;">CFMS Authentication</h3>
-    <br>
-    <a class="button" data-bs-toggle="modal" href="#exampleModalToggle" role="button">Login / SignUp</a>
-    <a class="button" data-bs-toggle="modal" href="#exampleModalToggle5" role="button">Register Member</a>
-    <!-- Login Form-->
+      <ul class="nav__list">
+        <li class="nav__item">
+          <i class="ri-search-line nav__search" id="search-btn"></i>
+        </li>
 
-    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content" style="border-radius:10px;">
-                <div class="responseDiv"></div>
-                <h5 class="header1">CFMS Login</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <hr>
-                <div class="modal-body">
-                    <form action="/cfms-web/authenticate/auth-login" id="myForm" name="login" method="post">
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="basic-addon1"><i class="bi bi-telephone" id="telephone"></i></span>
-                            <input type="text" placeholder="Phone Number" pattern="[0-9]{10}" minlength="9" maxlength="12" class="login_input" id="username" name="username" required>
-                        </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" class="password_input" maxlength="4" minlength="4" id="password" name="password" placeholder="Pin ***" onkeyup="validationForm()">
-                            <span class="input-group-text"><i class="bi bi-eye-slash" id="togglePassword" onclick="passwordVisibility()"></i></span>
-                        </div>
-                    </form>
+        <!-- Login button -->
+        <li class="nav__item" id="login-btn">
+          <a class="nav__link"><i class="ri-user-line nav__login"></i> Login</a>
+        </li>
+      </ul>
 
-                    <!-- Login Button -->
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" class="button1" onclick="AuthMemberRequest()">Login</button>
-                        <button class="button1"  data-bs-target="#exampleModalToggle5" data-bs-toggle="modal" id="sign-up">SIGN UP</button>
-                    </div>
-
-                    <br>
-                    <a data-bs-toggle="modal" href="#exampleModalToggle3" style="margin-left:5px;margin-top:5px;border-radius:10px;text-align:center;font-size:12px;">Forgot Pin</a>
-                    <hr>
-                    <div id="otp_id" style="display:none">
-                        <h5 class="header1">OTP Verification</h5>
-                        <input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone_number" disabled>
-                        <hr>
-                        <div class="otp-field">
-                            <div id="otp-field12">
-                                <form id="otp_log">
-                                    <input type="text" id="ist" maxlength="1" onkeyup="clickEvent(this,'sec')"/>
-                                    <input type="text" id="sec" maxlength="1" onkeyup="clickEvent(this,'third')"/>
-                                    <input type="text" id="third" maxlength="1" onkeyup="clickEvent(this,'forth')"/>
-                                    <input type="text" id="forth" maxlength="1"/>
-                                </form>
-                            </div>
-                        </div>
-                        <div id="time" style="font-size:16px;font-weight: bold;text-align:center;"></div>
-                        <hr>
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button type="button" class="button1" onclick="sendOTP()" id="send_otp_button">Send OTP</button>
-                            <button type="button" class="button1" onclick="confirmOTP()" id="verify_button">Verify OTP</button>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
+      <!-- Toggle button -->
+      <div class="nav__toggle" id="nav-toggle">
+        <i class="ri-menu-line"></i>
+      </div>
     </div>
-    <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="header1">OTP Verification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <br>
-                    <ul class="list-group">
-                        <li class="list-group-item" id="sendCode" onclick="sendOTP()"></li>
-                    </ul>
-                </div>
-                <div class="modal-footer">
-                    <button onclick="confirmOTP()" id="verify" class="button1" type="button">Verify OTP</button>
-                    <br>
-                </div>
-            </div>
-        </div>
-    </div>
+  </nav>
+</header>
 
-    <!-- Reset Pin Modal Form-->
-    <div class="modal fade" id="exampleModalToggle3" aria-hidden="true" aria-labelledby="exampleModalToggleLabel3" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <br>
-                <h5 class="header1">OTP Verification</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <hr>
-                <div class="modal-body">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" placeholder="Phone Number" pattern="[0-9]{10}" minlength="9" maxlength="12" class="login_input" name="username" id="phone_number1">
-                    </div>
-                    <hr>
-                    <div class="otp-field">
-                        <div id="otp-field11">
-                            <input type="text" id="ist1" maxlength="1" onkeyup="clickEvent(this,'sec1')"/>
-                            <input type="text" id="sec1" maxlength="1" onkeyup="clickEvent(this,'third1')"/>
-                            <input type="text" id="third1" maxlength="1" onkeyup="clickEvent(this,'forth1')"/>
-                            <input type="text" id="forth1" maxlength="1"/>
-                        </div>
-                    </div>
-                    <div id="time1" style="font-size:16px;font-weight: bold;text-align:center;"></div>
-                    <hr>
+<!--==================== SEARCH ====================-->
+<div class="search" id="search">
+  <form action="" class="search__form">
+    <i class="ri-search-line search__icon"></i>
+    <input type="search" placeholder="What are you looking for?" class="search__input">
+  </form>
 
-                </div>
-                <div class="btn-group" role="group" aria-label="Basic example">
-                    <button type="button" class="button1" id="send-otp" onclick="sendResetOTP()">Send OTP</button>
-                    <button type="button" class="button1" onclick="confirmResetOTP()">Confirm OTP</button>
-                    <br>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="exampleModalToggle4" aria-hidden="true" aria-labelledby="exampleModalToggleLabel4" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <h5 class="header1">Reset Pin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                <hr>
-                <div class="modal-body">
-                    <div class="responseDiv"></div>
-                    <!--<form>-->
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" placeholder="Phone Number" pattern="[0-9]{12}" minlength="9" maxlength="12" class="login_input" id="username1" name="username" disabled>
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                        <input type="password" placeholder="Pin ***" pattern="[0-9]{10}" minlength="4" maxlength="4" class="password_input" id="password1" name="password" required>
-                        <span class="input-group-text"><i class="bi bi-eye-slash" id="togglePassword1" onclick="passwordVisibility1()"></i></span>
-                    </div>
-                </div>
-
-                <button type="button" class="button1" style='border-radius:10px;' onclick="resetMemberPin()">Reset Pin</button>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="exampleModalToggle5" aria-hidden="true" aria-labelledby="exampleModalToggleLabel5" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div id="otp_verification">
-                    <h5 class="header1">OTP Verification</h5>
-                    <hr>
-                    <div class="responseDiv"></div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                        <input type="text" placeholder="Phone Number" class="login_input" maxlength="12" minlength="12" name="username" id="phone_number2">
-                    </div>
-                    <hr>
-                    <div class="otp-field">
-                        <div id="otp-field13">
-                            <form id="otp_reg">
-                                <input type="text" id="ist2" maxlength="1" onkeyup="clickEvent(this,'sec2')" required>
-                                <input type="text" id="sec2" maxlength="1" onkeyup="clickEvent(this,'third2')" required>
-                                <input type="text" id="third2" maxlength="1" onkeyup="clickEvent(this,'forth2')" required>
-                                <input type="text" id="forth2" maxlength="1" required>
-                            </form>
-                        </div>
-                    </div>
-                    <div id="time2" style="font-size:16px;font-weight: bold;text-align:center;"></div>
-                    <hr>
-                    <div class="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" class="button1" onclick="sendRegisterOTP()" id="send_otp_button2">Send OTP</button>
-                        <button type="button" class="button1" onclick="confirmRegisterOTP()" id="verify_button2">Verify OTP</button>
-                    </div>
-                </div>
-
-                <div id="register_div" style="display:none">
-                    <br>
-                    <h5 class="header1">Register Member</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    <hr>
-                    <div class="responseDiv"></div>
-                    <div class="modal-body">
-                        <form action="/cfms-web/authenticate/auth-register" id="myForm2" method="post">
-                            <div class="container-fluid">
-                                <div class="row">
-                                    <div class="col-md-6 ms-auto">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                            <input type="text" placeholder="Full Name" class="login_input" id="fullname" name="fullname" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ms-auto">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                            <input type="email" placeholder="Email" class="login_input" id="email" name="email" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--<form>-->
-                                <div class="row">
-                                    <div class="col-md-6 ms-auto">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                                            <input type="text" placeholder="Phone Number" pattern="[0-9]{10}" minlength="9" maxlength="12" class="login_input" id="phone" name="phone" disabled>
-                                            <input type="hidden" minlength="9" maxlength="12" class="login_input" id="phone1" name="phone">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 ms-auto">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                                            <input type="password" class="password_input" id="pin" style="width:60%;" pattern="[0-9]{10}" minlength="4" maxlength="4" name="pin" placeholder="Pin ****" required>
-                                            <span class="input-group-text"><i class="bi bi-eye-slash" id="togglePassword2" onclick="passwordVisibility2()"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text"><i class="bi bi-building-fill"></i></span>
-                                            <input type="text" placeholder="Church Code" pattern="[0-9]{10}" minlength="5" maxlength="5" class="login_input" id="church_code" name="church_code" onkeyup="checkChurch()">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn-group" role="group" aria-label="Basic example">
-                            <button type="button" class="button1" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Login</button>
-                            <button type="button" class="button1" onclick="AuthMemberRegister()">Register Member</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="content"></div>
+  <i class="ri-close-line search__close" id="search-close"></i>
 </div>
 
-<!-- Jquery Script -->
-<script th:src="@{https://code.jquery.com/jquery-3.7.1.min.js}"></script>
-<script th:src="@{https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js}" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-<script th:src="@{/js/dark.js}" type="text/javascript"></script>
-<script th:src="@{/js/form.js}" type="text/javascript"></script>
-<script th:src="@{/js/form-validation.js}" type="text/javascript"></script>
+<!--==================== LOGIN ====================-->
+<div class="login" id="login">
+  <div class="login__form">
+    <h2 class="login__title">Member Login</h2>
+    <br>
+    <form id="login_form" action="/cfms-web/authenticate/auth-login" method="post">
+        <div class="login__group">
+          <div>
+            <label for="email" class="login__label">Phone Number</label>
+            <i class="ri-phone-line" id="phone-icon1"></i>
+            <input type="text" placeholder="2547**" id="username" name="username" class="login__input">
+          </div>
 
-<script>
-$("#response_error").fadeOut(3000);
+          <div>
+            <label for="password" class="login__label">Password</label>
+            <i class="ri-lock-password-fill" id="pin-icon3"></i>
+            <input type="password" placeholder="Enter your Pin" id="password" name="password" class="login__input">
+            <i class="ri-eye-fill" id="reset-icon3" onclick="togglePasswordLogin()"></i>
+          </div>
+        </div>
+    </form>
 
-setInterval(function() {
-location.reload();
-}, 300000);
-</script>
+    <div>
+      <p class="login__signup">
+        You do not have an account? <a href="#register-link" id="register-btn">Sign up as a Member</a>
+      </p>
+      <br>
+      <a href="#forgot-password-link" class="login__forgot" id="reset-pin-btn">
+        You forgot your password ?
+      </a>
 
+      <button type="button" class="login__button" onclick="AuthMemberRequest()">Log In</button>
+    </div>
+    <div id="otp_login" style="display:none;">
+      <h2 class="login__title" style="margin-top:5px;">OTP Verification</h2>
+      <input type="hidden" placeholder="Phone Number" maxlength="12" name="username" id="phone_number_login" disabled>
+      <div class="otp-field">
+        <div id="otp-field11">
+          <input type="text" id="ist" maxlength="1" onkeyup="clickEvent(this,'sec')" style="width:10%" class="login__input1">
+          <input type="text" id="sec" maxlength="1" onkeyup="clickEvent(this,'third')" style="width:10%" class="login__input1">
+          <input type="text" id="third" maxlength="1" onkeyup="clickEvent(this,'forth')" style="width:10%" class="login__input1">
+          <input type="text" id="forth" maxlength="1" style="width:10%" class="login__input1">
+        </div>
+      </div>
+      <div id="time"></div>
+      <br>
+      <div class="login_buttons">
+        <button type="submit" class="login__button" style="display:none;" id="send_otp_button" onclick="sendOTP()">Resend OTP</button>
+        <button type="submit" class="login__button" style="width:200%;" id="verify_otp_button" onclick="confirmOTP()">Verify OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <i class="ri-close-line login__close" id="login-close"></i>
+</div>
+
+
+<div class="register" id="register">
+  <div class="register__form">
+    <div id="otp_register">
+      <h2 class="login__title">OTP Verification</h2>
+      <br>
+
+      <div class="login__group">
+        <div>
+          <label for="phone_number_register" class="login__label">Phone Number</label>
+          <input type="text" placeholder="2547**" id="phone_number_register" class="login__input">
+        </div>
+        <div class="otp-field">
+          <div id="otp-field12">
+            <input type="text" id="ist1" maxlength="1" onkeyup="clickEvent(this,'sec1')" style="width:10%" class="login__input1">
+            <input type="text" id="sec1" maxlength="1" onkeyup="clickEvent(this,'third1')" style="width:10%" class="login__input1">
+            <input type="text" id="third1" maxlength="1" onkeyup="clickEvent(this,'forth1')" style="width:10%" class="login__input1">
+            <input type="text" id="forth1" maxlength="1" style="width:10%" class="login__input1">
+          </div>
+        </div>
+        <div id="time1" style="text-align:center;font-size:16px;color:black;"></div>
+        <div class="login_buttons">
+          <button type="submit" class="login__button" id="send_otp_register" onclick="sendRegisterOTP()">Send OTP</button>
+          <button type="submit" class="login__button" id="confirm_otp_register" onclick="confirmRegisterOTP()">Verify OTP</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="register_div" style="display:none;">
+      <h2 class="login__title">Member Registration</h2>
+      <br>
+      <form action="/cfms-web/authenticate/auth-register" id="form-register" method="post">
+        <div class="register_input">
+          <div>
+            <label for="fullname" class="login__label">Full Name</label>
+            <i class="ri-account-circle-fill" id="fullname-icon"></i>
+            <input type="text" placeholder="Enter Full Name" class="login__input" id="fullname" name="fullname" required>
+          </div>
+          <div>
+            <label for="phone" class="login__label">Phone Number</label>
+            <i class="ri-phone-line" id="phone-icon2"></i>
+            <input type="text" placeholder="2547" pattern="[0-9]{12}" minlength="9" maxlength="12" class="login__input" id="phone" name="phone" readonly>
+          </div>
+        </div>
+        <div class="register_input">
+          <div>
+            <label for="pin" class="login__label">Pin</label>
+            <i class="ri-lock-password-fill" id="pin-icon4"></i>
+            <input type="password" placeholder="Enter Pin" class="login__input" id="pin" pattern="[0-9]{4}" minlength="4" maxlength="4" name="pin" required>
+            <i class="ri-eye-fill" id="reset-icon4" onclick="togglePasswordPinRegister()"></i>
+          </div>
+          <div>
+            <label for="confirm_pin" class="login__label">Confirm Pin</label>
+            <i class="ri-lock-password-fill" id="pin-icon5"></i>
+            <input type="password" placeholder="Confirm Pin" class="login__input" id="confirm_pin" pattern="[0-9]{4}" minlength="4" maxlength="4" name="pin_confirm" required>
+            <i class="ri-eye-fill" id="reset-icon5"  onclick="togglePasswordConfirmPinRegister()"></i>
+          </div>
+        </div>
+        <div class="register_input">
+          <div>
+            <label for="church_code"  class="login__label">Church Code</label>
+            <i class="ri-community-fill" id="church-icon"></i>
+            <input type="text" placeholder="Enter Church Code" pattern="[0-9]{10}" minlength="5" maxlength="5" class="login__input" id="church_code" name="church_code" onkeyup="checkChurch()">
+          </div>
+          <div>
+            <label for="email" class="login__label">Email</label>
+            <i class="ri-mail-unread-fill"  id="mail-icon"></i>
+            <input type="text" placeholder="Enter Email" class="login__input" id="email" name="email">
+          </div>
+        </div>
+      </form>
+
+      <p class="login__signup">
+        You have an account? <a href="#login-link" id="login-link">Sign In as a Member</a>
+      </p>
+      <br>
+      <a href="#login-forgot" class="login__forgot" id="reset-pin-btn2">
+        You forgot your password ?
+      </a>
+
+      <button type="button" class="login__button" onclick="AuthMemberRegister()">Register</button>
+    </div>
+  </div>
+  <i class="ri-close-line register__close" id="register-close"></i>
+</div>
+
+
+<div class="reset-pin" id="reset-pin">
+  <div class="reset__pin__form">
+    <div id="otp_reset">
+      <h2 class="login__title">OTP Verification</h2>
+      <br>
+      <br>
+
+      <div class="login__group">
+        <div>
+          <label for="phone_number_reset" class="login__label">Phone Number</label>
+          <i class="ri-phone-line" id="phone-icon3"></i>
+          <input type="text" placeholder="2547**" id="phone_number_reset" class="login__input">
+        </div>
+        <div class="otp-field">
+          <div id="otp-field13">
+            <input type="text" id="ist2" maxlength="1" onkeyup="clickEvent(this,'sec2')" style="width:10%" class="login__input1">
+            <input type="text" id="sec2" maxlength="1" onkeyup="clickEvent(this,'third2')" style="width:10%" class="login__input1">
+            <input type="text" id="third2" maxlength="1" onkeyup="clickEvent(this,'forth2')" style="width:10%" class="login__input1">
+            <input type="text" id="forth2" maxlength="1" style="width:10%" class="login__input1">
+          </div>
+        </div>
+        <div id="time2"></div>
+        <div class="login_buttons">
+          <button type="submit" class="login__button" id="send-otp-reset" onclick="sendResetOTP()">Send OTP</button>
+          <button type="submit" class="login__button" id="verify-otp-reset" onclick="confirmResetOTP()">Verify OTP</button>
+        </div>
+        <br>
+        <p class="login__signup">
+          You have an account? <a href="#login-link" id="login-linked">Sign In as a Member</a>
+        </p>
+        <br>
+
+      </div>
+    </div>
+
+    <div id="reset_div" style="display:none;">
+      <h2 class="login__title">Reset Pin</h2>
+      <br>
+
+      <div>
+        <label for="pin" class="login__label">Pin</label>
+        <i class="ri-lock-password-fill" id="pin-icon1"></i>
+        <input type="password" placeholder="Enter Pin" class="login__input" id="pin_reset" pattern="[0-9]{4}" minlength="4" maxlength="4" name="pin" required>
+        <i class="ri-eye-fill" id="reset-icon1"  onclick="togglePasswordPinReset()"></i>
+      </div>
+      <br>
+      <div>
+        <label for="confirm_pin" class="login__label">Confirm Pin</label>
+        <i class="ri-lock-password-fill" id="pin-icon2"></i>
+        <input type="password" placeholder="Confirm Pin" class="login__input" id="confirm_pin_reset" pattern="[0-9]{4}" minlength="4" maxlength="4" name="pin_confirm" required>
+        <i class="ri-eye-fill" id="reset-icon2" onclick="togglePasswordConfirmPinReset()"></i>
+      </div>
+      <br>
+      <button type="button" class="login__button"  onclick="resetMemberPin()">Reset Pin</button>
+    </div>
+  </div>
+  <i class="ri-close-line reset__pin__close" id="reset-pin-close"></i>
+</div>
+
+<!--==================== MAIN ====================-->
+<main class="main">
+  <img src="/cfms-web/images/bg-image.png" alt="image" class="main__bg">
+</main>
+
+<!--=============== MAIN JS ===============-->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="/cfms-web/js/login.js"></script>
+<script src="/cfms-web/js/form.js"></script>
 </body>
 </html>

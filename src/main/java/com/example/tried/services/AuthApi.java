@@ -34,25 +34,25 @@ import org.json.JSONObject;
 public interface AuthApi {
 
     // Login as a Member Credentials
-    AuthMemberResponse getMemberCredentials(LoginCredentials credentials);
+    AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException;
 
     // Verify Phone Number Using OTP
-    public SMSResponse VerifyPhoneNumber(String recipient);
+    public SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException;
 
     // Reset Member Pin
-    AuthMemberResetResponse resetMemberPin(Payload payload);
+    AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException;
 
     // Member Registration
-    AuthMemberRegistrationResponse registerMember(MemberRegister register);
+    AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException;
 
     // Member Registration Update
-    AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register);
+    AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException;
 
     // Member Personnel Login
-    MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel);
+    MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException;
 
     // Member Personnel Password Reset
-    PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset);
+    PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException;
 
     // Valid OTP
     // Member Personnel Password Reset
@@ -62,65 +62,65 @@ public interface AuthApi {
 
 
     // Fetch Member Details
-    public MemberProfileResponse getMemberDetails(MemberProfile profile);
+    public MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException;
 
     // Get the Member Statement
-    public MemberOfferingResponse getMemberOffering(MemberOffering offering);
+    public MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException;
 
     // Get the Member Church Details
     public RequestChurchDetailsResponse getMemberChurchDetails(RequestChurchDetails request);
 
     // Get the Member Transfer Details
-    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer);
+    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException;
 
     // Get Member Details
-    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails request);
+    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails request) throws JsonProcessingException;
 
     // Request Church Details with Church Code
-    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails);
+    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException;
 
 
     // Member Registration Update Details
-    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate);
+    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException;
 
 
     // List Church Members
-    public ListMembersResponse getChurchMembers(ListMembers members);
+    public ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException;
 
     // List Deactivated Church Members
-    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members);
+    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException;
 
     // List Payment Accounts
-    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount);
+    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException;
 
     // Get the Local Church Trust Fund Summary
-    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary);
+    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException;
 
     // Mobile Initiate Home Church Payment
-    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment);
+    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException;
 
     // Host Church Payment
-    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment);
+    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException;
 
     // Mobile Receive Funds Live
-    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonParseException;
+    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException;
 
 
     // MPESA STK Push Response
-    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest request);
+    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest request) throws JsonProcessingException;
 
 
     // Transaction Tracing Summary Funds
-    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing);
+    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException;
 
     // Get the Local Church Non Trust Fund Summary
-    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary);
+    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException;
 
 
     // Get the Local Church Offering Reports
-    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary);
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException;
 
 
     // Get the Specific Offering Statement
-    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement);
+    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException;
 }

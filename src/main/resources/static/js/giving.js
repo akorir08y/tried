@@ -81,6 +81,7 @@ function myFunction() {
 
   var text = document.getElementById("church_code_section_self");
   var text1 = document.getElementById("church_code_section_others");
+
   //var member_giving = document.getElementById("start_section");
   var profile_data = {
       phone_number: phone
@@ -300,9 +301,9 @@ function getTrustFundAccounts(data){
 	    console.log(data);
 
 	    var trust_funds = new String("");
-	    var trust_funds = "[\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",";
-	    trust_funds += "\"Tithe Account::127989\",\"Camp Meeting Account::127991\",\"Tithe Account::13822\",\"Camp Meeting Account::13824\",";
-	    trust_funds += "\"Combined Offerings Account::13823\",\"Combined Offerings Account::127990\"]";
+	    var trust_funds = "[\"Tithe Account::127989\",\"Combined Offerings Account::127990\",\"Camp Meeting Account::13824\",";
+	    trust_funds += "\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",";
+	    trust_funds += "\"Combined Offerings Account::13823\"]";
 
         // Trust Fund Accounts
         var request = trust_funds;
@@ -346,12 +347,11 @@ function getTrustFundAccounts(data){
 
         html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
         html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv()\" id=\"payment_button\">Confirm</button></td></tr>";
+        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button>  <button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv()\" id=\"payment_button\">Confirm</button></td></tr>";
         html += "<tbody></form></table>";
 
+        $("#trust_funds_div").show();
         $("#trust_funds_div").html(html);
-
-
 }
 
 
@@ -407,9 +407,10 @@ function getNonTrustFundAccounts(data){
         }
         html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
         html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal1\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv1()\" id=\"payment_button1\">Confirm</button></td></tr>";
+        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button>  <button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv1()\" id=\"payment_button1\">Confirm</button></td></tr>";
         html += "<tbody></form></table>";
 
+        $("#trust_funds_div").show();
         $("#trust_funds_div").html(html);
 }
 
@@ -467,11 +468,11 @@ function getSpecialTrustFundAccounts(data){
         }
         html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
         html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal2\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv2()\" id=\"payment_button2\">Confirm</button></td></tr>";
+        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button>  <button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv2()\" id=\"payment_button2\">Confirm</button></td></tr>";
         html += "</form><tbody></table>";
 
+        $("#trust_funds_div").show();
         $("#trust_funds_div").html(html);
-
 }
 
 
@@ -565,9 +566,10 @@ function getBothFundAccounts(data){
         html += "</div><table>"
         html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
         html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal3\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv3()\" id=\"payment_button3\">Confirm</button></td></tr>";
+        html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getBackToFunds()\">Back</button>  <button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv3()\" id=\"payment_button3\">Confirm</button></td></tr>";
         html += "</form><tbody></table>";
 
+        $("#trust_funds_div").show();
         $("#trust_funds_div").html(html);
 }
 
@@ -608,11 +610,14 @@ function saveTrustFundSummary(){
         if(cfms_id_member != ""){
             receiver_id = document.getElementById("member_number_id").innerHTML;
             receiver_name = document.getElementById("member_name_id").innerHTML;
+            console.log("Receiver Name:"+ receiver_name);
+            console.log("Receiver Id:"+ receiver_id);
         }else if(phone1 != ""){
             receiver_id = document.getElementById("member_number_id").innerHTML;
             receiver_name = document.getElementById("member_name_id").innerHTML;
+            console.log("Receiver Name:"+ receiver_name);
+            console.log("Receiver Id:"+ receiver_id);
         }
-
 
         if (church_code_host == ""){
             church_code = church_code_others;
@@ -621,13 +626,10 @@ function saveTrustFundSummary(){
         }
     }
 
-
-
 	for (var i = 0; i < amt.length; i++) {
 		if(amt[i].value != ''){
 			var amount_id = amt[i].id;
-			amount_id = amount_id.replace(' ','');
-			amount_id = amount_id.replace(' ','');
+			amount_id = amount_id.replace(' Account','');
 			console.log("The Desired Id: "+ amount_id);
 			funds1.push(amount_id);
 			console.log("The Desired Value: "+amt[i].value);
@@ -652,15 +654,25 @@ function saveTrustFundSummary(){
         receiver_name: receiver_name,
         trust_funds: funds1,
         fund_amount: amt1
-    }
+    };
 
     console.log("Funds Object: " + funds);
     console.log("Funds Object String: " + JSON.stringify(funds));
 
+
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        $(".responseDiv").show();
-        $(".responseDiv").html("Trust Fund Successfully Saved");
-        $(".responseDiv").fadeOut(3000);
+        if(data != null){
+	        if(confirm(statement) == true){
+                alert("Trust Fund Successfully Saved");
+                window.location.reload();
+	        }else{
+                paybill_div.style.display = "block";
+                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
+                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+            }
+        }else{
+            alert("Saving Trust Fund UnSuccessful");
+        }
 	});
 }
 
@@ -716,8 +728,7 @@ function saveNonTrustFundSummary(){
 	for (var i = 0; i < amt.length; i++) {
 		if(amt[i].value != ''){
 			var amount_id = amt[i].id;
-			amount_id = amount_id.replace(' ','');
-			amount_id = amount_id.replace(' ','');
+			amount_id = amount_id.replace(' Account','');
 			console.log("The Desired Id: "+ amount_id);
 			funds1.push(amount_id);
 			console.log("The Desired Value: "+amt[i].value);
@@ -745,9 +756,18 @@ function saveNonTrustFundSummary(){
     }
 
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        $(".responseDiv").show();
-        $(".responseDiv").html("Non Trust Fund Successfully Saved");
-        $(".responseDiv").fadeOut(3000);
+        if(data != null){
+	        if(confirm(statement) == true){
+                alert("Non Trust Fund Successfully Saved");
+                window.location.reload();
+	        }else{
+                paybill_div.style.display = "block";
+                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
+                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+            }
+        }else{
+            alert("Saving Non Trust Fund UnSuccessful");
+        }
 	});
 }
 
@@ -802,8 +822,7 @@ function saveSpecialTrustFundSummary(){
 	for (var i = 0; i < amt.length; i++) {
 		if(amt[i].value != ''){
 			var amount_id = amt[i].id;
-			amount_id = amount_id.replace(' ','');
-			amount_id = amount_id.replace(' ','');
+			amount_id = amount_id.replace(' Account','');
 			console.log("The Desired Id: "+ amount_id);
 			funds1.push(amount_id);
 			console.log("The Desired Value: "+amt[i].value);
@@ -832,9 +851,18 @@ function saveSpecialTrustFundSummary(){
     }
 
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        $(".responseDiv").show();
-        $(".responseDiv").html("Special Trust Fund Successfully Saved");
-        $(".responseDiv").fadeOut(3000);
+        if(data != null){
+	        if(confirm(statement) == true){
+                alert("Special Trust Fund Successfully Saved");
+                window.location.reload();
+	        }else{
+                paybill_div.style.display = "block";
+                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
+                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+            }
+        }else{
+            alert("Saving Special Trust Fund UnSuccessful");
+        }
 	});
 }
 
@@ -856,6 +884,7 @@ function saveBothFundsSummary(){
 	var others = document.getElementById("others");
 	var phone1 = document.getElementById("phone1").value;
 	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var paybill_div = document.getElementById("paybill_div");
 	var receiver_id;
 	var receiver_name;
 
@@ -891,8 +920,7 @@ function saveBothFundsSummary(){
 	for (var i = 0; i < amt.length; i++) {
 		if(amt[i].value != ''){
 			var amount_id = amt[i].id;
-			amount_id = amount_id.replace(' ','');
-			amount_id = amount_id.replace(' ','');
+			amount_id = amount_id.replace(' Account','');
 			console.log("The Desired Id: "+ amount_id);
 			funds1.push(amount_id);
 			console.log("The Desired Value: "+amt[i].value);
@@ -904,8 +932,7 @@ function saveBothFundsSummary(){
     for (var i = 0; i < amt1.length; i++) {
     	if(amt1[i].value != ''){
     		var amount_id = amt1[i].id;
-    		amount_id = amount_id.replace(' ','');
-    		amount_id = amount_id.replace(' ','');
+    		amount_id = amount_id.replace(' Account','');
     		console.log("The Desired Id: "+ amount_id);
     		funds2.push(amount_id);
     		console.log("The Desired Value: "+amt1[i].value);
@@ -940,10 +967,21 @@ function saveBothFundsSummary(){
         fund_amount1: amt3
     }
 
+    console.log(funds);
+
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        $(".responseDiv").show();
-        $(".responseDiv").html("Both Trust Funds Successfully Saved");
-        $(".responseDiv").fadeOut(3000);
+	    if(data != null){
+	        if(confirm(statement) == true){
+                alert("Both Trust Fund Successfully Saved");
+                window.location.reload();
+	        }else{
+                paybill_div.style.display = "block";
+                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
+                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+            }
+        }else{
+            alert("Saving Both Trust Fund UnSuccessful");
+        }
 	});
 }
 
@@ -986,17 +1024,20 @@ function getTrustFunds(total){
     html += "<table><tr><td colspan=\"4\" style=\"padding-top:10px;\"><b>Initiate Payment From:</b></td></tr>";
     html += "<tr><td colspan=\"2\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"registered_number\" onclick=\"getPaymentNumber()\" checked>";
-    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr>";
-    html += "<tr><td style=\"text-align:left;\">";
+    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr><table>";
+    html += "<div id=\"other_number_saved\">";
+    html += "<table><tr><td style=\"text-align:left;\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"my_other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr></table>";
+    html += "</div>";
+    html += "<table><tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" onkeyup=\"checkNumberPayment()\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
+    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr></table>";
+    html += "<div id=\"alternative_number\"  style=\"display:none;\">";
+    html += "<table><tr style=\"width:100%;\">";
     html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
-    html += "</tr><tr><td><br></td></tr>";
-    html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
+    html += "</tr><tr><td><br></td></tr></table></div>";
+    html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveTrustFundSummary()\">Confirm</button></td></tr>"
     html += "</table>";
 
@@ -1011,17 +1052,20 @@ function getNonTrustFunds(total){
     html += "<table><tr><td colspan=\"4\" style=\"padding-top:10px;\"><b>Initiate Payment From:</b></td></tr>";
     html += "<tr><td colspan=\"2\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"registered_number\" onclick=\"getPaymentNumber()\" checked>";
-    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr>";
-    html += "<tr><td style=\"text-align:left;\">";
+    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr></table>";
+    html += "<div id=\"other_number_saved\">";
+    html += "<table><tr><td style=\"text-align:left;\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"my_other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr></table>";
+    html += "</div>";
+    html += "<table><tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" onkeyup=\"checkNumberPayment()\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
+    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr></table>";
+    html += "<div id=\"alternative_number\" style=\"display:none;\">";
+    html += "<table><tr style=\"width:100%;\">";
     html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
-    html += "</tr><tr><td><br></td></tr>";
-    html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
+    html += "</tr><tr><td><br></td></tr></table></div>";
+    html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveNonTrustFundSummary()\">Confirm</button></td></tr>"
     html += "</table>";
 
@@ -1036,17 +1080,20 @@ function getSpecialTrustFunds(total){
     html += "<table><tr><td colspan=\"4\" style=\"padding-top:10px;\"><b>Initiate Payment From:</b></td></tr>";
     html += "<tr><td colspan=\"2\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"registered_number\" onclick=\"getPaymentNumber()\" checked>";
-    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr>";
-    html += "<tr><td style=\"text-align:left;\">";
+    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr></table>";
+    html += "<div id=\"other_number_saved\">";
+    html += "<table><tr><td style=\"text-align:left;\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"my_other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr></table>";
+    html += "</div>";
+    html += "<table><tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" onkeyup=\"checkNumberPayment()\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
+    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr></table>";
+    html += "<div id=\"alternative_number\"  style=\"display:none;\">";
+    html += "<table><tr style=\"width:100%;\" id=\"alternative_number\">";
     html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
-    html += "</tr><tr><td><br></td></tr>";
-    html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
+    html += "</tr><tr><td><br></td></tr></table></div>";
+    html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveSpecialTrustFundSummary()\">Confirm</button></td></tr>"
     html += "</table>";
 
@@ -1061,17 +1108,20 @@ function getBothTrustFunds(total){
     html += "<table><tr><td colspan=\"4\" style=\"padding-top:10px;\"><b>Initiate Payment From:</b></td></tr>";
     html += "<tr><td colspan=\"2\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"registered_number\" onclick=\"getPaymentNumber()\" checked>";
-    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr>";
-    html += "<tr><td style=\"text-align:left;\">";
+    html += "<label class=\"form-check-label\" for=\"visiting_member\">My Registered Number</label></td></tr></table>";
+    html += "<div id=\"other_number_saved\">";
+    html += "<table><tr><td style=\"text-align:left;\">";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"my_other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onclick=\"getPaymentNumber()\">";
-    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr>";
-    html += "<tr style=\"visibility:collapse;width:100%;\" id=\"alternative_number\">";
+    html += "<label class=\"form-check-label\" for=\"guest\">My Other Number</label></td></tr></table>";
+    html += "</div>";
+    html += "<table><tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault4\" id=\"other_number\" onkeyup=\"checkNumberPayment()\" onclick=\"getPaymentNumber()\">";
+    html += "<label class=\"form-check-label\" for=\"anonymous\">Other Number</label></td></tr></table>";
+    html += "<div id=\"alternative_number\" style=\"display:none;\">";
+    html += "<table><tr style=\"width:100%;\">";
     html += "<td colspan=\"2\"><label class=\"label_input\"><b> Phone Number: </b></label></td>";
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
-    html += "</tr><tr><td><br></td></tr>";
-    html += "<tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
+    html += "</tr><tr><td><br></td></tr></table></div>";
+    html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
     html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveBothFundsSummary()\">Confirm</button></td></tr>"
     html += "</table>";
 
@@ -1227,28 +1277,42 @@ function getPaymentNumber(){
 	var phone2 = document.getElementById("personal_no2").value;
 	var other_number = document.getElementById("other_number");
 	var alternative_number = document.getElementById("alternative_number");
-	var alternative_number1 = document.getElementById("alternative_number1");
 	var total = document.getElementById("total_value").value;
+	var other_number_saved = document.getElementById("other_number_saved");
+
+	if(phone2.length < 12){
+    	 other_number_saved.style.display = "none";
+    }
 
 
 	if(registered.checked == true){
 		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone;
 		document.getElementById("payment_line").innerHTML = payment_info;
 		alternative_number.style.display = "none";
-		alternative_number1.style.display = "none";
 	}else if(my_other_number.checked == true){
-		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone2;
-		document.getElementById("payment_line").innerHTML = payment_info;
-		alternative_number.style.display = "none";
-		alternative_number1.style.display = "none";
+        var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone2;
+        document.getElementById("payment_line").innerHTML = payment_info;
+        alternative_number.style.display = "none";
 	}else if(other_number.checked == true){
 		var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+phone2;
 		document.getElementById("payment_line").innerHTML = payment_info;
 		alternative_number.style.display = "block";
-		alternative_number1.style.display = "block";
 	}
 }
 
+
+function checkNumberPayment(){
+    var other_number = document.getElementById("other_number")
+
+    if(other_number.length >= 12){
+        var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+other_number;
+        document.getElementById("payment_line").innerHTML = payment_info;
+    }else{
+        var payment_info = "Invalid Number Entered";
+        document.getElementById("payment_line").innerHTML = payment_info;
+    }
+
+}
 
 function getMemberName(){
     var phone = document.getElementById("personal_no").value;

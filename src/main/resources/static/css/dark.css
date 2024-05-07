@@ -76,18 +76,7 @@ a:link{
 }
 
 /* Set a style for all buttons */
-.button {
-  background-color: #24478f;
-  color: white;
-  padding: 8px 14px;
-  margin: 10px 10px;
-  border: none;
-  width: 100%;
-  white-space: nowrap;
-  border-radius:10px;
-  opacity: 0.9;
-  font-size: 13px;
-}
+
 
 .btn-close{
 	position:absolute;
@@ -140,31 +129,6 @@ button:hover {
   align-items: center;
 }
 
-.otp-field {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.otp-field input {
-  width: 20px;
-  font-size: 14px;
-  text-align: center;
-  border-radius: 5px;
-  display: inline-block;
-  margin: 2px;
-  color:black;
-  background: #f1f1f1;
-  border: 2px solid #55525c;
-  font-weight: bold;
-  outline: none;
-  transition: all 0.1s;
-}
-
-.otp-field input:focus {
-  border: 2px solid #a527ff;
-  box-shadow: 0 0 2px 2px #a527ff6a;
-}
 
 #togglePassword, #togglePassword1, #togglePassword2 {
     font-size:18px;

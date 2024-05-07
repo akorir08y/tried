@@ -168,7 +168,7 @@ function getTrustFundAccounts(){
 	document.getElementById("home_church_self").style.display = "none";
 	var data = {
 		"phoneOneModeOfPayment": "M-PESA",
-		"departmentalAccounts": "[\"Church Meeting  Account::509189\",\"Laptop  Account::508749\",\"Pen Account::512069\",\"Development Account::13825\",\"Kamungei Account::13834\",\"Children Account::351108\",\"Adventurers Account::366035\",\"Lunch Fellowship  Account::472328\",\"Camp Meeting Expenses Account::395883\",\"Laptop Account::513527\"]",
+		"departmentalAccounts": "[\"Church Meeting Account::509189\",\"Laptop  Account::508749\",\"Pen Account::512069\",\"Development Account::13825\",\"Kamungei Account::13834\",\"Children Account::351108\",\"Adventurers Account::366035\",\"Lunch Fellowship  Account::472328\",\"Camp Meeting Expenses Account::395883\",\"Laptop Account::513527\"]",
 		"churchName": "Cfms",
 		"conferenceName": "Cfms Project Kenya Conference",
 		"districtName": "Cfms Kenya District",

@@ -4,6 +4,12 @@ import com.example.tried.auth.dashboard.Dapayload;
 import com.example.tried.auth.dashboard.ListMembers;
 import com.example.tried.auth.dashboard.ListMembersResponse;
 import com.example.tried.auth.dto.*;
+import com.example.tried.auth.financial.MemberOffering;
+import com.example.tried.auth.financial.MemberOfferingResponse;
+import com.example.tried.auth.financial.OfferingAuthentication;
+import com.example.tried.auth.financial.OfferingPayload;
+import com.example.tried.auth.funds.SelectTrustFunds;
+import com.example.tried.auth.funds.SelectTrustFundsResponse;
 import com.example.tried.auth.member.*;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
@@ -21,6 +27,7 @@ import com.example.tried.auth.personnel.department.DepartmentResponse;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccounts;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.*;
+import com.example.tried.auth.personnel.receipting.select.SelectCashReceipting;
 import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummary;
 import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummaryResponse;
 import com.example.tried.auth.personnel.reports.offering.LocalChurchPayload;
@@ -30,26 +37,34 @@ import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscriptRe
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
 import com.example.tried.auth.personnel.tracing.TracingPayload;
-import com.example.tried.services.AuthApi;
-import com.example.tried.services.PersonnelApi;
+import com.example.tried.auth.personnel.transfer.AccountDetails;
+import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransfer;
+import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransferResponse;
+import com.example.tried.auth.personnel.transfer.TransferDuration;
+import com.example.tried.auth.reports.statements.LocalChurchOfferingStatement;
+import com.example.tried.auth.reports.statements.LocalChurchOfferingStatementResponse;
+import com.example.tried.auth.tracing.TransactionTracingMember;
+import com.example.tried.auth.tracing.TransactionTracingMemberResponse;
+import com.example.tried.auth.tracing.Tropayload;
+import com.example.tried.auth.tracing.receipt.TransactionTracingMemberReceipt;
+import com.example.tried.auth.tracing.receipt.TransactionTracingMemberReceiptResponse;
+import com.example.tried.services.*;
 import com.example.tried.services.reports.excel.LocalChurchOfferingReportExcel;
+import com.example.tried.services.reports.pdf.LocalChurchOfferingReport;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.DataInput;
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -64,6 +79,18 @@ public class PersonnelController {
     @Autowired
     PersonnelApi personnelApi;
 
+    @Autowired
+    LocalChurchOfferingStatementService localChurchStatementService;
+
+    @Autowired
+    MemberOfferingStatementService offeringStatementService;
+
+    @Autowired
+    OfferingStatementService statementService;
+
+    @Autowired
+    LocalChurchOfferingReport localChurchOfferingReport;
+
     private final ObjectMapper objectMapper;
 
     public PersonnelController(ObjectMapper objectMapper) {
@@ -71,16 +98,18 @@ public class PersonnelController {
     }
 
     @PostMapping(path="/profile")
-    public HashMap<String, String> getMemberProfile(@RequestParam("phone_number")String phoneNumber){
+    public HashMap<String, String> getMemberProfile(@RequestParam("phone_number")String phoneNumber) throws JsonProcessingException {
 
+        if (phoneNumber.contains("+")) {
+            phoneNumber = phoneNumber;
+        }else{
+            phoneNumber = String.format("%s%s", "+", phoneNumber);
+        }
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        if (phoneNumber.contains("+")) {
-            payload.setMobileNumber(phoneNumber);
-        }else{
-            payload.setMobileNumber("+" + phoneNumber);
-        }
+        payload.setMobileNumber(phoneNumber);
+
         profile.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
@@ -110,7 +139,13 @@ public class PersonnelController {
     // Activate Deactivated Member
     // Get the Profile Items to Save Registration MemberRegisterUpdateResponse
     @PostMapping(path="/activate-member")
-    public MemberRegisterUpdateResponse ActivateMemberDetails(@RequestParam("phone") String phone){
+    public MemberRegisterUpdateResponse ActivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException {
+
+        if (phone.contains("+")) {
+            phone = phone;
+        }else{
+            phone = String.format("%s%s", "+",phone);
+        }
 
         // Register Profile
         MemberRegistrationUpdate authMemberRegister = new MemberRegistrationUpdate();
@@ -133,7 +168,7 @@ public class PersonnelController {
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
 
 
-        // Update Payload
+        // Update RPayload
         AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(profile.getPayload().getMemberName());
         updatepayload.setEmail("any@gmail.com");
@@ -156,8 +191,7 @@ public class PersonnelController {
 
         authMemberRegister.setUpdatepayload(updatepayload);
 
-        System.out.println("Update Payload: " + updatepayload.toString());
-        System.out.println("Auth Member Registration: "+ HelperUtility.toJSON(authMemberRegister));
+
         MemberRegisterUpdateResponse responsed = authApi.getMemberRegistrationUpdate(authMemberRegister);
         return responsed;
     }
@@ -166,7 +200,7 @@ public class PersonnelController {
     // Activate Deactivated Member
     // Get the Profile Items to Save Registration MemberRegisterUpdateResponse
     @PostMapping(path="/deactivate-member")
-    public MemberRegisterUpdateResponse DeactivateMemberDetails(@RequestParam("phone") String phone){
+    public MemberRegisterUpdateResponse DeactivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException {
 
         // Register Profile
         MemberRegistrationUpdate authMemberRegister = new MemberRegistrationUpdate();
@@ -189,7 +223,7 @@ public class PersonnelController {
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
 
 
-        // Update Payload
+        // Update RPayload
         AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(profile.getPayload().getMemberName());
         updatepayload.setEmail("any@gmail.com");
@@ -207,7 +241,7 @@ public class PersonnelController {
 
         authMemberRegister.setUpdatepayload(updatepayload);
 
-        System.out.println("Update Payload: " + updatepayload.toString());
+        System.out.println("Update RPayload: " + updatepayload.toString());
         System.out.println("Auth Member Registration: "+ HelperUtility.toJSON(authMemberRegister));
         MemberRegisterUpdateResponse responsed = authApi.getMemberRegistrationUpdate(authMemberRegister);
         return responsed;
@@ -215,10 +249,10 @@ public class PersonnelController {
 
 
     @GetMapping(path="/church-members")
-    public ListMembersResponse getMembers(){
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
+    public ListMembersResponse getMembers(@RequestParam("username") String username,
+                                          @RequestParam("password") String password,
+                                          @RequestParam("phone_number") String phone_number) throws JsonProcessingException{
+
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
@@ -274,7 +308,7 @@ public class PersonnelController {
                                                                      @RequestParam("status")String status,
                                                                      @RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number){
+                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
@@ -295,12 +329,30 @@ public class PersonnelController {
 
         MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
 
+        if(account_name.endsWith("Account")){
+            account_name = account_name.substring(0, account_name.lastIndexOf("Account"));
+        }
+
+        if(account_name.toLowerCase(Locale.ROOT).contains("account")){
+            log.error("Account names should not contain the word 'Account'");
+        }
+
+        /*
+            if(account_name.contains("Account")){
+                account_name = account_name.replace(" Account","");
+            }else if(account_name.contains("account")){
+                account_name = account_name.replace(" account","");
+            }else{
+                account_name = account_name;
+            }
+        */
+
         CreateLocalChurchAccount localChurchAccount = new CreateLocalChurchAccount();
 
         // Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
-        // Church Payload
+        // Church RPayload
         Payload payload = new Payload();
         payload.setAccountName(account_name);
         payload.setDepartment(department);
@@ -324,13 +376,10 @@ public class PersonnelController {
 
     // Create Local Church Account
     @GetMapping("/select-account")
-    public LocalChurchAccountsSelectResponse selectLocalChurchAccount(){/*(@RequestParam("username")String username,
+    public LocalChurchAccountsSelectResponse selectLocalChurchAccount(@RequestParam("username")String username,
                                                                       @RequestParam("password")String password,
-                                                                      @RequestParam("phone_number")String phone_number){*/
+                                                                      @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
 
-        String phone_number = "254786439659";
-        String username = "mwakesho";
-        String password = "0389";
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
@@ -352,7 +401,7 @@ public class PersonnelController {
         MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
         LocalChurchAccounts localChurchAccount = new LocalChurchAccounts();
 
-        // Church Payload
+        // Church RPayload
         final int session_number1 = (int) ((Math.random() * 9000000) + 1000000);
 
         com.example.tried.auth.personnel.accounts.EditValues editValues = new
@@ -379,14 +428,15 @@ public class PersonnelController {
 
     // Update Local Church Account
     @PostMapping("/update-account")
-    public UpdateLocalChurchAccountResponse updateLocalChurchAccount(@RequestParam("account_name")String account_name,
+    public UpdateLocalChurchAccountResponse updateLocalChurchAccount(@RequestParam("previous_account_name")String previous_account_name,
+                                                                     @RequestParam("account_name")String account_name,
                                                                      @RequestParam("department")String department,
                                                                      @RequestParam("priority")String priority,
                                                                      @RequestParam("duration")String duration,
                                                                      @RequestParam("status")String status,
                                                                      @RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number){
+                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
@@ -412,9 +462,16 @@ public class PersonnelController {
         // Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
-        // Church Payload
+        // Church RPayload
         com.example.tried.auth.personnel.accounts.update_account.Payload payload =
                 new com.example.tried.auth.personnel.accounts.update_account.Payload();
+
+        EditValues editValues = new EditValues();
+        editValues.setEditAccountName(previous_account_name);
+        editValues.setEditOrganisationName(response1.getPayload().getOrganisationName());
+        editValues.setEditOrganisationLevel(response1.getPayload().getOrganisationLevel());
+        editValues.setEditOrganisationNumber(response1.getPayload().getOrganisationNumber());
+        localChurchAccount.setEditValues(editValues);
 
         payload.setAccountName(account_name);
         payload.setDepartment(department);
@@ -431,19 +488,12 @@ public class PersonnelController {
         payload.setOrganisationNumber(response1.getPayload().getOrganisationNumber());
         localChurchAccount.setPayload(payload);
 
-        EditValues editValues = new EditValues();
-        editValues.setEditAccountName(account_name);
-        editValues.setEditOrganisationName(response1.getPayload().getOrganisationName());
-        editValues.setEditOrganisationLevel(response1.getPayload().getOrganisationLevel());
-        editValues.setEditOrganisationNumber(response1.getPayload().getOrganisationNumber());
-        localChurchAccount.setEditValues(editValues);
-
         UpdateLocalChurchAccountResponse localChurchAccountResponse = personnelApi.updateLocalChurchAccount(localChurchAccount);
         return localChurchAccountResponse;
     }
 
     @GetMapping("/trust_fund_transcript")
-    public TrustFundTranscriptResponse getTrustFundTranscript(){
+    public TrustFundTranscriptResponse getTrustFundTranscript() throws JsonProcessingException {
         // Credentials
         String username = "mwakesho";
         String password = "0389";
@@ -484,13 +534,13 @@ public class PersonnelController {
         authentication.setPassword(password);
         authentication.setSessionNumber(String.valueOf(session_number));
 
-        // Payload
+        // RPayload
         com.example.tried.auth.personnel.reports.transcript.Payload payload =
                 new com.example.tried.auth.personnel.reports.transcript.Payload();
 
         payload.setStartDate("2024-2-1");
         payload.setEndDate("2024-2-29");
-        payload.setMeansOfPayment("Not Applicable");
+        payload.setMeansOfPayment("USSD");
         payload.setChurchCode(responsed.getPayload().getOrganisationNumber());
 
         // Trust Fund Transcript
@@ -504,7 +554,7 @@ public class PersonnelController {
     }
 
     @GetMapping("/tracing")
-    public LocalChurchTransactionTracingResponse getLocalTransactionTracing(){
+    public LocalChurchTransactionTracingResponse getLocalTransactionTracing()  throws JsonProcessingException{
         // Credentials
         String username = "mwakesho";
         String password = "0389";
@@ -576,23 +626,36 @@ public class PersonnelController {
                                @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException {
+                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+
+        if(phone_number.contains("+")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s" ,"+", phone_number);
+        }
+
+
+        if(receiver_number.contains("+")){
+            receiver_number = receiver_number;
+        }else{
+            receiver_number = String.format("%s%s" ,"+", receiver_number);
+        }
 
         // Member Profile Information (Treasure Information)
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(phone_number);
 
-        // Receipted Member Payload
+        // Receipted Member RPayload
         MemberProfile profiler = new MemberProfile();
         profiler.setProfilepayload(profilepayload);
 
         // Receipted Person Information
         Profilepayload profilepayload1 = new Profilepayload();
         profilepayload1.setFromWithin(true);
-        profilepayload1.setMobileNumber("+" + receiver_number);
+        profilepayload1.setMobileNumber(receiver_number);
 
-        // Receipted Member Payload
+        // Receipted Member RPayload
         MemberProfile profiler1 = new MemberProfile();
         profiler1.setProfilepayload(profilepayload1);
 
@@ -720,23 +783,36 @@ public class PersonnelController {
                                                @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                                @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                                @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException {
+                                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+        if(phone_number.contains("+")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s" ,"+", phone_number);
+        }
+
+
+        if(receiver_number.contains("+")){
+            receiver_number = receiver_number;
+        }else{
+            receiver_number = String.format("%s%s" ,"+", receiver_number);
+        }
+
 
         // Member Profile Information (Treasure Information)
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(phone_number);
 
-        // Receipted Member Payload
+        // Receipted Member RPayload
         MemberProfile profiler = new MemberProfile();
         profiler.setProfilepayload(profilepayload);
 
         // Receipted Person Information
         Profilepayload profilepayload1 = new Profilepayload();
         profilepayload1.setFromWithin(true);
-        profilepayload1.setMobileNumber("+" + receiver_number);
+        profilepayload1.setMobileNumber(receiver_number);
 
-        // Receipted Member Payload
+        // Receipted Member RPayload
         MemberProfile profiler1 = new MemberProfile();
         profiler1.setProfilepayload(profilepayload1);
 
@@ -849,14 +925,14 @@ public class PersonnelController {
     }
 
     @GetMapping("/accounts")
-    public ListLocalChurchPaymentAccountsResponse getPaymentAccounts(){
-        String phone_number = "254707981971";
-        String username = "akeitany";
-        String password = "password123#";
+    public ListLocalChurchPaymentAccountsResponse getPaymentAccounts() throws JsonProcessingException {
+        String phone_number = "254797705390";
+        String username = "cmk";
+        String password = "cfms2024";
 
         final long session_number = (long) ((Math.random() * 900000000) + 100000000);
 
-        // Profile Payload
+        // Profile RPayload
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
         profilepayload.setMobileNumber("+" + phone_number);
@@ -895,7 +971,7 @@ public class PersonnelController {
 
 
     @PostMapping(path="/check-accounts")
-    public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber){
+    public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber) throws JsonProcessingException {
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -970,7 +1046,7 @@ public class PersonnelController {
         return churchDetails;
     }
 
-    @GetMapping("/export/local_church_offering_report")
+    @GetMapping("/export/local_church_offering_report/excel")
     public void getLocalChurchOfferingReport(@RequestParam("username") String username,
                                              @RequestParam("password") String password,
                                              @RequestParam("phone_number") String phone_number,
@@ -989,7 +1065,7 @@ public class PersonnelController {
         // Member Profile Response
         MemberProfileResponse response = authApi.getMemberDetails(profile);
 
-        // Member Personnel Payload
+        // Member Personnel RPayload
         MemberPersonnel personnel = new MemberPersonnel();
         personnel.setChurchCode(response.getPayload().getChurchCode());
         personnel.setUser(username);
@@ -1015,7 +1091,7 @@ public class PersonnelController {
         authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
         authentication.setSessionNumber(session_number);
 
-        // Local Church Payload
+        // Local Church RPayload
         LocalChurchPayload localChurchPayload = new LocalChurchPayload();
         localChurchPayload.setChurchName(response1.getPayload().getOrganisationName());
         localChurchPayload.setEndDate(end_date);
@@ -1024,7 +1100,7 @@ public class PersonnelController {
         localChurchPayload.setChurchCode(response1.getPayload().getOrganisationNumber());
         localChurchPayload.setGroup("Not Applicable");
 
-        // Initialization Payload
+        // Initialization RPayload
         localChurchOfferingSummary.setAuthentication(authentication);
         localChurchOfferingSummary.setPayload(localChurchPayload);
 
@@ -1037,6 +1113,75 @@ public class PersonnelController {
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
         LocalChurchOfferingReportExcel localChurchOfferingResponseExcel = new LocalChurchOfferingReportExcel();
         localChurchOfferingResponseExcel.export(Outresponse, responsed);
+    }
+
+
+    @GetMapping("/export/local_church_offering_report/pdf")
+    public void getLocalChurchOfferingReportPDF(@RequestParam("username") String username,
+                                             @RequestParam("password") String password,
+                                             @RequestParam("phone_number") String phone_number,
+                                             @RequestParam("start_date") String start_date,
+                                             @RequestParam("end_date") String end_date,
+                                             @RequestParam("means") String means_of_payment,
+                                             HttpServletResponse Outresponse) throws IOException {
+
+        // Member Profile
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        // Member Profile Response
+        MemberProfileResponse response = authApi.getMemberDetails(profile);
+
+        // Member Personnel RPayload
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setChurchCode(response.getPayload().getChurchCode());
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        // Member Personnel Response
+        MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
+
+        LocalChurchOfferingSummary localChurchOfferingSummary = new LocalChurchOfferingSummary();
+
+        // Session Number
+        final int session_number = (int) ((Math.random() * 900000000) + 100000000);
+
+        com.example.tried.auth.personnel.reports.offering.Authentication authentication = new
+                com.example.tried.auth.personnel.reports.offering.Authentication();
+
+        // Authentication
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
+        authentication.setInstututionName(response1.getPayload().getOrganisationName());
+        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
+        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setSessionNumber(session_number);
+
+        // Local Church RPayload
+        LocalChurchPayload localChurchPayload = new LocalChurchPayload();
+        localChurchPayload.setChurchName(response1.getPayload().getOrganisationName());
+        localChurchPayload.setEndDate(end_date);
+        localChurchPayload.setStartDate(start_date);
+        localChurchPayload.setMeansOfPayment(means_of_payment);
+        localChurchPayload.setChurchCode(response1.getPayload().getOrganisationNumber());
+        localChurchPayload.setGroup("Not Applicable");
+
+        // Initialization RPayload
+        localChurchOfferingSummary.setAuthentication(authentication);
+        localChurchOfferingSummary.setPayload(localChurchPayload);
+
+        Outresponse.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=local_church_offering_report-" + start_date +" - "+ end_date  + ".pdf";
+        Outresponse.setHeader(headerKey, headerValue);
+
+        LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
+        localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed);
     }
 
 
@@ -1067,7 +1212,7 @@ public class PersonnelController {
         MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
         LocalChurchAccounts localChurchAccount = new LocalChurchAccounts();
 
-        // Church Payload
+        // Church RPayload
         final int session_number1 = (int) ((Math.random() * 9000000) + 1000000);
 
 
@@ -1083,7 +1228,7 @@ public class PersonnelController {
         editValues.put("editOrganisationNumber",response1.getPayload().getOrganisationNumber());
         editValues.put("sessionNumber",String.valueOf(session_number1));
 
-        // Payload
+        // RPayload
         HashMap<String,Boolean> payload = new HashMap<String,Boolean>();
         payload.put("newEntryMode",false);
         payload.put("editMode",false);
@@ -1127,7 +1272,7 @@ public class PersonnelController {
     @PostMapping("/department-accounts")
     public DepartmentResponse getDepartments(@RequestParam("phone_number") String phone_number,
                                              @RequestParam("username") String username,
-                                             @RequestParam("password") String password){
+                                             @RequestParam("password") String password) throws JsonProcessingException {
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
@@ -1166,4 +1311,632 @@ public class PersonnelController {
         DepartmentResponse departmentResponse = personnelApi.getDepartmentAccounts(request);
         return departmentResponse;
     }
+
+    @GetMapping("/local_church_off_statement")
+    public String getLocalChurchOfferingStatement(@RequestParam("phone_number") String phone_number,
+                                                                               @RequestParam("start_date") String start_date,
+                                                                               @RequestParam("end_date") String end_date,
+                                                                               @RequestParam("username") String username,
+                                                                               @RequestParam("password") String password,
+                                                                               @RequestParam("pin") String pin, HttpServletResponse response) throws IOException, JsonProcessingException {
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        if(phone_number.startsWith("+")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        // Authentication Information
+        com.example.tried.auth.reports.statements.Authentication authentication = new
+                com.example.tried.auth.reports.statements.Authentication();
+        authentication.setPhoneNumber(phone_number);
+        authentication.setInstitutionName(profile2.getPayload().getChurchName());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+        authentication.setPersonnelName(profile2.getPayload().getMemberName());
+        authentication.setSessionNumber(String.valueOf(session_number));
+        authentication.setInstitutionNumber(profile2.getPayload().getChurchCode());
+        authentication.setPin(pin);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+
+        // Offering RPayload
+        com.example.tried.auth.reports.statements.Payload payload2 = new com.example.tried.auth.reports.statements.Payload();
+        payload2.setChurchName(profile2.getPayload().getChurchName());
+        payload2.setChurchCode(profile2.getPayload().getChurchCode());
+        payload2.setStartDate(start_date);
+        payload2.setEndDate(end_date);
+
+        // Get the Member Offering RPayload
+        LocalChurchOfferingStatement statement = new LocalChurchOfferingStatement();
+        statement.setAuthentication(authentication);
+        statement.setPayload(payload2);
+
+        localChurchStatementService.createOfferingStatement(statement,response);
+        return "Generated Local Church Statement";
+    }
+
+
+    @PostMapping("/local_church_offering_statement")
+    public LocalChurchOfferingStatementResponse getLocalChurchOfferingResponse(@RequestParam("phone_number") String phone_number,
+                                                                               @RequestParam("start_date") String start_date,
+                                                                               @RequestParam("end_date") String end_date,
+                                                                               @RequestParam("username") String username,
+                                                                               @RequestParam("password") String password,
+                                                                               @RequestParam("pin") String pin) throws JsonProcessingException{
+        System.out.println("Get the Phone Number: " + phone_number);
+
+        if(phone_number.startsWith("+")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
+
+        System.out.println("Get the Phone Number: " + phone_number);
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(payload);
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        // Authentication Information
+        com.example.tried.auth.reports.statements.Authentication authentication = new
+                com.example.tried.auth.reports.statements.Authentication();
+        authentication.setPhoneNumber(phone_number);
+        authentication.setInstitutionName(profile2.getPayload().getChurchName());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+        authentication.setPersonnelName(profile2.getPayload().getMemberName());
+        authentication.setSessionNumber(String.valueOf(session_number));
+        authentication.setInstitutionNumber(profile2.getPayload().getChurchCode());
+        authentication.setPin(pin);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+
+        // Offering RPayload
+        com.example.tried.auth.reports.statements.Payload payload2 = new com.example.tried.auth.reports.statements.Payload();
+        payload2.setChurchName(profile2.getPayload().getChurchName());
+        payload2.setChurchCode(profile2.getPayload().getChurchCode());
+        payload2.setStartDate(start_date);
+        payload2.setEndDate(end_date);
+
+        // Get the Member Offering RPayload
+        LocalChurchOfferingStatement statement = new LocalChurchOfferingStatement();
+        statement.setAuthentication(authentication);
+        statement.setPayload(payload2);
+
+        return personnelApi.getLocalChurchOfferingStatement(statement);
+    }
+
+    @PostMapping("/select-trust-funds")
+    public SelectTrustFundsResponse selectTrustFundsforTransfer(@RequestParam("start_date") String start_date,
+                                                                @RequestParam("end_date") String end_date,
+                                                                @RequestParam("account_name") String account_name,
+                                                                @RequestParam("account_number") String account_number,
+                                                                @RequestParam("username") String username,
+                                                                @RequestParam("password") String password,
+                                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException{
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(payload);
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        com.example.tried.auth.funds.Authentication authentication = new
+                com.example.tried.auth.funds.Authentication();
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(session_number);
+        authentication.setPersonnelName(profile2.getPayload().getMemberName());
+        authentication.setInstututionNumber(profile2.getPayload().getChurchCode());
+        authentication.setInstututionName(profile2.getPayload().getChurchName());
+        authentication.setInstututionLevel("LOCAL CHURCH");
+
+        com.example.tried.auth.funds.Payload payload1 = new com.example.tried.auth.funds.Payload();
+        payload1.setAccountNumber(account_number);
+        payload1.setAccountName(account_name);
+        payload1.setStartDate(start_date);
+        payload1.setEndDate(end_date);
+        payload1.setChurchName(profile2.getPayload().getChurchName());
+        payload1.setChurchCode(profile2.getPayload().getChurchCode());
+
+        SelectTrustFunds selectTrustFunds = new SelectTrustFunds();
+        selectTrustFunds.setAuthentication(authentication);
+        selectTrustFunds.setPayload(payload1);
+
+        SelectTrustFundsResponse selectTrustFundsResponse = personnelApi.getTrustFundsforTransfer(selectTrustFunds);
+        return selectTrustFundsResponse;
+    }
+
+
+    @PostMapping("/transaction_tracing_phone")
+    public TransactionTracingMemberResponse getTransactionTracingByPhone(@RequestParam("start_date") String start_date,
+                                                                              @RequestParam("end_date") String end_date,
+                                                                              @RequestParam("username") String username,
+                                                                              @RequestParam("password") String password,
+                                                                              @RequestParam("phone_number") String phone_number,
+                                                                         @RequestParam("associated_phone_number") String associated_phone_number
+    ) throws JsonProcessingException {
+    if(phone_number.startsWith("+254")){
+        phone_number = phone_number.substring(1, phone_number.length());
+    }
+
+
+    // Generate Session Number
+    final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+
+    // Get the Member Authentication Details
+    MemberProfile profile = new MemberProfile();
+    Profilepayload payload = new Profilepayload();
+    payload.setFromWithin(true);
+    payload.setMobileNumber("+" + phone_number);
+    profile.setProfilepayload(payload);
+    MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+    // Member Personnel Response
+    MemberPersonnel personnel = new MemberPersonnel();
+    personnel.setUser(username);
+    personnel.setPassword(password);
+    personnel.setChurchCode(profile2.getPayload().getChurchCode());
+
+    MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+
+    TransactionTracingMember tracingMemberPhone = new TransactionTracingMember();
+
+    com.example.tried.auth.tracing.Authentication authentication = new com.example.tried.auth.tracing.Authentication();
+
+    authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+    authentication.setInstututionName(personnelResponse.getPayload().getOrganisationName());
+    authentication.setInstututionLevel("LOCAL CHURCH");
+    authentication.setUser(username);
+    authentication.setPassword(password);
+    authentication.setInstututionNumber(personnelResponse.getPayload().getOrganisationNumber());
+    authentication.setSessionNumber(session_number);
+
+    com.example.tried.auth.tracing.Payload payload1 = new com.example.tried.auth.tracing.Payload();
+    payload1.setPhoneNumber(associated_phone_number);
+    payload1.setStartDate(start_date);
+    payload1.setEndDate(end_date);
+
+
+    tracingMemberPhone.setAuthentication(authentication);
+    tracingMemberPhone.setPayload(payload1);
+
+    System.out.println("Tracing Member Phone Number: "+ tracingMemberPhone);
+
+    TransactionTracingMemberResponse response = personnelApi.getTransactionTracingByPhone(tracingMemberPhone);
+    System.out.println("Response:"+ response);
+    return response;
+    }
+
+
+    @PostMapping("/transaction_tracing_receipt")
+    public TransactionTracingMemberReceiptResponse getTransactionTracingByReceipt(@RequestParam("start_date") String start_date,
+                                                                                  @RequestParam("end_date") String end_date,
+                                                                                  @RequestParam("username") String username,
+                                                                                  @RequestParam("password") String password,
+                                                                                  @RequestParam("phone_number") String phone_number,
+                                                                                  @RequestParam("associated_receipt_number") String associated_receipt_number) throws JsonProcessingException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+        }
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(payload);
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        // Member Personnel Response
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(profile2.getPayload().getChurchCode());
+
+        MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+
+        TransactionTracingMemberReceipt tracingMemberReceipt = new TransactionTracingMemberReceipt();
+
+        com.example.tried.auth.tracing.receipt.Authentication authentication = new com.example.tried.auth.tracing.receipt.Authentication();
+
+        authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+        authentication.setInstitutionName(personnelResponse.getPayload().getOrganisationName());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setInstitutionNumber(personnelResponse.getPayload().getOrganisationNumber());
+        authentication.setSessionNumber(session_number);
+        com.example.tried.auth.tracing.receipt.Payload payload1 = new com.example.tried.auth.tracing.receipt.Payload();
+        payload1.setTransactionId(associated_receipt_number);
+        payload1.setStartDate(start_date);
+        payload1.setEndDate(end_date);
+
+
+        tracingMemberReceipt.setAuthentication(authentication);
+        tracingMemberReceipt.setPayload(payload1);
+
+        TransactionTracingMemberReceiptResponse response = personnelApi.getTransactionTracingByReceipt(tracingMemberReceipt);
+        return response;
+    }
+
+    @GetMapping("/testing")
+    public String TestedPhoneNumber(){
+        String receiver_number = "+254707981971";
+        if(receiver_number.contains("+")){
+            receiver_number = receiver_number;
+        }else{
+            receiver_number = String.format("%s%s" ,"+", receiver_number);
+        }
+        return receiver_number;
+    }
+
+
+    @GetMapping("/cash-receipts")
+    public HashMap<String, Object> getReceiptedTransactions(@RequestParam("phone_number") String phone_number,
+                                                            @RequestParam("start_date") String start_date,
+                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException {
+        if(phone_number.contains("+")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s", "+", phone_number);
+        }
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber(phone_number);
+
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
+
+        SelectCashReceipting transaction = new SelectCashReceipting();
+        transaction.setStartDate(start_date);
+        transaction.setEndDate(end_date);
+        transaction.setReceiverId(response1.getPayload().getMembershipNumber());
+        transaction.setChurchCode(response1.getPayload().getChurchCode());
+        transaction.setTypeOfPayment("Cash");
+
+        HashMap<String, Object> hashMap = null;
+        try {
+            hashMap = personnelApi.getCashReceiptingTransactions(transaction);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if(hashMap.isEmpty()){
+            System.out.println("HashMap is Empty");
+        }else{
+            System.out.println("HashMapped: " + hashMap);
+        }
+        return hashMap;
+    }
+
+    @PostMapping("/get-member-statement")
+    public MemberOfferingResponse getSpecificOffering(@RequestParam("start_date")String start_date,@RequestParam("end_date") String end_date,
+                                                      @RequestParam("member_name") String member_name, @RequestParam("member_number") String member_number,
+                                                      @RequestParam("treasurer_pin") String treasurer_pin, @RequestParam("phone_number") String phone_number,
+                                                      @RequestParam("username") String username, @RequestParam("password") String password) throws JsonProcessingException {
+
+        if(phone_number.startsWith("+")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
+        // Member Profile Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse responser = authApi.getMemberDetails(profile);
+
+        if(member_number.startsWith("+")) {
+            member_number = member_number.substring(1, member_number.length());
+        }
+
+        // Church Member Profile Details
+        MemberProfile profile_church = new MemberProfile();
+        Profilepayload profilepayload_church = new Profilepayload();
+        profilepayload_church.setMobileNumber("+" + member_number);
+        profilepayload_church.setFromWithin(true);
+        profile_church.setProfilepayload(profilepayload_church);
+
+        MemberProfileResponse response_church = authApi.getMemberDetails(profile_church);
+
+        // Member Personnel Details
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setChurchCode(responser.getPayload().getChurchCode());
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        MemberPersonnelResponse responsed = authApi.loginMemberPersonnel(personnel);
+
+        // Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberOffering offering = new MemberOffering();
+        OfferingAuthentication authentication = new OfferingAuthentication();
+        authentication.setPassword(password);
+        authentication.setUser(username);
+        authentication.setPin(treasurer_pin);
+        authentication.setPersonnelName(responsed.getPayload().getPersonnelName());
+        authentication.setPhoneNumber(phone_number);
+        authentication.setSessionNumber(session_number);
+        authentication.setInstitutionName(responser.getPayload().getChurchName());
+        authentication.setInstitutionNumber(responser.getPayload().getChurchCode());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+
+        OfferingPayload payload = new OfferingPayload();
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+        payload.setNumberOfTries(1);
+        payload.setMemberName(member_name);
+        payload.setMemberNumber(response_church.getPayload().getMembershipNumber());
+
+        offering.setAuthentication(authentication);
+        offering.setPayload(payload);
+
+        MemberOfferingResponse response = authApi.getMemberOffering(offering);
+        return response;
+    }
+
+
+
+    @GetMapping("/get-member-statement-pdf")
+    public String getSpecificOfferingPDF(@RequestParam("start_date_member")String start_date,@RequestParam("end_date_member") String end_date,
+                                                      @RequestParam("member_name") String member_name, @RequestParam("member_number") String member_number,
+                                                      @RequestParam("treasurer_pin") String treasurer_pin, @RequestParam("phone_number") String phone_number,
+                                                      @RequestParam("username") String username, @RequestParam("password") String password,HttpServletResponse response) throws IOException {
+
+        if(phone_number.startsWith("+")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
+
+
+        // Member Profile Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse responser = authApi.getMemberDetails(profile);
+
+        if(member_number.startsWith("+")) {
+            member_number = member_number.substring(1, member_number.length());
+        }
+
+        // Church Member Profile Details
+        MemberProfile profile_church = new MemberProfile();
+        Profilepayload profilepayload_church = new Profilepayload();
+        profilepayload_church.setMobileNumber("+" + member_number);
+        profilepayload_church.setFromWithin(true);
+        profile_church.setProfilepayload(profilepayload_church);
+
+        MemberProfileResponse response_church = authApi.getMemberDetails(profile_church);
+
+        // Personnel Details
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(response_church.getPayload().getChurchCode());
+
+        MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+
+        // Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        MemberOffering offering = new MemberOffering();
+        OfferingAuthentication authentication = new OfferingAuthentication();
+        authentication.setPassword(password);
+        authentication.setUser(username);
+        authentication.setPin(treasurer_pin);
+        authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+        authentication.setPhoneNumber(phone_number);
+        authentication.setSessionNumber(session_number);
+        authentication.setInstitutionName(responser.getPayload().getChurchName());
+        authentication.setInstitutionNumber(responser.getPayload().getChurchCode());
+        authentication.setInstitutionLevel("LOCAL CHURCH");
+
+        String membershipNumber = response_church.getPayload().getMembershipNumber();
+
+        OfferingPayload payload = new OfferingPayload();
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+        payload.setNumberOfTries(1);
+        payload.setMemberName(member_name);
+        payload.setMemberNumber(response_church.getPayload().getMembershipNumber());
+
+        offering.setAuthentication(authentication);
+        offering.setPayload(payload);
+
+        response.setContentType("application/pdf");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename="+ membershipNumber + " -" + start_date +" - "+ end_date + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        offeringStatementService.createOfferingStatement(offering, response);
+        return "Get Member Specific Statement";
+    }
+
+    @GetMapping("/local_church_accounts")
+    public String getLocalChurchPaymentAccounts(@RequestParam("username") String username, @RequestParam("password") String password,
+                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException {
+        final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
+
+        if(phone_number.startsWith("+")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+        profile.setProfilepayload(profilepayload);
+
+        // Get Membership Number
+        MemberProfileResponse profiler = authApi.getMemberDetails(profile);
+
+        // Request Church Details
+        ListLocalChurchPaymentAccounts accounts = new ListLocalChurchPaymentAccounts();
+        accounts.setSessionNumber(session_number1);
+        accounts.setUser(username);
+        accounts.setPassword(password);
+        accounts.setChurchCode(profiler.getPayload().getChurchCode());
+        accounts.setChurchName(profiler.getPayload().getChurchName());
+
+
+        ListLocalChurchPaymentAccountsResponse response = personnelApi.selectChurchPaymentAccounts(accounts);
+
+        // Cash
+        String cash = response.getPayload().getCash();
+        System.out.println("Cash: "+ cash);
+        cash = cash.substring(1, cash.length() - 1);
+        System.out.println("Cash 1: "+ cash);
+        String [] cashArray = cash.split(",");
+        for(int i = 0;i < cashArray.length;i++) {
+            cashArray[i] = cashArray[i].substring(1, cashArray[i].length() - 1);
+            System.out.println("Cash Array "+i+": "+ cashArray[i]);
+        }
+
+        // Bank Accounts
+        String banks = response.getPayload().getBankDeposits();
+        System.out.println("Banks: "+ banks);
+        banks = banks.substring(1, banks.length() - 1);
+        System.out.println("Banks 1: "+ banks);
+        String [] BankArray = banks.split(",");
+        for(int i = 0;i < BankArray.length;i++) {
+            BankArray[i] = BankArray[i].substring(1, BankArray[i].length() - 1);
+            System.out.println("Bank Array "+i+": "+ BankArray[i]);
+        }
+
+        List<String> cashList = Arrays.asList(cashArray);
+        List<String> bankList = Arrays.asList(BankArray);
+        return "Payment Accounts Gotten";
+    }
+
+    @PostMapping("/member_receive_funds_conference")
+    public MobileReceiveFundsTransferResponse getFundsTransferToConference(
+            @RequestParam("start_date") String start_date, @RequestParam("account_name") String account_name, @RequestParam("account_number") String account_number,
+            @RequestParam("end_date") String end_date,@RequestParam("username") String username, @RequestParam("password") String password, @RequestParam("phone_number") String phone_number,
+            @RequestParam("total_amount") String total_amount,@RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
+            @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount) throws JsonProcessingException {
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        if(phone_number.startsWith("+254")) {
+            phone_number = phone_number.substring(1, phone_number.length());
+        }
+        profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
+
+        MemberProfileResponse responser = authApi.getMemberDetails(profile);
+
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(responser.getPayload().getChurchCode());
+
+        MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
+        // Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        String church_code = personnelResponse.getPayload().getOrganisationNumber();
+        String church_name = personnelResponse.getPayload().getOrganisationName();
+
+        // Member Request Details With Code
+        RequestChurchDetailsWithCode churchDetailsWithCode = new RequestChurchDetailsWithCode();
+        Churchpayload churchpayload = new Churchpayload();
+        churchpayload.setChurchCode(church_code);
+        churchpayload.setAccessNumber(phone_number);
+        churchpayload.setMobileServiceProvider("Safaricom");
+        churchpayload.setSessionNumber(session_number);
+        churchDetailsWithCode.setChurchpayload(churchpayload);
+
+        RequestChurchDetailsWithCodeResponse CodeResponse = authApi.getChurchCodeDetails(churchDetailsWithCode);
+
+        String conference_id = CodeResponse.getConferenceNumber();
+        String conference_name = CodeResponse.getConferenceName();
+
+        // Session Number 2
+        final int session_number2 = (int) ((Math.random() * 9000000) + 1000000);
+
+        MobileReceiveFundsTransfer transfer = new MobileReceiveFundsTransfer();
+
+        com.example.tried.auth.personnel.transfer.Payload payload = new
+                com.example.tried.auth.personnel.transfer.Payload();
+        payload.setChurchCode(personnel.getChurchCode());
+        payload.setSessionNumber(String.valueOf(session_number2));
+        payload.setMeansOfPayment("M-PESA");
+        payload.setCollectingParty("M-PESA");
+        payload.setContributingAs("Institution");
+        payload.setTotalAmount(total_amount);
+        payload.setContributorContactType("Institution");
+        payload.setReceiverId(conference_id);
+        payload.setReceiverName(conference_name);
+        payload.setContributorContact(phone_number);
+        payload.setContributorType("Conference");
+        payload.setContributingFor("Conference");
+        payload.setContributorName(church_name);
+
+        AccountDetails details = new AccountDetails();
+        details.setSourceAccount(account_name);
+        details.setSourceAccountNumber(account_number);
+        payload.setAccountDetails(details);
+
+        TransferDuration transferDuration = new TransferDuration();
+        transferDuration.setStartDate(start_date);
+        transferDuration.setEndDate(end_date);
+
+        payload.setTransferDuration(transferDuration);
+
+        HashMap<String, Integer> map1 = new HashMap<String, Integer>();
+
+        com.example.tried.auth.personnel.transfer.FundDistribution fundDistribution =
+                new com.example.tried.auth.personnel.transfer.FundDistribution();
+
+        if(trust_funds != null) {
+            for(int i = 0; i < trust_funds.length;i++){
+                map1.put(trust_funds[i], fund_amount[i]);
+            }
+            fundDistribution.setTrustFunds(map1);
+        }else{
+            fundDistribution.setTrustFunds(map1);
+        }
+
+        payload.setFundDistribution(fundDistribution);
+        transfer.setPayload(payload);
+
+        MobileReceiveFundsTransferResponse responsed = personnelApi.getFundsTransfertoConference(transfer);
+        return responsed;
+    }
+
+
 }

@@ -177,216 +177,6 @@ function getChurchCode(){
 }
 
 
-function getTrustFundAccounts(){
-	document.getElementById("home_church_self").style.display = "none";
-	var data = {
-		"phoneOneModeOfPayment": "M-PESA",
-		"departmentalAccounts": "[\"Church Meeting  Account::509189\",\"Laptop  Account::508749\",\"Pen Account::512069\",\"Development Account::13825\",\"Kamungei Account::13834\",\"Children Account::351108\",\"Adventurers Account::366035\",\"Lunch Fellowship  Account::472328\",\"Camp Meeting Expenses Account::395883\",\"Laptop Account::513527\"]",
-		"churchName": "Cfms",
-		"conferenceName": "Cfms Project Kenya Conference",
-		"districtName": "Cfms Kenya District",
-		"conferenceNumber": "CFMS",
-		"otherPhoneNumber": "+254775351396",
-		"memberName": "Andrew Keitany",
-		"isPessonnel": true,
-		"groups": "[\"Moi University::1016\"]",
-		"districtNumber": "CFMS1",
-		"churchNumber": "29001",
-		"otherPhoneModeOfPayment": "Orange Money",
-		"membershipNumber": "CN3196",
-		"phoneNumber": "254707981971",
-		"trustFundAccounts": "[\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",\"Tithe Account::127989\",\"Camp Meeting Account::127991\",\"Tithe Account::13822\",\"Camp Meeting Account::13824\",\"Combined Offerings Account::13823\",\"Combined Offerings Account::127990\"]",
-		"sessionNumber": 11749295,
-		"specialTrustFundAccounts": "[\"UEAB Account::457992\",\"Djibouti Mission Account::454913\"]",
-		"function": "mobileRequestChurchDetails",
-		"availableMeansOfPayment": "[M-PESA]",
-		"status": 0
-	}
-	
-	// Trust Fund Accounts
-	var request = data.trustFundAccounts;
-	request = request.replace('[', '');
-	request = request.replace(']', '');
-	const departments = request.split(',');
-	var html = new String("");
-	const accounts = [];
-	
-	
-	html += "<div class=\"cardHeader\">";
-	html += "<h2 style=\"text-align:center;margin-top:10px;margin-bottom:10px\">Giving Offerings</h2></div>";
-	html += "<div class=\"responseDiv\" style=\"display:none;\"></div><br><hr>";
-	html += "<table><form id=\"trust_fund_form\" name=\"trust_funds_form\"><tr><td><label class=\"label_input\"><b> To: </b></label></td>";
-	html += "<td><input type=\"text\" class=\"login_input\" id=\"churchName3\" name=\"churchName3\" placeholder=\"Cfms\" readonly></td></tr>";				
-	html += "<tr><td><label class=\"label_input\"><b> For: </b></label></td>";
-	html += "<td><input type=\"text\" id=\"memberName2\" name=\"churchCode\" placeholder=\"Andrew Keitany\" readonly></td></tr>";
-	html += "</tr><tr>";
-	html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2></td>";
-	html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
-	html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
-	html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
-	
-	for (i=0;i < departments.length; i++){
-		departments[i] = departments[i].replace('"','');
-		departments[i] = departments[i].replace('"','');
-		departments[i] = departments[i].split("::");
-		accounts.push(departments[i][0]);
-	}
-	
-	let uniqueChars = [...new Set(accounts)];
-	console.log("Unique Characters: "+uniqueChars);
-	
-	for(x=0;x < uniqueChars.length;x++){
-		console.log("Unique Characters "+ i +" : " +uniqueChars[x]);
-		html += "<tr>";
-		html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ uniqueChars[x] +"</b><input type=\"hidden\" class=\"trust_funds\" value='"+uniqueChars[i]+"'></td>";
-		html += "<td style=\"padding-left:15px;padding-top:10px;\">";
-		html += "<input type=\"number\" id='"+uniqueChars[x]+"' class=\"amt\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal()\" onkeydown=\"GetTotal()\"  onkeyup=\"GetTotal()\">";
-		html += "</td></tr>";
-	}
-	
-	html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
-	html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-	html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv()\" id=\"payment_button\">Confirm</button></td></tr>";
-	html += "<tbody></form></table>";
-	
-	$("#trust_funds_div").html(html);
-	
-}
-
-
-function getNonTrustFundAccounts(){
-	document.getElementById("home_church_self").style.display = "none";
-	var data = {
-		"phoneOneModeOfPayment": "M-PESA",
-		"departmentalAccounts": "[\"Church Meeting  Account::509189\",\"Laptop  Account::508749\",\"Pen Account::512069\",\"Development Account::13825\",\"Kamungei Account::13834\",\"Children Account::351108\",\"Adventurers Account::366035\",\"Lunch Fellowship  Account::472328\",\"Camp Meeting Expenses Account::395883\",\"Laptop Account::513527\"]",
-		"churchName": "Cfms",
-		"conferenceName": "Cfms Project Kenya Conference",
-		"districtName": "Cfms Kenya District",
-		"conferenceNumber": "CFMS",
-		"otherPhoneNumber": "+254775351396",
-		"memberName": "Andrew Keitany",
-		"isPessonnel": true,
-		"groups": "[\"Moi University::1016\"]",
-		"districtNumber": "CFMS1",
-		"churchNumber": "29001",
-		"otherPhoneModeOfPayment": "Orange Money",
-		"membershipNumber": "CN3196",
-		"phoneNumber": "254707981971",
-		"trustFundAccounts": "[\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",\"Tithe Account::127989\",\"Camp Meeting Account::127991\",\"Tithe Account::13822\",\"Camp Meeting Account::13824\",\"Combined Offerings Account::13823\",\"Combined Offerings Account::127990\"]",
-		"sessionNumber": 11749295,
-		"specialTrustFundAccounts": "[\"UEAB Account::457992\",\"Djibouti Mission Account::454913\"]",
-		"function": "mobileRequestChurchDetails",
-		"availableMeansOfPayment": "[M-PESA]",
-		"status": 0
-	}
-	
-	// Trust Fund Accounts
-	var request = data.departmentalAccounts;
-	request = request.replace('[', '');
-	request = request.replace(']', '');
-	const departments = request.split(',');
-	var html = new String("");
-	
-	html += "<div class=\"cardHeader\">";
-	html += "<h2 style=\"text-align:center;margin-top:10px;margin-bottom:10px\">Giving Offerings</h2></div>";
-	html += "<div class=\"responseDiv\" style=\"display:none;\"></div><br><hr>";
-	html += "<table><form id=\"non_trust_fund_form\"><tr><td><label class=\"label_input\"><b> To: </b></label></td>";
-	html += "<td><input type=\"text\" class=\"login_input\" id=\"churchName3\" name=\"churchName3\" placeholder=\"Cfms\" readonly></td></tr>";				
-	html += "<tr><td><label class=\"label_input\"><b> For: </b></label></td>";
-	html += "<td><input type=\"text\" id=\"memberName2\" name=\"churchCode\" placeholder=\"Andrew Keitany\" readonly></td></tr>";
-	html += "</tr><tr>";
-	html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2></td>";
-	html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
-	html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
-	html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
-	
-	for (i=0;i < departments.length; i++){
-		departments[i] = departments[i].replace('"','');
-		departments[i] = departments[i].replace('"','');
-		// departments[i] = departments[i].split("::")
-		html += "<tr>";
-		html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ departments[i] +"</b><input type=\"hidden\" class=\"non_trust_funds\" ></td>";
-		html += "<td style=\"padding-left:15px;padding-top:10px;\">";
-		html += "<input type=\"number\" id='"+departments[i]+"' class=\"login_input\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal1()\" onkeydown=\"GetTotal1()\"  onkeyup=\"GetTotal1()\">";
-		html += "</td></tr>";
-	}
-	html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
-	html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal1\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-	html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv1()\" id=\"payment_button1\">Confirm</button></td></tr>";
-	html += "<tbody></form></table>";
-	
-	$("#trust_funds_div").html(html);
-	
-}
-
-
-
-function getSpecialTrustFundAccounts(){
-	document.getElementById("home_church_self").style.display = "none";
-	var data = {
-		"phoneOneModeOfPayment": "M-PESA",
-		"departmentalAccounts": "[\"Church Meeting  Account::509189\",\"Laptop  Account::508749\",\"Pen Account::512069\",\"Development Account::13825\",\"Kamungei Account::13834\",\"Children Account::351108\",\"Adventurers Account::366035\",\"Lunch Fellowship  Account::472328\",\"Camp Meeting Expenses Account::395883\",\"Laptop Account::513527\"]",
-		"churchName": "Cfms",
-		"conferenceName": "Cfms Project Kenya Conference",
-		"districtName": "Cfms Kenya District",
-		"conferenceNumber": "CFMS",
-		"otherPhoneNumber": "+254775351396",
-		"memberName": "Andrew Keitany",
-		"isPessonnel": true,
-		"groups": "[\"Moi University::1016\"]",
-		"districtNumber": "CFMS1",
-		"churchNumber": "29001",
-		"otherPhoneModeOfPayment": "Orange Money",
-		"membershipNumber": "CN3196",
-		"phoneNumber": "254707981971",
-		"trustFundAccounts": "[\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",\"Tithe Account::127989\",\"Camp Meeting Account::127991\",\"Tithe Account::13822\",\"Camp Meeting Account::13824\",\"Combined Offerings Account::13823\",\"Combined Offerings Account::127990\"]",
-		"sessionNumber": 11749295,
-		"specialTrustFundAccounts": "[\"UEAB Account::457992\",\"Djibouti Mission Account::454913\"]",
-		"function": "mobileRequestChurchDetails",
-		"availableMeansOfPayment": "[M-PESA]",
-		"status": 0
-	}
-	
-	// Trust Fund Accounts
-	var request = data.specialTrustFundAccounts;
-	request = request.replace('[', '');
-	request = request.replace(']', '');
-	const departments = request.split(',');
-	var html = new String("");
-	
-	html += "<div class=\"cardHeader\">";
-	html += "<h2 style=\"text-align:center;margin-top:10px;margin-bottom:10px\">Giving Offerings</h2></div>";
-	html += "<div class=\"responseDiv\" style=\"display:none;\"></div><br><hr>";
-	html += "<table><form id=\"special_trust_fund_form\"><tr><td><label class=\"label_input\"><b> To: </b></label></td>";
-	html += "<td><input type=\"text\" class=\"login_input\" id=\"churchName3\" name=\"churchName3\" placeholder=\"Cfms\" readonly></td></tr>";				
-	html += "<tr><td><label class=\"label_input\"><b> For: </b></label></td>";
-	html += "<td><input type=\"text\" id=\"memberName2\" name=\"churchCode\" placeholder=\"Andrew Keitany\" readonly></td></tr>";
-	html += "</tr><tr>";
-	html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Special Trust Funds</h2></td>";
-	html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
-	html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
-	html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
-	
-	for (i=0;i < departments.length; i++){
-		departments[i] = departments[i].replace('"','');
-		departments[i] = departments[i].replace('"','');
-		// departments[i] = departments[i].split("::")
-		html += "<tr>";
-		html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ departments[i] +"</b><input type=\"hidden\" class=\"special_trust_funds\" value='"+departments[i]+"'></td>";
-		html += "<td style=\"padding-left:15px;padding-top:10px;\">";
-		html += "<input type=\"number\" id='"+departments[i]+"' class=\"amt\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal2()\" onkeydown=\"GetTotal2()\"  onkeyup=\"GetTotal2()\">";
-		html += "</td></tr>";
-	}
-	html += "<tr><td style=\"font-size:12px;\"><b>Total</b></td>";
-	html += "<td style=\"padding-left:15px;padding-top:10px;\"><input type=\"number\" class=\"login_input\" id=\"FTotal2\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
-	html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"getPaymentDiv2()\" id=\"payment_button2\">Confirm</button></td></tr>";
-	html += "</form><tbody></table>";
-	
-	$("#trust_funds_div").html(html);
-	
-}
-
-
 function getAllFundAccounts(){
     var phone = document.getElementById("phone_number").value;
     var profile_data = {
@@ -509,6 +299,126 @@ function getAllFundAccounts(){
 	
 }
 
+
+function getAllFundAccountsReceipted(){
+    var phone = document.getElementById("phone_number").value;
+    var profile_data = {
+        phone_number: phone
+    };
+
+	$.post(hosted_url + "/cfms-web/auth/check-account",profile_data ,function(data, status){
+        // Trust Fund Accounts
+        var request = data.trustFundAccounts;
+        var request1 = data.departmentalAccounts;
+        var request2 = data.specialTrustFundAccounts;
+        var request3 = request.slice(1,request.length-1);
+        var request4 = request1.slice(1,request1.length-1);
+        var request5 = request2.slice(1,request2.length-1);
+        const departments = request3.split(',');
+        const departments1 = request4.split(',');
+        const departments2 = request5.split(',');
+        var html = new String("");
+        var accounts = [];
+        var accounts1 = [];
+        var accounts2 = [];
+
+        html += "<div class=\"cardHeader\">";
+        html += "<h2 style=\"text-align:center;margin-top:10px;margin-bottom:10px\">Funds Distribution</h2></div>";
+        html += "<div class=\"responseDiv\" style=\"display:none;\"></div><br><hr>";
+        html += "<table>";
+        html += "<tr><td colspan=\"2\"><label class=\"label_input\"><b> For: </b></label></td>";
+        html += "<td colspan=\"2\"><input type=\"text\" id=\"member_name\" name=\"member_name\" placeholder=\"\" readonly>";
+        html += "<input type=\"hidden\" id=\"member_phone\" name=\"member_phone\" placeholder=\"\"><input type=\"hidden\" id=\"member_id\" name=\"member_id\" placeholder=\"\"></td></tr>";
+        html += "<tr><td colspan=\"2\"><label class=\"label_input\"><b> Total: </b></label></td>";
+        html += "<td colspan=\"2\"><input type=\"text\" id=\"receipting_total\" name=\"receipting_total\" placeholder=\"\" readonly>";
+        html += "</td></tr></table>";
+        html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2><span class=\"right-icon\"";
+        html += "onclick=\"trustFundView()\" id=\"add_icon\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\" class=\"add-circle\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon\"><ion-icon name=\"remove-circle-outline\" class=\"remove-circle\"></ion-icon></span</td></tr></table>";
+        html += "<div id=\"trust_funds_view\" style=\"display:block;\"><table>";
+        html += "<tr><td colspan=\"4\" style=\"text-align:center\"><hr></tr>";
+        html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\" colspan=\"2\"><b>Contribution Type</b></td>";
+        html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\" colspan=\"2\"><b>Amount Offered</b></td></tr>";
+
+        for (i=0;i < departments.length; i++){
+            departments[i] = departments[i].replace('"','');
+            departments[i] = departments[i].replace('"','');
+            departments[i] = departments[i].split("::");
+            accounts.push(departments[i][0]);
+        }
+
+        var uniqueChars = [...new Set(accounts)];
+        console.log("Unique Characters: "+uniqueChars);
+
+        for(i=0;i < uniqueChars.length;i++){
+            html += "<tr>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +"</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
+            html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
+            html += "<input type=\"number\" id='"+uniqueChars[i]+"' class=\"amt\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
+            html += "</td></tr>";
+        }
+        html += "<tbody></table>";
+        html += "</table>";
+        html += "</div>";
+
+        html += "<table><tr>";
+        html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2><span class=\"right-icon\"";
+        html += "onclick=\"nonTrustFundView()\" id=\"add_icon1\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\" class=\"add-circle\"></ion-icon></span><span class=\"right-icon\" onclick=\"nonTrustFundView()\" id=\"remove_icon1\"><ion-icon name=\"remove-circle-outline\" class=\"remove-circle\"></ion-icon></span</td></tr></table>";
+        html += "<div id=\"non_trust_funds_view\"  style=\"display:block;\">";
+        html += "<table><tr><td colspan=\"4\" style=\"text-align:center\"><hr></tr>";
+        html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\" colspan=\"2\"><b>Contribution Type</b></td>";
+        html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\" colspan=\"2\"><b>Amount Offered</b></td></tr>";
+
+        for (i=0;i < departments1.length; i++){
+            departments1[i] = departments1[i].replace('"','');
+            departments1[i] = departments1[i].replace('"','');
+            departments1[i] = departments1[i].split("::");
+            accounts1.push(departments1[i][0]);
+        }
+
+        var uniqueChars1 = [...new Set(accounts1)];
+        for(i=0;i < uniqueChars1.length;i++){
+            html += "<tr>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+            html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
+            html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt1\" name=\"amt1\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
+            html += "</td></tr>";
+        }
+
+        html += "</form><tbody></table>";
+        html += "</div>";
+
+        html += "<table><tr>";
+        html += "<td colspan=\"4\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Special Trust Funds</h2></td>";
+        html += "</tr><tr><td colspan=\"4\" style=\"text-align:center\"><hr></tr>";
+        html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\" colspan=\"2\"><b>Contribution Type</b></td>";
+        html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\" colspan=\"2\"><b>Amount Offered</b></td></tr>";
+
+        for (i=0;i < departments2.length; i++){
+            departments2[i] = departments2[i].replace('"','');
+            departments2[i] = departments2[i].replace('"','');
+            departments2[i] = departments2[i].split("::");
+            accounts2.push(departments2[i][0]);
+        }
+
+        var uniqueChars2 = [...new Set(accounts2)];
+        for(i=0;i < uniqueChars2.length;i++){
+            html += "<tr>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+            html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
+            html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt2\" name=\"amt2\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
+            html += "</td></tr>";
+        }
+
+        html += "<tr><td style=\"font-size:12px;\" colspan=\"2\"><b>Distribution Total</b></td>";
+        html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\"><input type=\"number\" class=\"login_input\" id=\"FTotal3\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
+        html += "<tr><td colspan=\"2\"><button type=\"button\" class=\"btn\" onclick=\"getMemberReceipting()\" id=\"payment_button3\">Confirm</button></td></tr>";
+        html += "</form><tbody></table>";
+
+        $("#trust_funds_div").html(html);
+    });
+
+}
+
 function getFundAccount(){
 	
 	var home_church_self = document.getElementById("home_church_self");
@@ -533,8 +443,6 @@ function getFundAccount(){
 	}
 	
 }
-
-
 
 function getPaymentDiv3(){
 	const onlyInputs = document.querySelectorAll('#trust_funds_div input');
@@ -575,65 +483,6 @@ function passwordVisibility1(){
 		x.type = "password";
 	}
 }
-
-
-function getMemberProfile(){
-	
-	var html = new String("");
-	html += "<div class=\"cardHeader\">";
-	html += "<h2 style=\"text-align:center;\">Profile Information</h2>";
-	html += "</div><div class=\"responseDiv\" style=\"display:none;\"></div>";
-	html += "<br><hr>";
-	html += "<table width=\"100%\">";
-	html += "<tbody><tr>";	
-	html += "<td><b>Full Name</b></td>";
-	html += "<td><b>Email</b></td><td><b>Phone Number</b></td></tr><tr>";
-	html += "<td width=\"33%\"><input type=\"text\" id=\"fullname\" placeholder=\"Full Name\" required></td>";
-	html += "<td width=\"33%\"><input type=\"email\" id=\"email\" placeholder=\"Email\" required></td>";
-	html += "<td width=\"33%\"><input type=\"text\" id=\"phone\" placeholder=\"Phone Number\" required></td>";
-	html += "</tr><tr><td><b>Church Code</b></td><td><b>Mobile Service Provider</b></td>";			
-	html += "<td><b>Church Group</b></td></tr><tr>";
-	html += "<td width=\"33%\"><input type=\"text\" id=\"church_code\" placeholder=\"Church Code\" required></td>";
-	html += "<td width=\"33%\"><select class=\"login_input\" aria-label=\"Default Select Example\" id=\"mobileprovider\">";
-	html += "<option value=\"Safaricom\">Safaricom</option><option value=\"Airtel\">Airtel</option>";
-	html += "<option value=\"Equitel\">Equitel</option><option value=\"TIGO\">TIGO</option>";
-	html += "<option value=\"MTN\">MTN</option></select></td>";
-	html += "<td width=\"33%\"><select class=\"login_input\" id=\"church_group\">";
-	html += "<option value=\"Moi University\">Moi University</option>";
-	html += "<option value=\"None\">None</option></select></td></tr>";
-	html += "<tr><td><b>Mobile Service Provider</b></td><td><b>Preferred Language</b></td>";
-	html += "<td><b>Phone Number Privacy</b></td></tr>";
-	html += "<tr><td width=\"33%\"><select class=\"login_input\" aria-label=\"Default Select Example\" id=\"mobileprovider\">";
-	html += "<option value=\"Safaricom\">Safaricom</option><option value=\"Airtel\">Airtel</option>";
-	html += "<option value=\"Equitel\">Equitel</option><option value=\"TIGO\">TIGO</option>";
-	html += "<option value=\"MTN\">MTN</option></select></td>";
-	html += "<td width=\"33%\"><select class=\"login_input\"  aria-label=\"Default Select Example\" id=\"PreferredLanguage\" "; 
-	html += "style=\"padding-left:5px;\"><option value=\"English\">English</option>";
-	html += "<option value=\"Kiswahili\">Kiswahili</option><option value=\"French\">French</option>";						  
-	html += "<option value=\"Kinyandarua\">Kinyandarua</option><option value=\"Buganda\">Buganda</option></select></td>";
-	html += "<td class=\"now\"><input type=\"radio\" name=\"flexRadioDefault\" id=\"flexRadioDefault1\">";
-	html += "<label class=\"form-check-label\" for=\"flexRadioDefault1\">Normal</label>";
-	html += "<input type=\"radio\" name=\"flexRadioDefault\" id=\"flexRadioDefault1\">";
-	html += "<label class=\"form-check-label\" for=\"flexRadioDefault1\">Secret</label></td></tr>";
-	html += "<tr><td><b>Phone Owner</b></td><td><b>Church Member</b></td><td><b>Other Phone Number</b></td></tr>";
-	html += "<tr><td><input class=\"form-check-input\" type=\"checkbox\" value=\"\" id=\"phoneOwner\">";
-	html += "<label for=\"phoneOwner\" class=\"label_input\">Phone Owner</label></td>";
-	html += "<td><input class=\"form-check-input\" type=\"checkbox\" value=\"\" id=\"churchMember\">";
-	html += "<label for=\"church_member\" class=\"label_input\">Church Member</label></td>";
-	html += "<td><input type=\"text\" id=\"otherPhoneNumber\" name=\"otherPhoneNumber\" placeholder=\"Other Phone Number\"></td></tr>";
-	html += "<tr><td><b>Giving Receipt To</b></td><td><b>Residence</b></td></tr>";
-	html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault1\" id=\"self\">";
-	html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Self</label>";
-	html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault1\" id=\"family\">";
-	html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Family</label><br>";
-	html += "<input class=\"form-check-input\" type=\"radio\" name=\"flexRadioDefault1\" id=\"anonymous\">";
-	html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Anonymous</label></td>";
-	html += "<td><input type=\"text\" id=\"residence\" name=\"residence\" placeholder=\"Residence\"></td></tr><tr>";
-	html += "<td><button type=\"button\" class=\"btn\" onclick=\"displayDetails()\" style=\"width:50%;\">Submit</button></td>";
-	html += "</tr></tbody></table>";				
-	$("#member_profile").html(html);					
-}
-
 
 function checkGuestName(){
 	var guest_div = document.getElementById("home_church_others1");
@@ -682,9 +531,7 @@ function checkVisitorName(){
                 visitor_div.style.display = "none";
                 funds_div.style.display = "block";
           }else{
-                $(".responseDiv").show();
-                $(".responseDiv").html("Member Details were not found");
-                $(".responseDiv").fadeOut(3000);
+                alert("Member Details were not found");
           }
     });
 }
@@ -741,6 +588,21 @@ function getChurchMembers(){
 }
 
 function getMemberName(name,id,phone){
+    if(name == null){
+        alert("The Member Name is Not Available")
+        return false;
+    }
+
+    if(id == null){
+        alert("The Membership Number is Not Available")
+        return false;
+    }
+
+    if(phone == null){
+        alert("The Member Phone Number is Not Available")
+        return false;
+    }
+
     document.getElementById("all_members").style.display = "none";
     document.getElementById("cash_receipting").style.display = "none";
     document.getElementById("member_name").value = name;
@@ -751,6 +613,22 @@ function getMemberName(name,id,phone){
 
 
 function getVisitorName(name,id,phone){
+    if(name == null){
+        alert("The Member Name is Not Available")
+        return false;
+    }
+
+    if(id == null){
+        alert("The Membership Number is Not Available")
+        return false;
+    }
+
+    if(phone == null){
+        alert("The Member Phone Number is Not Available")
+        return false;
+    }
+
+
     document.getElementById("home_church_others").style.display = "none";
     document.getElementById("cash_receipting").style.display = "none";
     document.getElementById("member_name").value = name;
@@ -760,6 +638,21 @@ function getVisitorName(name,id,phone){
 }
 
 function getGuestName(name,id,phone){
+    if(name == null){
+        alert("The Member Name is Not Available")
+        return false;
+    }
+
+    if(id == null){
+        alert("The Membership Number is Not Available")
+        return false;
+    }
+
+    if(phone == null){
+        alert("The Member Phone Number is Not Available")
+        return false;
+    }
+
     document.getElementById("home_church_others1").style.display = "none";
     document.getElementById("cash_receipting").style.display = "none";
     document.getElementById("member_name").value = name;
@@ -808,7 +701,7 @@ function getMemberReceipting(){
     // Essential Information for Receipting
     var phone_number = document.getElementById("phone_number").value;
     var username = document.getElementById("username").value;
-    var password = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
     var total_amount = document.getElementById("FTotal3").value;
     var contribute = new String("");
     var contribute_type = new String("");
@@ -844,8 +737,6 @@ function getMemberReceipting(){
         receiver_number = document.getElementById("member_phone").value;
         receiver_id = document.getElementById("member_id").value;
     }
-
-
     // The Funds in Question
     var funds1 = [];
     var funds2 = [];
@@ -854,22 +745,19 @@ function getMemberReceipting(){
    	var amt4 = [];
    	var amt5 = [];
 
-
     for (var i = 0; i < amt.length; i++) {
     	if(amt[i].value != ''){
     		var amount_id = amt[i].id;
-    		amount_id = amount_id.replace(' ','');
-    	    amount_id = amount_id.replace(' ','');
+    		amount_id = amount_id.replace(' Account','');
     		funds1.push(amount_id);
     		amt3.push(amt[i].value);
         }
     }
 
-
     for (var i = 0; i < amt1.length; i++) {
        	if(amt1[i].value != ''){
        		var amount_id = amt1[i].id;
-       		amount_id = amount_id.replace(' ','');
+       		amount_id = amount_id.replace(' Account','');
        		amount_id = amount_id.replace(' ','');
        		funds2.push(amount_id);
        		amt4.push(amt1[i].value);
@@ -879,8 +767,7 @@ function getMemberReceipting(){
     for (var i = 0; i < amt2.length; i++) {
        	if(amt2[i].value != ''){
        		var amount_id = amt2[i].id;
-       		amount_id = amount_id.replace(' ','');
-       		amount_id = amount_id.replace(' ','');
+       		amount_id = amount_id.replace(' Account','');
        		funds3.push(amount_id);
        		amt5.push(amt2[i].value);
        	}
@@ -904,18 +791,16 @@ function getMemberReceipting(){
          fund_amount2: amt5
     }
 
-    // console.log("Funds Object: "+ JSON.stringify(funds));
+
     if(church_member.checked == true || visiting_member.checked == true){
-        $.post(hosted_url + "/cfms-web/auth/member_receipt_funds",funds ,function(data, status){
-             $(".responseDiv").show();
-             $(".responseDiv").html("Member Successfully Receipted");
-             $(".responseDiv").fadeOut(3000);
+        $.post(hosted_url + "/cfms-web/personnel/member_receipt_funds",funds ,function(data, status){
+             alert("Member Successfully Receipted");
+             window.location.reload();
         });
     }else if(guest.checked == true){
-        $.post(hosted_url + "/cfms-web/auth/member_receipt_funds_guest",funds ,function(data, status){
-             $(".responseDiv").show();
-             $(".responseDiv").html("Guest Successfully Receipted");
-             $(".responseDiv").fadeOut(3000);
+        $.post(hosted_url + "/cfms-web/personnel/member_receipt_funds_guest",funds ,function(data, status){
+             alert("Guest Successfully Receipted");
+             window.location.reload();
         });
     }
 
@@ -953,4 +838,444 @@ function nonTrustFundView(){
 		add_icon.style.display = "none";
 		remove_icon.style.display = "block";
 	}
+}
+
+function showCashReceipting() {
+    var transaction_tracing = document.getElementById("transaction_tracing");
+    var cash_receipting = document.getElementById("cash_receipting");
+    var cash_reconciliation = document.getElementById("cash_reconciliation");
+    var trust_funds_div = document.getElementById("trust_funds_div");
+
+    transaction_tracing.style.display = "none";
+    cash_reconciliation.style.display = "none";
+    trust_funds_div.style.display = "none";
+    cash_receipting.style.display = "block";
+}
+
+
+function showTransactionTracing(){
+    var transaction_tracing = document.getElementById("transaction_tracing");
+    var cash_receipting = document.getElementById("cash_receipting");
+    var cash_reconciliation = document.getElementById("cash_reconciliation");
+    var trust_funds_div = document.getElementById("trust_funds_div");
+
+    cash_reconciliation.style.display = "none";
+    cash_receipting.style.display = "none";
+    trust_funds_div.style.display = "none";
+    transaction_tracing.style.display = "block";
+}
+
+
+function showReconciliation(){
+    var transaction_tracing = document.getElementById("transaction_tracing");
+    var cash_receipting = document.getElementById("cash_receipting");
+    var cash_reconciliation = document.getElementById("cash_reconciliation");
+    var trust_funds_div = document.getElementById("trust_funds_div");
+
+    cash_receipting.style.display = "none";
+    transaction_tracing.style.display = "none";
+    trust_funds_div.style.display = "none";
+    cash_reconciliation.style.display = "block";
+}
+
+function showMoreDetails(){
+    var phone_number_trace = document.getElementById("phone_number_trace");
+    var receipt_number_trace = document.getElementById("receipt_number_trace");
+    var associated_phone_div = document.getElementById("associated_phone_div");
+    var associated_receipt_div = document.getElementById("associated_receipt_div");
+
+    if(phone_number_trace.checked == true){
+        associated_receipt_div.style.display = "none";
+        associated_phone_div.style.display = "block";
+    }else if(receipt_number_trace.checked == true){
+        associated_phone_div.style.display = "none";
+        associated_receipt_div.style.display = "block";
+    }
+}
+
+function traceTransactionPhone(){
+    var start_date = document.getElementById("start_date").value;
+    var end_date = document.getElementById("end_date").value;
+    var associated_phone_number = document.getElementById("associated_phone_number").value;
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var phone_number = document.getElementById("phone_number").value;
+    var content_receipt = document.getElementById("content_receipt");
+    var loader_spin_tracing = document.getElementById("loader_spin_tracing");
+
+    content_receipt.style.display = "none";
+    loader_spin_tracing.style.display = "block";
+
+    associated_phone_number = associated_phone_number.trim();
+
+    var tracing_data = {
+        start_date: start_date,
+        end_date: end_date,
+        username: username,
+        password: password,
+        phone_number: phone_number,
+        associated_phone_number: associated_phone_number
+    };
+
+    console.log(tracing_data);
+
+    $.post(hosted_url + "/cfms-web/personnel/transaction_tracing_phone",tracing_data ,function(data, status){
+        console.log(data.payload.transaction);
+        // if(data.payload.transactions.length != 0){
+            loader_spin_tracing.style.display = "none";
+
+            var tracing = data.payload.transactions;
+            var trans_array = data.payload.transactions;
+            var html = new String("");
+            html += "<br>";
+            html += "<h2>Transaction Tracing List Using Phone Number</h2>";
+            html += "<br>";
+
+            for(var i=0; i < trans_array.length; i++){
+                var trans_details = data.payload.transactions[i].transactionDetails;
+                var special_trust_funds = trans_details.specialTrustFunds;
+                var trust_funds = trans_details.trustFunds;
+                var non_trust_funds = trans_details.nonTrustFunds;
+
+
+                html += "<div class=\"con\" onclick=\"showFundDetails("+i+")\">";
+                html += "<table>";
+                html += "<tr colspan=\"2\">";
+                html += "<td style=\"text-align:left;\">"+tracing[i].cfms_transaction_id+" </td><td style=\"text-align:right;\"> "+tracing[i].giving_status+"</td>";
+                html += "</tr></table>";
+                html += "<div id=\"view"+i+"\" style=\"display:none;\">";
+                html += "<table>";
+                html += "<tr>";
+                html += "<td style=\"text-align:left;\">Member Number</td><td style=\"text-align:right;\">"+tracing[i].receiver_id+"</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td style=\"text-align:left;\">Settlement Status</td><td style=\"text-align:right;\">"+tracing[i].giving_status+"</td>";
+                html += "</tr>";
+                if(trust_funds != null){
+                    trust_funds = Object.entries(trust_funds);
+                    for(var x=0; x<trust_funds.length; x++){
+                        html += "<tr>";
+                        html += "<td style=\"text-align:left;\">"+trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+trust_funds[x][1]+".0</td>";
+                        html += "</tr>";
+                    }
+                }
+
+                if(non_trust_funds != null){
+                    non_trust_funds = Object.entries(non_trust_funds);
+                    for(var x=0; x < non_trust_funds.length; x++){
+                        html += "<tr>";
+                        html += "<td style=\"text-align:left;\">"+non_trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+non_trust_funds[x][1]+".0</td>";
+                        html += "</tr>";
+                    }
+                }
+
+                if(special_trust_funds != null){
+                    special_trust_funds = Object.entries(special_trust_funds);
+                    for(var x=0; x < special_trust_funds.length; x++){
+                        html += "<tr>";
+                        html += "<td style=\"text-align:left;\">"+special_trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+special_trust_funds[x][1]+".0</td>";
+                        html += "</tr>";
+                    }
+                }
+                html += "</table>"
+                html += "</div></div>";
+            }
+
+            $("#content_phone").html(html);
+
+        // }else if(data.payload.transactions.length == 0){
+            // loader_spin_tracing.style.display = "none";
+            // alert("No Funds to Display for this Phone Number. Check the Dates or the Phone Number");
+        // }
+
+    });
+
+}
+
+
+
+function traceTransactionReceipt(){
+    var start_date = document.getElementById("start_date").value;
+    var end_date = document.getElementById("end_date").value;
+    var associated_receipt_number = document.getElementById("associated_receipt_number").value;
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+    var phone_number = document.getElementById("phone_number").value;
+    var content_phone = document.getElementById("content_phone");
+    var loader_spin_tracing = document.getElementById("loader_spin_tracing")
+
+    content_phone.style.display = "none";
+    loader_spin_tracing.style.display = "block";
+
+    associated_receipt_number = associated_receipt_number.trim();
+
+    var tracing_data = {
+        start_date: start_date,
+        end_date: end_date,
+        username: username,
+        password: password,
+        phone_number: phone_number,
+        associated_receipt_number: associated_receipt_number
+    };
+
+    console.log(tracing_data);
+
+    $.post(hosted_url + "/cfms-web/personnel/transaction_tracing_receipt",tracing_data ,function(data, status){
+        if(data.payload.transactions.length != 0){
+            loader_spin_tracing.style.display = "none";
+
+
+            var tracing = data.payload.transactions[0];
+            var trans_details = data.payload.transactions[0].transactionDetails;
+            var special_trust_funds = trans_details.specialTrustFunds;
+            var trust_funds = trans_details.trustFunds;
+            var non_trust_funds = trans_details.nonTrustFunds;
+
+
+            var html = new String("");
+            html += "<br>";
+            html += "<h2>Transaction Tracing List Using Receipt Number</h2>";
+            html += "<br>";
+            html += "<div class=\"con\">";
+            html += "<table>";
+            html += "<tr onclick=\"showFundDetails("+1+")\" colspan=\"2\">";
+            html += "<td style=\"text-align:left;\">"+tracing.cfms_transaction_id+"</td><td style=\"text-align:right;\"> "+tracing.giving_status+"</td>";
+            html += "</tr></table>";
+            html += "<div id=\"view1\" style=\"none\">";
+            html += "<table>";
+            html += "<tr>";
+            html += "<td style=\"text-align:left;\">Member Number</td><td style=\"text-align:right;\">"+tracing.receiver_id+"</td>";
+            html += "</tr>";
+            html += "<tr>";
+            html += "<td style=\"text-align:left;\">Settlement Status</td><td style=\"text-align:right;\">"+tracing.giving_status+"</td>";
+            html += "</tr>";
+            if(trust_funds != null){
+                trust_funds = Object.entries(trust_funds);
+                for(var x=0; x<trust_funds.length; x++){
+                    html += "<tr>";
+                    html += "<td style=\"text-align:left;\">"+trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+trust_funds[x][1]+".0</td>";
+                    html += "</tr>";
+                }
+            }
+
+            if(non_trust_funds != null){
+                non_trust_funds = Object.entries(non_trust_funds);
+                for(var x=0; x < non_trust_funds.length; x++){
+                    html += "<tr>";
+                    html += "<td style=\"text-align:left;\">"+non_trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+non_trust_funds[x][1]+".0</td>";
+                    html += "</tr>";
+                }
+            }
+
+            if(special_trust_funds != null){
+                special_trust_funds = Object.entries(special_trust_funds);
+                for(var x=0; x < special_trust_funds.length; x++){
+                    html += "<tr>";
+                    html += "<td style=\"text-align:left;\">"+special_trust_funds[x][0]+"</td><td style=\"text-align:right;\">"+special_trust_funds[x][1]+".0</td>";
+                    html += "</tr>";
+                }
+            }
+            html += "</table>"
+            html += "</div></div>";
+            $("#content_receipt").html(html);
+
+        }else if(data.payload.transactions.length == 0){
+            loader_spin_tracing.style.display = "none";
+            alert("No Receipt Number Available. Try Again and Check the Dates or Receipt Number");
+        }
+
+    });
+}
+
+
+function showFundDetails(identifier){
+    var id = document.getElementById("view"+identifier);
+
+    if(id.style.display === "none"){
+        id.style.display = "block";
+    }else{
+        id.style.display = "none";
+    }
+}
+
+
+function getFirstAndLastDate(){
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    console.log(firstDay);
+    console.log(lastDay)
+}
+
+
+function getSubmittedReceipts(){
+	// successAlert('The Process was Successful', 3000);
+	var receipted = {
+		"12151223": [
+			"{\"trustFunds\": {\"Tithe\": \"5\"}, \"nonTrustFunds\": {\"Development\": \"5\"}}"
+		],
+		"12045997": [
+			"{\"trustFunds\": {\"Tithe\": \"10\", \"Camp Meeting\": \"15\", \"Combined Offerings\": \"10\"}, \"nonTrustFunds\": {\"Amo\": \"10\", \"Youths\": \"10\", \"Jericho\": \"10\", \"Guest Houses\": \"10\", \"Young Couples\": \"5\", \"Youth Collections\": \"10\"}, \"specialTrustFunds\": {\"UEAB\": \"5\", \"Djibouti Mission\": \"5\"}}"
+		]
+	};
+
+	var receipt_numbers = Object.keys(receipted);
+	var receipted_content = Object.values(receipted)
+
+
+	var html = new String("");
+	html += "<select id=\"receipt_numbers\" name=\"receipt_numbers\" onchange=\"changeInfo()\">";
+	for(var i = 0;i < receipt_numbers.length;i++){
+	    html += "<option value="+receipt_numbers[i]+">"+ receipt_numbers[i] +"</option>";
+	}
+	html += "</select>";
+
+	document.getElementById("receipted_data").innerHTML = html;
+
+}
+
+
+function changeInfo(){
+	var receipt_numbers = document.getElementById("receipt_numbers").value;
+
+	var receipted = {
+		"12151223": [
+			"{\"trustFunds\": {\"Tithe\": \"5\"}, \"nonTrustFunds\": {\"Development\": \"5\"}}"
+		],
+		"12045997": [
+			"{\"trustFunds\": {\"Tithe\": \"10\", \"Camp Meeting\": \"15\", \"Combined Offerings\": \"10\"}, \"nonTrustFunds\": {\"Amo\": \"10\", \"Youths\": \"10\", \"Jericho\": \"10\", \"Guest Houses\": \"10\", \"Young Couples\": \"5\", \"Youth Collections\": \"10\"}, \"specialTrustFunds\": {\"UEAB\": \"5\", \"Djibouti Mission\": \"5\"}}"
+		]
+	};
+
+	var data = JSON.parse(receipted[receipt_numbers]);
+
+	var request;
+	var request1;
+	var request2;
+					// Trust Fund Accounts
+	if(data.hasOwnProperty("trustFunds")){
+		request = data.trustFunds;
+	}else{
+		request = null;
+	}
+
+	if(data.hasOwnProperty("nonTrustFunds")){
+        request1 = data.nonTrustFunds;
+	}else{
+		request1 = null;
+	}
+
+	if(data.hasOwnProperty("specialTrustFunds")){
+		request2 = data.specialTrustFunds;
+	}else{
+		request2 = null;
+	}
+
+	var trustFund;
+	var nonTrustFund;
+	var specialTrustFund;
+
+	if(request != null){
+		trustFund = Object.entries(request);
+	}
+
+	if(request1 != null){
+		nonTrustFund = Object.entries(request1);
+	}
+
+	if(request2 != null){
+		specialTrustFund = Object.entries(request2);
+	}
+
+	var html = new String("");
+
+	html += "<div class=\"cardHeader\">";
+	html += "<h2 style=\"text-align:center;margin-top:10px;margin-bottom:10px\">Funds Distribution</h2></div>";
+	html += "<div class=\"responseDiv\" style=\"display:none;\"></div><br><hr>";
+	html += "<table>";
+	html += "<tr><td colspan=\"2\"><label class=\"label_input\"><b> For: </b></label></td>";
+	html += "<td colspan=\"2\"><input type=\"text\" id=\"member_name_edit\" name=\"member_name_edit\" placeholder=\"\" readonly>";
+	html += "<input type=\"hidden\" id=\"member_phone_edit\" name=\"member_phone_edit\" placeholder=\"\"></td></tr>";
+	html += "<tr><td colspan=\"2\"><label class=\"label_input\"><b> Total: </b></label></td>";
+	html += "<td colspan=\"2\"><input type=\"text\" id=\"receipting_total\" name=\"receipting_total\" placeholder=\"\">";
+	html += "</td></tr>";
+	html += "<tr></table>";
+
+	if(trustFund != null){
+
+		html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"add_icon\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon\"><ion-icon name=\"remove-circle-outline\"></ion-icon></span</td></tr></table>";
+		html += "<div id=\"trust_funds_view\" style=\"display:block;\"><table>";
+		html += "<tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
+		html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
+		html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
+
+
+		for(i=0;i < trustFund.length;i++){
+			html += "<tr>";
+			html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ trustFund[i][0] +"</b><input type=\"hidden\" class=\"trust_funds1\"></td>";
+			html += "<td style=\"padding-left:15px;padding-top:10px;\">";
+			html += "<input type=\"number\" id='"+trustFund[i][0]+"' class=\"amt\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\" value="+ trustFund[i][1] +">";
+			html += "</td></tr>";
+		}
+
+		html += "<tbody></table>";
+		html += "</div>"
+	}else{
+		html += "";
+	}
+
+
+	if(nonTrustFund != null){
+		html += "<table><tr>";
+		html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2><span class=\"right-icon\" onclick=\"nonTrustFundView()\" id=\"add_icon1\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\"></ion-icon></span><span class=\"right-icon\" onclick=\"nonTrustFundView()\" id=\"remove_icon1\"><ion-icon name=\"remove-circle-outline\"></ion-icon></span</td></tr></table>";
+		html += "<div id=\"non_trust_funds_view\"  style=\"display:block;\">";
+		html += "<table><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
+	    html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
+		html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
+
+
+
+		for(i=0;i < nonTrustFund.length;i++){
+			html += "<tr>";
+			html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ nonTrustFund[i][0] +"</b><input type=\"hidden\" class=\"non_trust_funds1\"></td>";
+			html += "<td style=\"padding-left:15px;padding-top:10px;\">";
+			html += "<input type=\"number\" id='"+nonTrustFund[i][0]+"' class=\"amt1\" name=\"amt1\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\" value="+nonTrustFund[i][1]+">";
+			html += "</td></tr>";
+		}
+
+		html += "</form><tbody></table>";
+		html += "</div>"
+		}else{
+			html += "";
+		}
+
+	    if(specialTrustFund != null){
+			html += "<table><tr>";
+			html += "<td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Special Trust Funds</h2></td>";
+			html += "</tr><tr><td colspan=\"2\" style=\"text-align:center\"><hr></tr>";
+			html += "<tr><td style=\"border-bottom:2px solid black;padding-top:7px;\"><b>Contribution Type</b></td>";
+			html += "<td style=\"border-bottom:2px solid black;text-align:right;padding-top:7px;\"><b>Amount Offered</b></td></tr>";
+
+
+			for(i=0;i < specialTrustFund.length;i++){
+				html += "<tr>";
+				html += "<td style=\"font-size:12px;padding-top:10px;\"><b>"+ specialTrustFund[i][0] +"</b><input type=\"hidden\" class=\"special_trust_funds1\"></td>";
+				html += "<td style=\"padding-left:15px;padding-top:10px;\">";
+				html += "<input type=\"number\" id='"+specialTrustFund[i][0]+"' class=\"amt2\" name=\"amt2\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\" value="+specialTrustFund[i][1]+">";
+				html += "</td></tr>";
+			}
+
+				html += "</tbody></table>";
+		}else{
+			html += "";
+		}
+			html += "<table><tbody>";
+			html += "<tr><td style=\"font-size:12px;\" colspan=\"2\"><b>Total</b></td>";
+			html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\"><input type=\"number\" class=\"login_input\" id=\"FTotal3\" name=\"churchCode\" placeholder=\"\" readonly></td></tr>";
+			html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"checkTotals()\" id=\"payment_button3\">Confirm</button></td></tr>";
+			html += "</form><tbody></table>";
+
+
+		document.getElementById("trust_funds_div").innerHTML = html;
+		GetTotal4();
 }

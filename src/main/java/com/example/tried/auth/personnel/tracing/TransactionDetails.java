@@ -21,11 +21,11 @@ public class TransactionDetails{
 	private TransferDuration transferDuration;
 
 	@JsonProperty("specialTrustFunds")
-	private HashMap<String, Integer> specialTrustFunds;
+	private HashMap<String, Object> specialTrustFunds;
 
 	@JsonProperty("nonTrustFunds")
-	private HashMap<String, Integer> nonTrustFunds;
+	private HashMap<String, Object> nonTrustFunds;
 
 	@JsonProperty("trustFunds")
-	private HashMap<String, Integer> trustFunds;
+	private HashMap<String, Object> trustFunds;
 }

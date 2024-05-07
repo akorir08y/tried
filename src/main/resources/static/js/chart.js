@@ -191,6 +191,7 @@ function getPreviousMonthName(dt){
         };
 
          $.get(hosted_url + "/cfms-web/auth/report/non_trust_fund", personal,function(responsive, status){
+                console.log(responsive);
                 // var responsive = JSON.parse(data);
 
                 document.getElementById("transactions1").innerHTML = responsive.transactions;

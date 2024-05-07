@@ -52,6 +52,7 @@ auth:
     auth_login_url: https://sdacfms.org:8443/sdacfmsWS/webresources/cfms/mobile/
     cfms_data: https://sdacfms.org:8443/sdacfmsWS/webresources/cfms/data
     financial_data: http://sdacfms.org:8080/sdacfmsWS/webresources/statements/v1/financial
+    financial_data_https_url: https://sdacfms.org:8443/sdacfmsWS/webresources/statements/v1/financial
     sms_url: https://sdacfms.org:8443/sdacfmsWS/webresources/SMS/mobile/
     trust_funds_url: https://sdacfms.org:8443/sdacfmsWS/webresources/trustfunds/v1
     mpesa_stk_request_url: https://sdacfms.org:8443/sdacfmsWS/webresources/payment/mpesa_stk_request/
@@ -63,6 +64,10 @@ auth:
 server:
   servlet:
     context-path: /cfms-web
+
+mvc:
+  async:
+   request-timeout: 60000
 
 file:
   upload-dir: ./../../cfms_media/
