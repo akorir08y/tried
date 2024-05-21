@@ -300,7 +300,6 @@ function getTrustFundAccounts(data){
 
 	    console.log(data);
 
-	    var trust_funds = new String("");
 	    var trust_funds = "[\"Tithe Account::127989\",\"Combined Offerings Account::127990\",\"Camp Meeting Account::13824\",";
 	    trust_funds += "\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",";
 	    trust_funds += "\"Combined Offerings Account::13823\"]";
@@ -490,10 +489,9 @@ function getBothFundAccounts(data){
         member_name = document.getElementById("member_name").value;
     }
 
-    var trust_funds = new String("");
-    var trust_funds = "[\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",";
-    trust_funds += "\"Tithe Account::127989\",\"Camp Meeting Account::127991\",\"Tithe Account::13822\",\"Camp Meeting Account::13824\",";
-    trust_funds += "\"Combined Offerings Account::13823\",\"Combined Offerings Account::127990\"]";
+    var trust_funds = "[\"Tithe Account::127989\",\"Combined Offerings Account::127990\",\"Camp Meeting Account::13824\",";
+    trust_funds += "\"Conference Development Account::426234\",\"Thirteenth Sabbath Account::191295\",";
+    trust_funds += "\"Combined Offerings Account::13823\"]";
 
         // Trust Fund Accounts
         var request = trust_funds;
@@ -589,6 +587,7 @@ function saveTrustFundSummary(){
 	var others = document.getElementById("others");
     var phone1 = document.getElementById("phone1").value;
 	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var mpesa_payment = document.getElementById("mpesa_payment");
 	var receiver_id;
 	var receiver_name;
 
@@ -645,6 +644,11 @@ function saveTrustFundSummary(){
         phone_number = document.getElementById("other_number2").value;
     }
 
+    if(phone_number.length < 12){
+        alert("Your Phone Number does not have 12 Characters");
+        return false;
+    }
+
     var funds = {
         phone_number: phone_number,
         amount : total,
@@ -659,16 +663,23 @@ function saveTrustFundSummary(){
     console.log("Funds Object: " + funds);
     console.log("Funds Object String: " + JSON.stringify(funds));
 
+    alert("An MPESA Prompt has been sent to your phone");
+    mpesa_payment.style.display = "none";
 
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        if(data != null){
+	    console.log(data);
+        if(data.cfmsTransactionId != null){
+            document.getElementById("mpesa_payment").innerText = "Transaction Completed";
+            var statement = "Have you received an MPESA Prompt?";
 	        if(confirm(statement) == true){
                 alert("Trust Fund Successfully Saved");
                 window.location.reload();
+                // enableButton();
 	        }else{
                 paybill_div.style.display = "block";
-                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
-                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+                document.getElementById("line").style.display = "block";
+                document.getElementById("mpesa_payment").innerText = "Resend Prompt";
+                mpesa_payment.style.display = "block";
             }
         }else{
             alert("Saving Trust Fund UnSuccessful");
@@ -692,6 +703,7 @@ function saveNonTrustFundSummary(){
 	var others = document.getElementById("others");
     var phone1 = document.getElementById("phone1").value;
 	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var mpesa_payment = document.getElementById("mpesa_payment");
 	var receiver_id;
 	var receiver_name;
 
@@ -744,6 +756,11 @@ function saveNonTrustFundSummary(){
         phone_number = document.getElementById("other_number2").value;
     }
 
+    if(phone_number.length < 12){
+        alert("Your Phone Number does not have 12 Characters");
+        return false;
+    }
+
     var funds = {
         phone_number: phone_number,
         amount : total,
@@ -755,15 +772,22 @@ function saveNonTrustFundSummary(){
         fund_amount1: amt1
     }
 
+    alert("An MPESA Prompt has been sent to your phone");
+    console.log(funds);
+    mpesa_payment.style.display = "none";
+
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        if(data != null){
+        if(data.cfmsTransactionId != null){
+            document.getElementById("mpesa_payment").innerText = "Transaction Completed";
+            var statement = "Have you received an MPESA Prompt?";
 	        if(confirm(statement) == true){
                 alert("Non Trust Fund Successfully Saved");
+                // enableButton();
                 window.location.reload();
 	        }else{
                 paybill_div.style.display = "block";
-                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
-                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+                document.getElementById("line").style.display = "block";
+                mpesa_payment.style.display = "block";
             }
         }else{
             alert("Saving Non Trust Fund UnSuccessful");
@@ -787,6 +811,7 @@ function saveSpecialTrustFundSummary(){
 	var others = document.getElementById("others");
     var phone1 = document.getElementById("phone1").value;
 	var cfms_id_member = document.getElementById("cfms_id_member").value;
+	var mpesa_payment = document.getElementById("mpesa_payment");
 	var receiver_id;
 	var receiver_name;
 
@@ -838,6 +863,10 @@ function saveSpecialTrustFundSummary(){
         phone_number = document.getElementById("other_number2").value;
     }
 
+    if(phone_number.length < 12){
+        alert("Your Phone Number does not have 12 Characters");
+        return false;
+    }
 
     var funds = {
         phone_number: phone_number,
@@ -850,15 +879,21 @@ function saveSpecialTrustFundSummary(){
         fund_amount2: amt1
     }
 
+    alert("An MPESA Prompt has been sent to your phone");
+    mpesa_payment.style.display = "none";
+
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-        if(data != null){
+        if(data.cfmsTransactionId != null){
+            document.getElementById("mpesa_payment").innerText = "Transaction Completed";
+            var statement = "Have you received an MPESA Prompt?";
 	        if(confirm(statement) == true){
                 alert("Special Trust Fund Successfully Saved");
+                //enableButton();
                 window.location.reload();
 	        }else{
                 paybill_div.style.display = "block";
-                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
-                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+                document.getElementById("line").style.display = "block";
+                mpesa_payment.style.display = "block";
             }
         }else{
             alert("Saving Special Trust Fund UnSuccessful");
@@ -885,6 +920,7 @@ function saveBothFundsSummary(){
 	var phone1 = document.getElementById("phone1").value;
 	var cfms_id_member = document.getElementById("cfms_id_member").value;
 	var paybill_div = document.getElementById("paybill_div");
+	var mpesa_payment = document.getElementById("mpesa_payment");
 	var receiver_id;
 	var receiver_name;
 
@@ -954,6 +990,11 @@ function saveBothFundsSummary(){
         phone_number = document.getElementById("other_number2").value;
     }
 
+    if(phone_number.length < 12){
+        alert("Your Phone Number does not have 12 Characters");
+        return false;
+    }
+
     var funds = {
         phone_number: phone_number,
         amount : total,
@@ -968,16 +1009,22 @@ function saveBothFundsSummary(){
     }
 
     console.log(funds);
+    alert("An MPESA Prompt has been sent to your phone");
+    mpesa_payment.style.display = "none";
+
 
 	$.post(hosted_url + "/cfms-web/auth/member_receive_funds",funds ,function(data, status){
-	    if(data != null){
+	    if(data.cfmsTransactionId != null){
+	        document.getElementById("mpesa_payment").innerText = "Transaction Completed";
+	        var statement = "Have you received an MPESA Prompt?";
 	        if(confirm(statement) == true){
                 alert("Both Trust Fund Successfully Saved");
+                // enableButton();
                 window.location.reload();
 	        }else{
                 paybill_div.style.display = "block";
-                document.getElementById("paybill_number").innerHTML = "Paybill Number: 4038047";
-                document.getElementById("cfms_transaction_number").innerHTML = "Account Number: "+ data.cfmsTransactionId;
+                document.getElementById("line").style.display = "block";
+                mpesa_payment.style.display = "block";
             }
         }else{
             alert("Saving Both Trust Fund UnSuccessful");
@@ -1038,8 +1085,9 @@ function getTrustFunds(total){
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr></table></div>";
     html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
-    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveTrustFundSummary()\">Confirm</button></td></tr>"
-    html += "</table>";
+    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveTrustFundSummary()\" id=\"mpesa_payment\">Confirm</button></td></tr></table>"
+    // html += "<div id=\"finish_div\" style=\"\"><table><tr><td><button type=\"button\" class=\"btn\" onclick=\"saveTrustFundSummary()\">Finish</button></td></tr>";
+    // ssshtml += "</table></div>";
 
     $("#payment_div").show();
     $("#payment_div").html(html);
@@ -1066,7 +1114,7 @@ function getNonTrustFunds(total){
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr></table></div>";
     html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
-    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveNonTrustFundSummary()\">Confirm</button></td></tr>"
+    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveNonTrustFundSummary()\" id=\"mpesa_payment\">Confirm</button></td></tr>"
     html += "</table>";
 
     $("#payment_div").show();
@@ -1094,7 +1142,7 @@ function getSpecialTrustFunds(total){
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr></table></div>";
     html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
-    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveSpecialTrustFundSummary()\">Confirm</button></td></tr>"
+    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveSpecialTrustFundSummary()\" id=\"mpesa_payment\">Confirm</button></td></tr>"
     html += "</table>";
 
     $("#payment_div").show();
@@ -1122,7 +1170,7 @@ function getBothTrustFunds(total){
     html += "<td colspan=\"2\"><input type=\"text\" id=\"other_number2\" name=\"other_number2\" placeholder=\"+254\"></td>";
     html += "</tr><tr><td><br></td></tr></table></div>";
     html += "<table><tr><td><br><p id=\"payment_line\"></p><input type=\"hidden\" id=\"total_value\" name=\"total_value\" value='"+total+"'></td></tr>";
-    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveBothFundsSummary()\">Confirm</button></td></tr>"
+    html += "<tr><td><button type=\"button\" class=\"btn\" onclick=\"saveBothFundsSummary()\" id=\"mpesa_payment\">Confirm</button></td></tr>"
     html += "</table>";
 
     $("#payment_div").show();
@@ -1133,7 +1181,7 @@ function getBothTrustFunds(total){
 function getPaymentDiv(){
 	var onlyInputs = document.querySelectorAll('#trust_funds_div input');
 	var phone = document.getElementById('personal_no').value;
-	var phone1 = document.getElementById('personal_no2').value
+	var phone1 = document.getElementById('personal_no2').value;
 
     onlyInputs.forEach(input => {
       	input.readOnly = true;
@@ -1302,7 +1350,7 @@ function getPaymentNumber(){
 
 
 function checkNumberPayment(){
-    var other_number = document.getElementById("other_number")
+    var other_number = document.getElementById("other_number");
 
     if(other_number.length >= 12){
         var payment_info = "Ensure "+ total +"/= has been deposited on the mobile money account for "+other_number;
@@ -1411,4 +1459,11 @@ function nonTrustFundView(){
 		add_icon.style.display = "none";
 		remove_icon.style.display = "block";
 	}
+}
+
+
+function enableButton(){
+    var mpesa_payment = document.getElementById("mpesa_payment");
+
+    mpesa_payment.disabled = false;
 }

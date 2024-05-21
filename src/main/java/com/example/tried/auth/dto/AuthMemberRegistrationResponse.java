@@ -18,9 +18,15 @@ public class AuthMemberRegistrationResponse{
 	@JsonProperty("state")
 	private String state;
 
+	@JsonProperty("notice")
+	private String notice;
+
 	@JsonProperty("error")
 	private String error;
 
 	@JsonProperty("membershipNumber")
 	private String membershipNumber;
+
+	@JsonProperty("numberOfTries")
+	private String numberOfTries;
 }

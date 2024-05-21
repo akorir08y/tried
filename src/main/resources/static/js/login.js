@@ -35,6 +35,12 @@ const login = document.getElementById('login'),
       loginLink = document.getElementById('login-link'),
       loginLinked = document.getElementById('login-linked')
 
+
+/*=============== LOGIN ===============*/
+const personnel_login = document.getElementById('personnel_login'),
+      personnelBtn = document.getElementById('personnel-login-btn'),
+      personnelClose = document.getElementById('personnel-login-close')
+
 /*=============== REGISTER ===============*/
 const register = document.getElementById('register'),
       registerBtn = document.getElementById('register-btn'),
@@ -46,9 +52,14 @@ const reset_pin = document.getElementById('reset-pin'),
       resetBtn2 = document.getElementById('reset-pin-btn2'),
       resetClose = document.getElementById('reset-pin-close')
 
-/* Login show */
+/* Login Show */
 loginBtn.addEventListener('click', () =>{
    login.classList.add('show-login')
+})
+
+/* Personnel Login Show */
+personnelBtn.addEventListener('click', () =>{
+   personnel_login.classList.add('show-personnel-login')
 })
 
 loginLink.addEventListener('click', () =>{
@@ -67,6 +78,10 @@ loginClose.addEventListener('click', () =>{
    login.classList.remove('show-login')
 })
 
+/* Personnel Login hidden */
+personnelClose.addEventListener('click', () =>{
+   personnel_login.classList.remove('show-personnel-login')
+})
 
 /* Register show */
 registerBtn.addEventListener('click', () =>{
@@ -148,6 +163,17 @@ function togglePasswordPinReset(){
 function togglePasswordConfirmPinReset(){
    var x = document.getElementById("confirm_pin_reset");
    var icon = document.getElementById("reset-icon2");
+   icon.classList.toggle("ri-eye");
+   if (x.type === "password") {
+      x.type = "text";
+   } else {
+	  x.type = "password";
+   }
+}
+
+function togglePersonnelLogin(){
+   var x = document.getElementById("personnel_password");
+   var icon = document.getElementById("reset-icon6");
    icon.classList.toggle("ri-eye");
    if (x.type === "password") {
       x.type = "text";

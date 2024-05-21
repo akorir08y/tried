@@ -4,6 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reports and Statements</title>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet " type="text/css" href="/cfms-web/css/style2.css">
 <link rel="stylesheet " type="text/css" href="/cfms-web/css/table_statement.css">
 </head>
@@ -36,7 +37,7 @@ $(document).ready(function(){
 });
 
 </script>
-<body>
+<body onload="getFirstAndLastDate()">
 <div class="container">
 <div class="navigation">
 	<ul>
@@ -47,37 +48,37 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_reports(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -95,7 +96,7 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li>
-		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
+		<a th:href="@{/authenticate/login}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -124,7 +125,6 @@ $(document).ready(function(){
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
-		<input type="hidden" name="user_pin" id="user_pin" th:value="${personnel_pin}">
 		
 		<div class="cardBox">			
 			<div class="card" style="background-color:#24478f;color:white;" onclick="showNonTrustFund()">
@@ -207,7 +207,7 @@ $(document).ready(function(){
 							<h2>Trust Fund Summary Reports</h2>
 						</div>
 						<table width="100%;">
-							<form action="/cfms-web/auth/trust_fund_reporting" id="trust_fund_month_form">
+							<form action="/cfms-web/auth/trust_fund_reporting" id="trust_fund_month_form" target="_blank">
 							<input type="hidden" name="username" id="trust_username" th:value="${personnel_name}">
 							<input type="hidden" name="password" id="trust_password" th:value="${personal_password}">
 							<input type="hidden" name="phone_number" id="trust_phone_number" th:value="${treasurer_no}">
@@ -216,18 +216,18 @@ $(document).ready(function(){
 							<tbody>
 								<tr>
 									<td><label class="form-check-label" for="select_month">Month</label></td>
-									<td><input type="month" id="select_month" name="select_month" required></td>
+									<td colspan="2"><input type="month" id="select_month" name="select_month" required></td>
 								</tr>
 								<tr>
 									<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
-									<td><select id="all_accounts" name="account_name" class="required">
+									<td colspan="2"><select id="all_accounts" name="account_name" class="required">
 										<option value="Not Applicable">All Accounts</option>
 										<option value="Cash">Cash Accounts</option>
 										<option value="USSD">USSD Accounts</option></select></td>
 								</tr>
-								<tr><td><button class="btn" onclick="TrustFundReportPDF()">Get Report in PDF</button></td>
-									<td><button class="btn" onclick="TrustFundReportExcel()">Get Report in Excel</button></td>
-								<td><button class="btn" onclick="getDateToDate()">Select Range</button></td></tr>
+								<tr><td><button class="btn" type="button" onclick="TrustFundReportPDF()">Get Report in PDF</button></td>
+									<td><button class="btn" type="button" onclick="TrustFundReportExcel()">Get Report in Excel</button></td>
+								<td><button class="btn" type="button" onclick="getDateToDate()">Select Range</button></td></tr>
 							</tbody>
 							</form>
 						</table>
@@ -238,7 +238,7 @@ $(document).ready(function(){
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/trust_fund_reporting_date" id="trust_fund_date_to_date_form">
+							<form action="/cfms-web/auth/trust_fund_reporting_date" id="trust_fund_date_to_date_form" target="_blank">
 								<input type="hidden" name="date_username" id="trust_date_username" th:value="${personnel_name}">
 								<input type="hidden" name="date_password" id="trust_date_password" th:value="${personal_password}">
 								<input type="hidden" name="date_phone_number" id="trust_date_phone_number" th:value="${treasurer_no}">
@@ -246,20 +246,20 @@ $(document).ready(function(){
 								<tbody>
 									<tr>
 										<td><label class="form-check-label" for="from-date">From</label></td>
-										<td><label class="form-check-label" for="from-date">To</label></td>
+										<td colspan="2"><label class="form-check-label" for="from-date">To</label></td>
 									</tr>
 									<tr>
 										<td><input type="date" id="from-date" name="start_date" required></td>
-										<td><input type="date" id="to-date" name="end_date" required></td>
+										<td colspan="2"><input type="date" id="to-date" name="end_date" required></td>
 									</tr>
 									<tr>
 										<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
-										<td><select name="account_name_date" required><option value="Not Applicable">All Accounts</option>
+										<td colspan="2"><select name="account_name_date" required><option value="Not Applicable">All Accounts</option>
 										<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
 									</tr>
-									<tr><td><button class="btn" onclick="TrustFundDateToDateReportPDF()">Get Report in PDF</button></td>
-										<td><button class="btn" onclick="TrustFundDateToDateReportExcel()">Get Report in Excel</button></td>
-									<td><button class="btn" onclick="getRange()">Select Month</button></td></tr>
+									<tr><td><button class="btn" type="button" onclick="TrustFundDateToDateReportPDF()">Get Report in PDF</button></td>
+										<td><button class="btn" type="button" onclick="TrustFundDateToDateReportExcel()">Get Report in Excel</button></td>
+									<td><button class="btn" type="button" onclick="getRange()">Select Month</button></td></tr>
 								</tbody>
 							</form>
 						</table>
@@ -271,7 +271,7 @@ $(document).ready(function(){
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/exporting-non-trust-fund" id="local_church_offering_report" method="get">
+							<form action="/cfms-web/personnel/export/local_church_offering_report" id="local_church_offering_report" method="get" target="_blank">
 								<input type="hidden" name="username" id="username_offering" th:value="${personnel_name}">
 								<input type="hidden" name="password" id="password_offering" th:value="${personal_password}">
 								<input type="hidden" name="phone_number" id="phone_number_offering" th:value="${treasurer_no}">
@@ -279,22 +279,28 @@ $(document).ready(function(){
 								<tbody>
 									<tr>
 										<td><label class="form-check-label" for="from-date">From</label></td>
-										<td><label class="form-check-label" for="from-date">To</label></td>
+										<td colspan="2"><label class="form-check-label" for="from-date">To</label></td>
 									</tr>
 									<tr>
 										<td><input type="date" id="from-date-offering" name="start_date"></td>
-										<td><input type="date" id="to-date-offering" name="end_date"></td>
+										<td colspan="2"><input type="date" id="to-date-offering" name="end_date"></td>
 									</tr>
 									<tr>
 										<td><label class="form-check-label" for="all_accounts">Report Type</label></td>
-										<td><select id="account_name_offering" name="account_name"><option value="Not Applicable">All Accounts</option>
+										<td colspan="2"><select id="account_name_offering" name="means"><option value="Not Applicable">All Accounts</option>
 										<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
 									</tr>
-									<tr><td><button class="btn">Generate Local Church Offering Report</button></td><td><button class="btn">Get Report In Excel</button></td>
-										<td><button class="btn">Get Report In PDF</button></td></tr>
+									<tr><td><button class="btn" type="button" onclick="getLocalChurchOfferingReport()">Generate Local Church Offering Report</button></td>
+										<td><button class="btn" type="button" onclick="getLocalChurchOfferingReportExcel()">Get Report In Excel</button></td>
+										<td><button class="btn" type="button" onclick="getLocalChurchOfferingReportPDF()">Get Report In PDF</button></td></tr>
 								</tbody>
 							</form>
 						</table>
+						<br><br>
+						<hr>
+
+
+						<div class="loader" id="loader_spin_church_offering" style="display:none;"></div>
 						<div id="content_local_church_offering"></div>
 					</div>
 					<div id="non_trust_fund_report" style="display:none;">
@@ -303,7 +309,7 @@ $(document).ready(function(){
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/exporting-non-trust-fund" id="non_trust_fund" method="get">
+							<form action="/cfms-web/auth/exporting-non-trust-fund" id="non_trust_fund" method="get" target="_blank">
 								<input type="hidden" name="username" id="username1" th:value="${personnel_name}">
 								<input type="hidden" name="password" id="password1" th:value="${personal_password}">
 								<input type="hidden" name="phone_number" id="phone_number1" th:value="${treasurer_no}">
@@ -322,8 +328,8 @@ $(document).ready(function(){
 									<td><select name="account_name" id="account_name"><option value="Not Applicable">All Accounts</option>
 									<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
 								</tr>
-								<tr><td><button class="btn" onclick="nonTrustFundReportExcel()">Get Report in Excel</button></td>
-									<td><button class="btn" onclick="nonTrustFundReportPDF()">Get Report in PDF</button></td></tr>
+								<tr><td><button class="btn" type="button" onclick="nonTrustFundReportExcel()">Get Report in Excel</button></td>
+									<td><button class="btn" type="button" onclick="nonTrustFundReportPDF()">Get Report in PDF</button></td></tr>
 							</tbody>
 							</form>
 						</table>
@@ -335,7 +341,7 @@ $(document).ready(function(){
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/exporting_trust_fund_transcript" id="trust_fund_transcript">
+							<form action="/cfms-web/auth/exporting_trust_fund_transcript" id="trust_fund_transcript" target="_blank">
 								<input type="hidden" name="username" id="username_transcript" th:value="${personnel_name}">
 								<input type="hidden" name="password" id="password_transcript" th:value="${personal_password}">
 								<input type="hidden" name="phone_number" id="phone_number_transcript" th:value="${treasurer_no}">
@@ -354,19 +360,19 @@ $(document).ready(function(){
 										<td><select name="account_name"><option value="Not Applicable">All Accounts</option>
 										<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
 									</tr>
-									<tr><td><button class="btn" onclick="TrustFundTranscriptReportExcel()">Get Report in Excel</button>
-										<button class="btn" onclick="TrustFundTranscriptReportPDF()">Get Report in PDF</button></tr>
+									<tr><td><button class="btn" type="button" onclick="TrustFundTranscriptReportExcel()">Get Report in Excel</button>
+										<button class="btn" type="button" onclick="TrustFundTranscriptReportPDF()">Get Report in PDF</button></tr>
 								</tbody>
 							</form>
 						</table>
 					</div>
-					<div id="specific_account_summary_reports" style="display:none;">
+					<div id="specific_account_summary_reports" style="display:none;" >
 						<div class="cardHeader">
 							<h2>Specific Account Summary Reports</h2>
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/exporting_specific_account_summary" id="specific_account_summary">
+							<form action="/cfms-web/auth/exporting_specific_account_summary" id="specific_account_summary" target="_blank">
 								<input type="hidden" name="username" id="username_specific" th:value="${personnel_name}">
 								<input type="hidden" name="password" id="password_specific" th:value="${personal_password}">
 								<input type="hidden" name="phone_number" id="phone_number_specific" th:value="${treasurer_no}">
@@ -386,8 +392,9 @@ $(document).ready(function(){
 											th:value="${#strings.arraySplit(account_details,'#')[0]}"
 											th:text="${#strings.arraySplit(account_details,'#')[0]}"></option></select></td>
 									</tr>
-									<tr><td><button class="btn" onclick="specificAccountSummaryExcel()">Get Report In Excel</button></td>
-										<td><button class="btn" onclick="specificAccountSummaryPDF()">Get Report In PDF</button></td></tr>
+									<tr><td><button class="btn" type="button" onclick="specificAccountSummaryExcel()">Generate Specific Account Summary</button></td>
+										<td><button class="btn" type="button" onclick="specificAccountSummary()">Get Report In Excel</button></td>
+										<td><button class="btn" type="button" onclick="specificAccountSummaryPDF()">Get Report In PDF</button></td></tr>
 								</tbody>
 							</form>
 						</table>
@@ -402,7 +409,7 @@ $(document).ready(function(){
 						</div>
 						
 						<table width="100%;">
-							<form action="/cfms-web/auth/exporting-transaction-tracing" id="transaction-tracing">
+							<form action="/cfms-web/auth/exporting-transaction-tracing" id="transaction-tracing" target="_blank">
 								<input type="hidden" name="username" id="username_trace" th:value="${personnel_name}">
 								<input type="hidden" name="password" id="password_trace" th:value="${personal_password}">
 								<input type="hidden" name="phone_number" id="phone_number_trace" th:value="${treasurer_no}">
@@ -421,8 +428,8 @@ $(document).ready(function(){
 										<td><select name="account_name"><option value="Not Applicable">All Accounts</option>
 											<option value="Cash">Cash Accounts</option><option value="USSD">USSD Accounts</option></select></td>
 									</tr>
-									<tr><td><button class="btn" onclick="tracingReportExcel()">Get Transactions Trace Report In Excel</button></td>
-										<td><button class="btn" onclick="tracingReportPDF()">Get Transactions Trace Report In PDF</button></td></tr>
+									<tr><td><button class="btn" onclick="tracingReportExcel()" type="button">Get Transactions Trace Report In Excel</button></td>
+										<td><button class="btn" onclick="tracingReportPDF()" type="button">Get Transactions Trace Report In PDF</button></td></tr>
 								</tbody>
 							</form>
 						</table>
@@ -444,7 +451,7 @@ $(document).ready(function(){
 										<span class='right' th:text="${members.name}"></span><br><br>
 										<span class="left-below" th:text="${members.churchNumber}"></span>
 										<a class="right-blue-red" th:href="@{report-member(p=${Phone},q=${Password},
-									r=${Username},s=${user_pin},
+									r=${Username},
 									member_name=${members.name},member_number=${members.phoneNumber})}">Generate Member Statement</a>
 									</td>
 								</tr>
@@ -459,7 +466,7 @@ $(document).ready(function(){
 							<br>
 							<hr>
 							<table width="100%">
-								<form action="/cfms-web/personnel/get-member-statement" method="get" id="member_statement_specific" onsubmit="exportStatement()">
+								<form action="/cfms-web/personnel/get-member-statement" method="get" id="member_statement_specific" onsubmit="exportStatement()" target="_self">
 									<input type="hidden" name="username" id="member_username" th:value="${personnel_name}">
 									<input type="hidden" name="password" id="member_password" th:value="${personal_password}">
 									<input type="hidden" id="phone_member" name="phone_number" th:value="${personal_no}">
@@ -497,7 +504,7 @@ $(document).ready(function(){
 							<br>
 							<hr>
 							<table width="100%">
-								<form action="/cfms-web/personnel/local_church_off_statement" method="get" id="local_statement" onsubmit="return exportLocalChurch()">
+								<form action="/cfms-web/personnel/local_church_off_statement" method="get" id="local_statement" onsubmit="return exportLocalChurch()" target="_blank">
 									<input type="hidden" name="username" id="local_username" th:value="${personnel_name}">
 									<input type="hidden" name="password" id="local_password" th:value="${personal_password}">
 									<input type="hidden" id="phone_local" name="phone_number" th:value="${treasurer_no}">
@@ -574,7 +581,6 @@ $(document).ready(function(){
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="myChart.js"></script>
 <script src="/cfms-web/js/reports.js"></script>
 <script src="/cfms-web/js/validate-report.js"></script>
 

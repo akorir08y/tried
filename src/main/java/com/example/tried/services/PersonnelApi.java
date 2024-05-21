@@ -5,6 +5,10 @@ import com.example.tried.auth.dto.SMSResponse;
 import com.example.tried.auth.dto.SmsRequest;
 import com.example.tried.auth.funds.SelectTrustFunds;
 import com.example.tried.auth.funds.SelectTrustFundsResponse;
+import com.example.tried.auth.funds.delete.DeleteCashReceipting;
+import com.example.tried.auth.funds.delete.DeleteCashReceiptingResponse;
+import com.example.tried.auth.funds.non.SelectNonTrustFunds;
+import com.example.tried.auth.funds.non.SelectNonTrustFundsResponse;
 import com.example.tried.auth.member.specific.SpecificOfferingStatement;
 import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.auth.personnel.accounts.LocalChurchAccounts;
@@ -19,8 +23,11 @@ import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPayment
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.CashReceipting;
 import com.example.tried.auth.personnel.receipting.CashReceiptingResponse;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceipting;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceiptingResponse;
 import com.example.tried.auth.personnel.receipting.select.SelectCashReceipting;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript;
+import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript1;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscriptResponse;
 import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransfer;
 import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransferResponse;
@@ -55,6 +62,10 @@ public interface PersonnelApi {
 
     // Generate Trust Fund Transcript Report
     TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript) throws JsonProcessingException;
+
+
+    // Generate Trust Fund Transcript Report without Any Payment Modes
+    TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript) throws JsonProcessingException;
 
 
     // Select Local Church Accounts
@@ -121,4 +132,15 @@ public interface PersonnelApi {
 
     // Fund Transfer
     public MobileReceiveFundsTransferResponse getFundsTransfertoConference(MobileReceiveFundsTransfer fundsTransfer) throws JsonProcessingException;
+
+
+    public EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException;
+
+    // Delete Cash Receipts
+    public DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException;
+
+
+    // Select Non Trust Funds
+    public SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException;
 }
+

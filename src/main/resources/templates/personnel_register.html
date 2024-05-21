@@ -18,37 +18,37 @@
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a  th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a  th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -66,7 +66,7 @@
 		</a>
 		</li>
 		<li>
-		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
+		<a th:href="@{/cfms-web/authenticate/login}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -97,7 +97,6 @@
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
 		<input type="hidden" name="church_code" id="church_code" th:value="${church_code}">
-		<input type="hidden" name="pin" id="pin" th:value="${personal_pin}">
 
 
 		<!-- Order Details List -->

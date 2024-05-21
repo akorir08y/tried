@@ -8,12 +8,6 @@ import com.example.tried.auth.dashboard.deactivated.Authentication;
 import com.example.tried.auth.dashboard.deactivated.Deapayload;
 import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembers;
 import com.example.tried.auth.dashboard.deactivated.ListDeactivatedMembersResponse;
-import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccounts;
-import com.example.tried.auth.dashboard.payment.LocalChurchPaymentAccountsResponse;
-import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummary;
-import com.example.tried.auth.dashboard.trust_funds.LocalChurchTrustFundSummaryResponse;
-import com.example.tried.auth.dashboard.trust_funds.Payload;
-import com.example.tried.auth.dashboard.trust_funds.TransactionsItem;
 import com.example.tried.auth.dto.*;
 import com.example.tried.auth.enums.Receipt;
 import com.example.tried.auth.enums.SelectedLanguage;
@@ -26,7 +20,6 @@ import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPayment
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.services.AuthApi;
 import com.example.tried.services.PersonnelApi;
-import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -155,7 +148,7 @@ public class AuthControl {
         return "auth";
     }
 
-    @GetMapping(path="/personnel")
+    @GetMapping(path="/personnel-registered")
     public String loadPersonnelPage(@RequestParam("p")String p, @RequestParam("q")String q,Model model){
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -188,10 +181,13 @@ public class AuthControl {
                                   @RequestParam("password") String password, Model model,
                                   Model model2) throws JsonProcessingException {
 
+
         // Login Credentials
         LoginCredentials credentials = new LoginCredentials();
         credentials.setAccessNumber(username);
         credentials.setPin(password);
+
+        System.out.println("Credentials: " + credentials);
 
         // Login to the Users API
         AuthMemberResponse response = authApi.getMemberCredentials(credentials);
@@ -203,6 +199,8 @@ public class AuthControl {
         profilePayload.setMobileNumber("+" + username);
         profilePayload.setFromWithin(true);
         profile.setProfilepayload(profilePayload);
+
+        System.out.println("Profile Payload: " + profilePayload);
 
         MemberProfileResponse profiler = authApi.getMemberDetails(profile);
 
@@ -265,6 +263,10 @@ public class AuthControl {
 
         phone = phone.replace(",", "");
 
+        if(phone.startsWith("+254")){
+            phone = phone.substring(1,phone.length());
+        }
+
         // Further Registration of Files
         model.addAttribute("fullname", fullname);
         model.addAttribute("phone", phone);
@@ -315,8 +317,8 @@ public class AuthControl {
                                  @RequestParam("churchCode")String churchCode ,@RequestParam("phone") String phone,
                                  @RequestParam("phone_number_privacy")String phone_number_privacy, @RequestParam("language")String language,
                                  @RequestParam(value="phoneOwner", required = false)Boolean phoneOwner, @RequestParam(value="church_member", required = false)String churchMember,
-                                 @RequestParam("receipt_to") String receipt_to, @RequestParam(value="otherPhoneNumber", required = false) String otherPhoneNumber,
-                                 @RequestParam(value = "residence", required = false)String residence,@RequestParam("pin") String pin) throws JsonProcessingException {
+                                 @RequestParam("receipt_to") String receipt_to, @RequestParam(value = "residence", required = false)String residence,
+                                 @RequestParam("pin") String pin) throws JsonProcessingException {
 
         if (phoneOwner == null) {
             phoneOwner = false;
@@ -333,6 +335,10 @@ public class AuthControl {
         if(phone.startsWith("0")){
             phone = phone.substring(1, phone.length());
             phone = String.format("%s%s", "254", phone);
+        }
+
+        if(phone.startsWith("+254")){
+            phone = phone.substring(1,phone.length());
         }
 
         // Member Registration
@@ -355,6 +361,9 @@ public class AuthControl {
 
         AuthMemberRegistrationResponse response = authApi.registerMember(register);
         System.out.println("Response: " + response);
+
+        String responsed;
+
         if(response != null){
             if(response.getStatus() == 0){
 
@@ -404,14 +413,20 @@ public class AuthControl {
                 System.out.println("SMS Response: "+ response1);
                 return "redirect:/authenticate/login";
 
-            }else{
-                String responsed = "Registration was not Successful";
-                return "redirect:/authenticate/register-member?q=" + responsed;
+            }else if(response.getStatus() == 1){
+                if(response.getNotice() != null) {
+                    responsed = response.getNotice();
+                    return "redirect:/authenticate/register-member?q=" + responsed;
+                }else{
+                    responsed = response.getError();
+                    return "redirect:/authenticate/register-member?q=" + responsed;
+                }
             }
         }else{
-            String responsed = response.getError();
+            responsed = "Registration was not Successful";
             return "redirect:/authenticate/register-member?q=" + responsed;
         }
+        return "Registration Process Completed";
     }
 
     // OfferingAuthentication on the Server Side
@@ -420,6 +435,10 @@ public class AuthControl {
                               @RequestParam("password") String password,
                               @RequestParam("phone_number") String phone_number,
                               @RequestParam("pin") String pin, Model model, Model model2, Model model3) throws JsonProcessingException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
         // Member Profile Information
         MemberProfile memberProfile = new MemberProfile();
@@ -486,8 +505,6 @@ public class AuthControl {
             model2.addAttribute("personnel_name", username);
             model2.addAttribute("personnel_password", password);
             model2.addAttribute("personnel_phone", phone_number);
-            model2.addAttribute("personal_pin", pin);
-            model2.addAttribute("user_pin", pin_encode);
             model3.addAttribute("Username", user_encode);
             model3.addAttribute("Password", pass_encode);
             model3.addAttribute("Phone", phone_encode);
@@ -502,10 +519,90 @@ public class AuthControl {
         }
     }
 
+
+    // Personnel Authentication on the Server Side
+    @PostMapping(path="/personnel")
+    public String serverLogin(@RequestParam("username") String username,
+                              @RequestParam("password") String password,
+                              Model model, Model model2, Model model3) throws JsonProcessingException {
+
+        // Login Credentials
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode("29999");
+
+        System.out.println("Personnel Login: "+personnel);
+        // Get the Member Response
+        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
+
+        System.out.println("Personnel Login Response: "+personnel);
+
+        // Session Numbers
+        final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Get the Number of Members in a Church
+        ListMembers members = new ListMembers();
+        // Personnel Details
+        String church_code = response.getPayload().getOrganisationNumber();
+        String church_name = response.getPayload().getOrganisationName();
+        String church_level = response.getPayload().getOrganisationLevel();
+        String personnel_name = response.getPayload().getPersonnelName();
+        String member_no = response.getPayload().getPersonnelCfmsNumber();
+        String phone_number = response.getPayload().getPersonnelPhone();
+
+        Dapayload dashboard = new Dapayload();
+        dashboard.setChurchName(church_name);
+        dashboard.setPassword(password);
+        dashboard.setUser(username);
+        dashboard.setChurchCode(church_code);
+
+        // Get Dashboard Information
+        members.setDapayload(dashboard);
+        ListMembersResponse dashboardResponse = authApi.getChurchMembers(members);
+
+        // Get the List of Local Church Members
+        List<MembersItem> membersList = dashboardResponse.getDarepayload().getMembers();
+
+        // Get the Treasurer Phone Number
+        String personnel_phone = response.getPayload().getPersonnelPhone();
+
+        // Credentials
+        //Base 32 Encode Phone
+        Base32 base321 = new Base32();
+        String user_encode = base321.encodeAsString(username.getBytes());
+        String pass_encode = base321.encodeAsString(password.getBytes());
+        String phone_encode = base321.encodeAsString(phone_number.getBytes());
+
+        // Get the Current Year
+        LocalDate localdate = LocalDate.now();
+        String previousMonth = localdate.getMonth().minus(1).toString();
+
+
+        if(response.getPayload().getPersonnelCfmsNumber() != null) {
+            model.addAttribute("Members", membersList);
+            model.addAttribute("ChurchSize", membersList.size());
+            model2.addAttribute("personnel_name", username);
+            model2.addAttribute("personnel_password", password);
+            model2.addAttribute("personnel_phone", phone_number);
+            model3.addAttribute("Username", user_encode);
+            model3.addAttribute("Password", pass_encode);
+            model3.addAttribute("Phone", phone_encode);
+            model3.addAttribute("PreviousMonth", WordUtils.capitalize(previousMonth.toLowerCase()));
+            return "personnel_dashboard";
+        }else {
+            String responsed = "Check your Login Credentials";
+            model.addAttribute("Error", responsed);
+            model.addAttribute("p", user_encode);
+            model.addAttribute("q", pass_encode);
+            return "redirect:/authenticate/login?p="+user_encode+"&q="+pass_encode+"&e="+responsed;
+        }
+    }
+
     // Registration on the Server Side
-    @GetMapping(path="/register")
+    @GetMapping(path="/register-member")
     public String ServerRegistration(){
-        return "register";
+        return "register-member";
     }
 
 
@@ -534,17 +631,21 @@ public class AuthControl {
 
     @GetMapping(path="/personnel_dashboard")
     public String getDashboard(@RequestParam("p") String p, @RequestParam("q") String q,
-                               @RequestParam("r") String r,@RequestParam("s") String s, Model model, Model model2, Model model3) throws JsonProcessingException {
+                               @RequestParam("r") String r, Model model, Model model2, Model model3) throws JsonProcessingException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
 
         // Session Numbers
@@ -598,7 +699,7 @@ public class AuthControl {
         model2.addAttribute("personnel_name", username);
         model2.addAttribute("personnel_password", password);
         model2.addAttribute("personnel_phone", phone_number);
-        model2.addAttribute("personnel_pin", user_pin);
+
 
         // Credentials
         //Base 32 Encode Phone
@@ -606,12 +707,10 @@ public class AuthControl {
         String user_encode = base321.encodeAsString(username.getBytes());
         String pass_encode = base321.encodeAsString(password.getBytes());
         String phone_encode = base321.encodeAsString(phone_number.getBytes());
-        String pin_encode = base321.encodeAsString(user_pin.getBytes());
+
         model3.addAttribute("Username", user_encode);
         model3.addAttribute("Password", pass_encode);
         model3.addAttribute("Phone", phone_encode);
-        model3.addAttribute("user_pin", pin_encode);
-
 
         // Get the Current Year
         LocalDate localdate = LocalDate.now();
@@ -625,22 +724,26 @@ public class AuthControl {
 
     @GetMapping(path="/personnel_register")
     public String getPersonnelRegistration(@RequestParam(value="p")String p,@RequestParam(value="q")String q
-                                        ,@RequestParam(value="r")String r,@RequestParam("s") String s,
+                                        ,@RequestParam(value="r")String r,
                                            Model model, Model model2,Model model3, Model model4) throws JsonProcessingException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
 
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
@@ -724,7 +827,7 @@ public class AuthControl {
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
-        model3.addAttribute("user_pin", s);
+
 
 
         // Credentials
@@ -750,11 +853,17 @@ public class AuthControl {
                                         @RequestParam(value="q")String q,
                                         Model model2) throws JsonProcessingException {
 
+
+
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         String phoneNumber = new String(decodedBytes);
         String pin = new String(decodedBytes1);
+
+        if(phoneNumber.startsWith("+254")){
+            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+        }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
@@ -816,6 +925,10 @@ public class AuthControl {
         model.addAttribute("pin",pin);
         model.addAttribute("Phone", p);
         model.addAttribute("Password", q);
+
+        if(phoneNumber.startsWith("+254")){
+            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+        }
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -903,6 +1016,10 @@ public class AuthControl {
 
         System.out.println("Phone Number Retrieved using Post Request: "+phoneNumber);
 
+        if(phoneNumber.startsWith("+254")){
+            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+        }
+
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
@@ -940,20 +1057,24 @@ public class AuthControl {
 
     @GetMapping("/personnel_receipting")
     public String getPersonnelReceipting(@RequestParam("p") String p,@RequestParam("q") String q,
-                                         @RequestParam("r") String r,@RequestParam("s") String s,Model model, Model model2, Model model3) throws JsonProcessingException {
+                                         @RequestParam("r") String r,Model model, Model model2, Model model3) throws JsonProcessingException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
@@ -1006,36 +1127,41 @@ public class AuthControl {
         model2.addAttribute("personal_no",phone_number);
         model2.addAttribute("personal_password",password);
         model2.addAttribute("personnel_name", username);
-        model2.addAttribute("personnel_pin", user_pin);
+
+        model2.addAttribute("church_code", church_code);
 
         // Encrypted Credentials
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
-        model3.addAttribute("user_pin", s);
+
 
         return "personnel_receipting";
     }
 
     @GetMapping("/reports")
     public String getReportsAndStatements(@RequestParam("p") String p,@RequestParam("q") String q,
-                                         @RequestParam("r") String r,@RequestParam("s") String s,Model model, Model model2, Model model3) throws JsonProcessingException {
+                                         @RequestParam("r") String r,Model model, Model model2, Model model3,
+                                          Model model4) throws JsonProcessingException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
         // Plaintext Credentials
         model.addAttribute("personal_no",phone_number);
         model.addAttribute("personal_password",password);
         model.addAttribute("personnel_name", username);
-        model.addAttribute("personnel_pin", user_pin);
 
 
         MemberProfile profile = new MemberProfile();
@@ -1085,7 +1211,66 @@ public class AuthControl {
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
-        model3.addAttribute("user_pin", s);
+
+
+        // Get Specific Accounts For Specific Summary Reports
+        RequestChurchDetails requestCode = new RequestChurchDetails();
+        requestCode.setChurchCode(church_code);
+        requestCode.setAccessPoint("Web App");
+        requestCode.setConnectionPurpose("Registration");
+        requestCode.setAccessNumber(phone_number);
+        requestCode.setMobileServiceProvider("Safaricom");
+
+        List<String> account_names = new ArrayList<String>();
+        List<String> account_number = new ArrayList<String>();
+        List<String> account_info = new ArrayList<String>();
+
+        RequestChurchDetailsResponse churchDetails = authApi.getMemberChurchDetails(requestCode);
+        System.out.println("Response: "+ churchDetails.getDepartmentalAccounts());
+        String cash = churchDetails.getDepartmentalAccounts();
+        String cash1 = churchDetails.getTrustFundAccounts();
+        String cash2 = churchDetails.getSpecialTrustFundAccounts();
+        // System.out.println("Raw: "+ cash);
+        cash = cash.substring(1, cash.length()-1);
+        cash1 = cash1.substring(1, cash1.length()-1);
+        cash2 = cash2.substring(1, cash2.length()-1);
+        // System.out.println("With Out Curly Brackets: "+cash);
+        String[] cashArray = cash.split(",");
+        String[] cashArray1 = cash1.split(",");
+        String[] cashArray2 = cash2.split(",");
+        // System.out.println("Split array:"+ cashArray);
+
+
+        // Non Trust Fund Accounts
+        for (int i = 0; i < cashArray.length; i++){
+            cashArray[i] = cashArray[i].substring(1,cashArray[i].length()-1);
+            String[]  accountInfo = cashArray[i].split("::");
+            account_names.add(accountInfo[0]);
+            account_number.add(accountInfo[1]);
+        }
+
+        // Trust Fund Accounts
+        for (int i = 0; i < cashArray1.length; i++){
+            cashArray1[i] = cashArray1[i].substring(1,cashArray1[i].length()-1);
+            String[]  accountInfo1 = cashArray1[i].split("::");
+            account_names.add(accountInfo1[0]);
+            account_number.add(accountInfo1[1]);
+        }
+
+        // Special Trust Fund Accounts
+        for (int i = 0; i < cashArray2.length; i++){
+            cashArray2[i] = cashArray2[i].substring(1,cashArray2[i].length()-1);
+            String[]  accountInfo2 = cashArray2[i].split("::");
+            account_names.add(accountInfo2[0]);
+            account_number.add(accountInfo2[1]);
+        }
+
+        for(int i=0; i<account_names.size(); i++){
+            account_info.add(account_names.get(i) + "#" + account_number.get(i));
+        }
+
+        model4.addAttribute("AccountDetails", account_info);
+        model4.addAttribute("AccountNumbers", account_number);
 
         return "reports";
     }
@@ -1093,7 +1278,7 @@ public class AuthControl {
 
     @GetMapping("/report-member")
     public String getMemberStatement(@RequestParam("p") String p,@RequestParam("q") String q,
-                                          @RequestParam("r") String r,@RequestParam("s") String s,
+                                          @RequestParam("r") String r,
                                      @RequestParam("member_name") String member_name,@RequestParam("member_number") String member_number,
                                      Model model, Model model2, Model model3) throws JsonProcessingException {
 
@@ -1101,17 +1286,20 @@ public class AuthControl {
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
         // Plaintext Credentials
         model.addAttribute("personal_no",phone_number);
         model.addAttribute("personal_password",password);
         model.addAttribute("personnel_name", username);
-        model.addAttribute("personnel_pin", user_pin);
 
 
         MemberProfile profile = new MemberProfile();
@@ -1141,24 +1329,28 @@ public class AuthControl {
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
-        model3.addAttribute("user_pin", s);
+
 
         return "report-member";
     }
 
     @GetMapping("/manage_accounts")
     public String selectLocalChurchAccounts(@RequestParam("p") String p, @RequestParam("q") String q,
-                                            @RequestParam("r") String r,@RequestParam("s") String s,Model model, Model model2) throws IOException, JsonProcessingException {
+                                            @RequestParam("r") String r,Model model, Model model2) throws IOException, JsonProcessingException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
+
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }
 
 
         // Get the Member Profile
@@ -1238,32 +1430,30 @@ public class AuthControl {
         model.addAttribute("Phone", p);
         model.addAttribute("Password", q);
         model.addAttribute("Username", r);
-        model.addAttribute("user_pin", s);
         model.addAttribute("Accounts", accounts);
 
         // Plaintext Credentials
         model2.addAttribute("personal_no",phone_number);
         model2.addAttribute("personal_password",password);
         model2.addAttribute("personnel_name", username);
-        model2.addAttribute("personnel_pin", user_pin);
+
         return "manage_accounts";
     }
 
     @GetMapping("/fund_transfer")
     public String getPaymentAccounts(@RequestParam("p") String p, @RequestParam("q") String q,
-                                     @RequestParam("r") String r,@RequestParam("s") String s, Model model,
-                                     Model model2, Model model3) throws JsonProcessingException {
+                                     @RequestParam("r") String r, Model model,
+                                     Model model2, Model model3, Model model4) throws JsonProcessingException {
 
         // Encrypted Credentials
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
         byte[] decodedBytes2 = base32.decode(r);
-        byte[] decodedBytes3 = base32.decode(s);
+
         String phone_number = new String(decodedBytes);
         String password = new String(decodedBytes1);
         String username = new String(decodedBytes2);
-        String user_pin = new String(decodedBytes3);
 
 
         final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
@@ -1280,6 +1470,15 @@ public class AuthControl {
 
         // Get Membership Number
         MemberProfileResponse profiler = authApi.getMemberDetails(profile);
+
+        // Member Personnel
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(profiler.getPayload().getChurchCode());
+
+        MemberPersonnelResponse responsed = authApi.loginMemberPersonnel(personnel);
+        String treasurer_number = responsed.getPayload().getPersonnelPhone();
 
         // Request Church Details
         ListLocalChurchPaymentAccounts accounts = new ListLocalChurchPaymentAccounts();
@@ -1319,6 +1518,16 @@ public class AuthControl {
         model.addAttribute("cashList", cashList);
         model2.addAttribute("bankList", bankList);
 
+        // User Information Unencrypted
+        model3.addAttribute("personnel_name", username);
+        model3.addAttribute("personnel_password", password);
+        model3.addAttribute("personnel_no", phone_number);
+        model3.addAttribute("treasurer_no", treasurer_number);
+
+        // Encrypted Information
+        model4.addAttribute("Phone", p);
+        model4.addAttribute("Password", q);
+        model4.addAttribute("Username", r);
 
         return "fund_transfer";
     }

@@ -190,3 +190,23 @@ function showSpecificOfferingStatement(){
     specific_account_statement.style.display = "block";
     general_account_statement.style.display = "none";
 }
+
+
+// Get First and Last Date Statements
+function getFirstAndLastDate(){
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 2);
+    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+    firstDay = firstDay.toISOString().slice(0, 10);
+    lastDay = lastDay.toISOString().slice(0, 10);
+
+    // Member Offering Form Dates
+    document.getElementById("start_date").value = firstDay;
+    document.getElementById("end_date").value = lastDay;
+
+    // Member Offering Specific Form Dates
+    document.getElementById("start_date_specific").value = firstDay;
+    document.getElementById("end_date_specific").value = lastDay;
+
+}

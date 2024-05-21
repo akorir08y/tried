@@ -307,6 +307,16 @@ img {
   transition: transform .4s;
 }
 
+.personnel__login__form{
+  background-color: var(--container-color);
+  padding: 0.2rem 0.75rem 0.75rem;
+  box-shadow: 0 8px 32px hsla(230, 75%, 15%, .2);
+  border-radius: 1rem;
+  row-gap: 1.0rem;
+  text-align: center;
+  transform: translateY(-1rem);
+  transition: transform .4s;
+}
 
 .login__title {
   font-size: var(--h2-font-size);
@@ -380,7 +390,7 @@ img {
 
 .login__button {
   display: inline-block;
-  background-color: var(--first-color);
+  background-color: #24478f;
   width: 100%;
   color: #fff;
   font-weight: var(--font-semi-bold);
@@ -400,6 +410,12 @@ img {
   pointer-events: initial;
 }
 
+/* Show Personnel login */
+.show-personnel-login {
+  opacity: 1;
+  pointer-events: initial;
+}
+
 .show-register {
   opacity: 1;
   pointer-events: initial;
@@ -412,6 +428,10 @@ img {
 
 
 .show-login .login__form {
+  transform: translateY(0);
+}
+
+.show-personnel-login .personnel__login__form {
   transform: translateY(0);
 }
 
@@ -436,7 +456,7 @@ img {
   }
 
   .search__close,
-  .login__close,.register__close, .reset__pin__close {
+  .login__close,.register__close, .reset__pin__close, personnel__login__close {
     width: max-content;
     top: 5rem;
     left: 0;
@@ -445,13 +465,13 @@ img {
     font-size: 2rem;
   }
 
-  .login__form,.reset__pin__form{
-    max-width: 400px;
+  .login__form,.reset__pin__form,.personnel__login__form{
+    max-width: 330px;
     margin-inline: auto;
   }
 
   .register__form{
-    max-width: 550px;
+    max-width: 430px;
     margin-inline: auto;
   }
 }
@@ -474,7 +494,7 @@ img {
     column-gap: 3rem;
   }
 
-  .login__form, .register__form, .reset__pin__form {
+  .login__form, .register__form, .reset__pin__form ,.personnel__login__form{
     padding: 2rem 2rem 2.5rem;
   }
 }
@@ -485,7 +505,7 @@ img {
   }
 }
 
-#time, #time1 , #time2{
+#time, #time1 , #time2, #time3, #time4{
   text-align:center;
   font-size:16px;
   color:black;
@@ -506,7 +526,7 @@ img {
 }
 
 
-#reset-icon1, #reset-icon2,#reset-icon3, #reset-icon4, #reset-icon5{
+#reset-icon1, #reset-icon2,#reset-icon3, #reset-icon4, #reset-icon5, #reset-icon6{
   font-size: 22px;
   position: absolute;
   margin-left: -30px;
@@ -522,7 +542,7 @@ img {
   color: #24478f;
 }
 
-#pin-icon1, #pin-icon2, #pin-icon3, #pin-icon4, #pin-icon5{
+#pin-icon1, #pin-icon2, #pin-icon3, #pin-icon4, #pin-icon5, #pin-icon6{
   font-size: 22px;
   position: absolute;
   margin-top: 5px;
@@ -530,7 +550,7 @@ img {
   color: #24478f;
 }
 
-#phone-icon1, #phone-icon2, #phone-icon3{
+#phone-icon1, #phone-icon2, #phone-icon3,#user-icon1{
   font-size: 22px;
   position: absolute;
   margin-top: 5px;

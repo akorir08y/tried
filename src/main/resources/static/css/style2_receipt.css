@@ -397,6 +397,17 @@ font-size: 1.2em;
 	border-radius: 6px;
 }
 
+.btn-red{
+	position: relative;
+	padding: 10px 15px;
+	background: #560319;
+	text-decoration: none;
+	color: var(--white);
+	border:none;
+	font-size:12px;
+	border-radius: 6px;
+}
+
 #myInput{
 	margin-top:10px;
 	border:none;

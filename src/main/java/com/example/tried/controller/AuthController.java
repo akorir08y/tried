@@ -20,6 +20,7 @@ import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSumm
 import com.example.tried.auth.personnel.reports.offering.LocalChurchPayload;
 import com.example.tried.auth.personnel.reports.transcript.TransactionItem;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript;
+import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript1;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscriptResponse;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracing;
 import com.example.tried.auth.personnel.tracing.LocalChurchTransactionTracingResponse;
@@ -48,6 +49,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
@@ -252,13 +254,25 @@ public class AuthController {
         return authApi.VerifyPhoneNumber(recipient);
     }
 
+    // Send the Personnel OTP
+    @PostMapping(path="/otp-personnel",produces = "application/json")
+    public SMSResponse sendOTP(@RequestParam("username") String username,@RequestParam("password") String password) throws JsonProcessingException {
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode("29999");
+
+        MemberPersonnelResponse responsed = authApi.loginMemberPersonnel(personnel);
+        String phone_number = responsed.getPayload().getPersonnelPhone();
+        return authApi.VerifyPhoneNumber(phone_number);
+    }
+
     @PostMapping(value="/registration")
-    public AuthMemberRegistrationResponse registerMember(@RequestParam("fullname_new") String fullname, @RequestParam("email_new") String email,
-                                 @RequestParam("churchCode_new")String churchCode ,@RequestParam("phone_new") String phone,
-                                 @RequestParam("phone_number_privacy_new")String phone_number_privacy, @RequestParam("language_new")String language,
-                                 @RequestParam(value="phoneOwner_new", required = false)Boolean phoneOwner, @RequestParam(value="church_member_new", required = false)String churchMember,
-                                 @RequestParam("receipt_to_new") String receipt_to, @RequestParam(value="otherPhoneNumber_new", required = false) String otherPhoneNumber,
-                                 @RequestParam(value = "residence_new", required = false)String residence) throws JsonProcessingException {
+    public AuthMemberRegistrationResponse registerMember(@RequestParam("fullname_new") String fullname, @RequestParam(value="email_new", required = false) String email,
+                                 @RequestParam("church_code_new")String churchCode ,@RequestParam("phone_new") String phone,
+                                 @RequestParam(value="phone_number_privacy_new", required = false)String phone_number_privacy, @RequestParam(value="language_new", required = false)String language,
+                                 @RequestParam(value="phone_owner_new", required = false)Boolean phoneOwner, @RequestParam(value="church_member_new", required = false)String churchMember,
+                                 @RequestParam(value="receipt_to_new", required = false) String receipt_to,@RequestParam(value = "residence_new", required = false)String residence) throws JsonProcessingException {
 
 
         if (phoneOwner == null) {
@@ -302,56 +316,69 @@ public class AuthController {
         AuthMemberRegistrationResponse response = authApi.registerMember(register);
         System.out.println("Response: " + response);
 
-        String creation_date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH).format(new Date());
+        String responsed;
 
-        // Sending SMS to the Registered Number
+        if(response != null){
+            if(response.getStatus() == 0){
 
-        String cfms_web = "https://lakeatts.co.ke:8443/cfms-web/authenticate/login";
+                String creation_date = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH).format(new Date());
 
-        String message = "<#>Your CFMS account has been created at " + creation_date +".\n";
-        message += "Your Pin is "+generated_pin+" . Use the pin to set a new one within 7 days.\n";
-        message += "You can now visit the CFMS Web App on this particular URL "+cfms_web + " Or Alternatively, \n";
-        message += "You can now download CFMS Android App From Play Store.";
+                String cfms_web = "https://lakeatts.co.ke:8443/cfms-web/authenticate/login";
+
+                String message = "<#>Your CFMS account has been created at " + creation_date +".\n";
+                message += "Your Pin is "+generated_pin+" . Use the pin to set a new one within 7 days.\n";
+                message += "You can now visit the CFMS Web App on this particular URL "+cfms_web + " Or Alternatively, \n";
+                message += "You can now download CFMS Android App From Play Store.";
 
 
-        // OfferingAuthentication Details
-        com.example.tried.auth.dto.Authentication authentication = new com.example.tried.auth.dto.Authentication();
-        authentication.setUserName("");
-        authentication.setPassword("");
+                // OfferingAuthentication Details
+                com.example.tried.auth.dto.Authentication authentication = new com.example.tried.auth.dto.Authentication();
+                authentication.setUserName("");
+                authentication.setPassword("");
 
-        //SMS Request
-        SmsRequest smsRequest = new SmsRequest();
-        smsRequest.setMessageGroup("Individual");
+                //SMS Request
+                SmsRequest smsRequest = new SmsRequest();
+                smsRequest.setMessageGroup("Individual");
 
-        if(!phone.startsWith("+")){
-            phone = String.format("%s%s", "+",phone);
+                // List of Strings/
+                List<String> Number = new ArrayList<>();
+                if(phone.startsWith("254")) {
+                    Number.add(phone);
+                }
+                smsRequest.setPhoneNumber(Number);
+
+                // Additional Information
+                smsRequest.setClientAccount("");
+                smsRequest.setClientName("");
+                smsRequest.setClintLevel("");
+                smsRequest.setDate(creation_date);
+                smsRequest.setMessages(message);
+
+                // The Function Name
+                String function = "lakeattsSMSGateway";
+
+                // Combine All Collected Data
+                SMS sms = new SMS();
+                sms.setSmsRequest(smsRequest);
+                sms.setAuthentication(authentication);
+                sms.setFunction(function);
+
+                SMSResponse response1 = personnelApi.sendRegistrationMessage(sms);
+                System.out.println("SMS Response: "+ response1);
+                return response;
+
+            }else if(response.getStatus() == 1){
+                if(response.getNotice() != null) {
+                    responsed = response.getNotice();
+                    log.error("Error:" + responsed);
+                    return response;
+                }else{
+                    responsed = response.getError();
+                    log.error("Error:" + responsed);
+                    return response;
+                }
+            }
         }
-
-        // List of Strings/
-        List<String> Number = new ArrayList<>();
-        if(phone.startsWith("+254")) {
-            Number.add(phone);
-        }
-        smsRequest.setPhoneNumber(Number);
-
-        // Additional Information
-        smsRequest.setClientAccount("");
-        smsRequest.setClientName("");
-        smsRequest.setClintLevel("");
-        smsRequest.setDate(creation_date);
-        smsRequest.setMessages(message);
-
-        // The Function Name
-        String function = "lakeattsSMSGateway";
-
-        // Combine All Collected Data
-        SMS sms = new SMS();
-        sms.setSmsRequest(smsRequest);
-        sms.setAuthentication(authentication);
-        sms.setFunction(function);
-
-        SMSResponse response1 = personnelApi.sendRegistrationMessage(sms);
-        System.out.println("SMS Response: "+ response1);
         return response;
     }
 
@@ -1038,10 +1065,19 @@ public class AuthController {
                                @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
                                @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2
                                ) throws JsonProcessingException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1,phone_number.length());
+        }else{
+            phone_number = phone_number;
+        }
+
         // Member Profile Information
+        MemberProfile profiler = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
         profilepayload.setMobileNumber("+" + phone_number);
+        profiler.setProfilepayload(profilepayload);
 
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -1057,10 +1093,6 @@ public class AuthController {
         memberDetails.setMempayload(mempayload);
 
         RequestMemberDetailsResponse MemberDetailsResponse = authApi.getFullMemberDetails(memberDetails);
-
-        // Member RPayload
-        MemberProfile profiler = new MemberProfile();
-        profiler.setProfilepayload(profilepayload);
 
         // Get Membership Number
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
@@ -1821,6 +1853,7 @@ public class AuthController {
 
         // Authentication
         TrustFundTranscript transcript = new TrustFundTranscript();
+        TrustFundTranscript1 transcript1 = new TrustFundTranscript1();
         com.example.tried.auth.personnel.reports.transcript.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.transcript.Authentication();
 
@@ -1834,20 +1867,36 @@ public class AuthController {
 
         com.example.tried.auth.personnel.reports.transcript.Payload payload = new
                 com.example.tried.auth.personnel.reports.transcript.Payload();
-        payload.setChurchName(response.getPayload().getOrganisationName());
-        payload.setChurchCode(response.getPayload().getOrganisationNumber());
+
+        com.example.tried.auth.personnel.reports.transcript.Payload1 payload1 = new
+                com.example.tried.auth.personnel.reports.transcript.Payload1();
+
+        TrustFundTranscriptResponse response1 = new TrustFundTranscriptResponse();
+        TrustFundTranscriptResponse response2 = new TrustFundTranscriptResponse();
+
+        List<TransactionItem> transaction = new ArrayList<TransactionItem>();
+
         if(account_name.equals("Cash") || account_name.equals("USSD")){
+            payload.setChurchName(response.getPayload().getOrganisationName());
+            payload.setChurchCode(response.getPayload().getOrganisationNumber());
             payload.setMeansOfPayment(account_name);
+            payload.setStartDate(start_date);
+            payload.setEndDate(end_date);
+            transcript.setPayload(payload);
+            transcript.setAuthentication(authentication);
+            response1 = personnelApi.getTrustFundTranscript(transcript);
+            transaction = response1.getTrpayload().getTransactions();
+        }else{
+            payload1.setChurchName(response.getPayload().getOrganisationName());
+            payload1.setChurchCode(response.getPayload().getOrganisationNumber());
+            payload1.setStartDate(start_date);
+            payload1.setEndDate(end_date);
+            transcript1.setPayload(payload1);
+            transcript1.setAuthentication(authentication);
+            response2 = personnelApi.getTrustFundTranscriptAll(transcript1);
+            transaction = response2.getTrpayload().getTransactions();
         }
-        payload.setStartDate(start_date);
-        payload.setEndDate(end_date);
 
-        transcript.setAuthentication(authentication);
-        transcript.setPayload(payload);
-
-        TrustFundTranscriptResponse response1 = personnelApi.getTrustFundTranscript(transcript);
-
-        List<TransactionItem> transaction = response1.getTrpayload().getTransactions();
 
         System.out.println("Trust Fund Transcript: " + transaction);
 
@@ -1938,8 +1987,8 @@ public class AuthController {
         reportExcel.export(outResponse,transaction);
     }
 
-    @GetMapping("/export/trust-fund-transcript/pdf")
-    public String generateTrustFundTranscript(HttpServletResponse outResponse,String start_date,String end_date,String username,
+    @GetMapping("/export/specific-account-summary/pdf")
+    public String generateSpecificAccountSummary(HttpServletResponse outResponse,String start_date,String end_date,String username,
                                               String password, String phone_number, String account_name) throws IOException, JsonProcessingException {
 
         if(phone_number.startsWith("+254")){
@@ -2003,16 +2052,17 @@ public class AuthController {
         outResponse.setContentType("application/pdf");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=trust_fund_transcript-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
+        String headerValue = "attachment; filename=specific_account_summary-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
         outResponse.setHeader(headerKey, headerValue);
 
         specificAccountSummaryReport.getSpecificAccountSummaryReport(phone_number,outResponse, start_date, end_date, username, password, responsed);
-        return "Generate Trust Fund Transcript";
+        return "Generate Specific Account Summary Reports";
     }
 
 
-    @GetMapping("/export/specific-account-summary/pdf")
-    public String generateSpecificAccountSummary(HttpServletResponse outResponse,String start_date,String end_date,String username,
+
+    @GetMapping("/export/trust-fund-transcript/pdf")
+    public String generateTrustFundTranscript(HttpServletResponse outResponse,String start_date,String end_date,String username,
                                               String password, String phone_number, String account_name) throws IOException, JsonProcessingException {
 
         if(phone_number.startsWith("+254")){
@@ -2046,6 +2096,9 @@ public class AuthController {
 
         // Authentication
         TrustFundTranscript transcript = new TrustFundTranscript();
+        TrustFundTranscript1 transcript1 = new TrustFundTranscript1();
+
+
         com.example.tried.auth.personnel.reports.transcript.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.transcript.Authentication();
 
@@ -2059,27 +2112,54 @@ public class AuthController {
 
         com.example.tried.auth.personnel.reports.transcript.Payload payload = new
                 com.example.tried.auth.personnel.reports.transcript.Payload();
-        payload.setChurchName(response.getPayload().getOrganisationName());
-        payload.setChurchCode(response.getPayload().getOrganisationNumber());
+
+        com.example.tried.auth.personnel.reports.transcript.Payload1 payload1 = new
+                com.example.tried.auth.personnel.reports.transcript.Payload1();
+
+        TrustFundTranscriptResponse response1 = new TrustFundTranscriptResponse();
+        TrustFundTranscriptResponse response2 = new TrustFundTranscriptResponse();
+
+        List<TransactionItem> transaction = new ArrayList<TransactionItem>();
+
         if(account_name.equals("Cash") || account_name.equals("USSD")){
+            payload.setChurchName(response.getPayload().getOrganisationName());
+            payload.setChurchCode(response.getPayload().getOrganisationNumber());
             payload.setMeansOfPayment(account_name);
+            payload.setStartDate(start_date);
+            payload.setEndDate(end_date);
+            transcript.setPayload(payload);
+            transcript.setAuthentication(authentication);
+            response1 = personnelApi.getTrustFundTranscript(transcript);
+            transaction = response1.getTrpayload().getTransactions();
+
+
+            outResponse.setContentType("application/pdf");
+
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename=trust_fund_transcript-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
+            outResponse.setHeader(headerKey, headerValue);
+
+            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, username, password, response1);
+        }else{
+            payload1.setChurchName(response.getPayload().getOrganisationName());
+            payload1.setChurchCode(response.getPayload().getOrganisationNumber());
+            payload1.setStartDate(start_date);
+            payload1.setEndDate(end_date);
+            transcript1.setPayload(payload1);
+            transcript1.setAuthentication(authentication);
+            response2 = personnelApi.getTrustFundTranscriptAll(transcript1);
+            transaction = response2.getTrpayload().getTransactions();
+
+            outResponse.setContentType("application/pdf");
+
+            String headerKey = "Content-Disposition";
+            String headerValue = "attachment; filename=trust_fund_transcript-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
+            outResponse.setHeader(headerKey, headerValue);
+
+            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, username, password, response2);
         }
-        payload.setStartDate(start_date);
-        payload.setEndDate(end_date);
 
-        transcript.setAuthentication(authentication);
-        transcript.setPayload(payload);
-
-        TrustFundTranscriptResponse response1 = personnelApi.getTrustFundTranscript(transcript);
-
-        outResponse.setContentType("application/pdf");
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=specific_account_summary-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
-        outResponse.setHeader(headerKey, headerValue);
-
-        transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, username, password, response1);
-        return "Generate Specific Account Summary";
+        return "Generate Trust Fund Transcript";
     }
 
 
@@ -2147,7 +2227,7 @@ public class AuthController {
         nonTrustFundSummary.setPayload(payload);
         System.out.println("Local Non Trust Fund Summary: "+nonTrustFundSummary);
 
-        String headerValue = "attachment; filename=" + username + ".xlsx";
+        String headerValue = "attachment; filename=local_non-trust-fund-"+ start_date +"-"+ end_date +"-"+ church_name + ".xlsx";
         response.setHeader(headerKey, headerValue);
 
 
@@ -2227,7 +2307,7 @@ public class AuthController {
         response.setContentType("application/pdf");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=local_non_trust_fund " + start_date +" - "+ end_date  + ".pdf";
+        String headerValue = "attachment; filename=local_non_trust_fund " + start_date +" - "+ end_date + "-"+church_name+".pdf";
         response.setHeader(headerKey, headerValue);
 
         testPDFSummary.nonTrustFundSummaryReport(response, phone_number, start_date, end_date, membersItems, accounts);
@@ -2758,5 +2838,22 @@ public class AuthController {
 
         RequestChurchDetailsWithCodeResponse detailsWithCodeResponse = authApi.getChurchCodeDetails(requestCode);
         return detailsWithCodeResponse;
+    }
+
+
+    // Personnel Login
+    @PostMapping(path="/auth-personnel")
+    public MemberPersonnelResponse personnelLogin(@RequestParam("username") String username,
+                              @RequestParam("password") String password) throws JsonProcessingException {
+
+        // Member Personnel Response
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setChurchCode("29999");
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        MemberPersonnelResponse responsed = authApi.loginMemberPersonnel(personnel);
+        System.out.println("Personnel Login Response: "+ responsed);
+        return responsed;
     }
 }

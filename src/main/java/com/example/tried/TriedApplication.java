@@ -23,13 +23,13 @@ public class TriedApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(TriedApplication.class, args);
 	}
-
 	@Bean
 	public OkHttpClient getOkHttpClient() {
 		OkHttpClient okHttpClient = new OkHttpClient.Builder()
-				.connectTimeout(60, TimeUnit.SECONDS)
-				.readTimeout(60, TimeUnit.SECONDS)
-				.writeTimeout(60, TimeUnit.SECONDS)
+				.connectTimeout(90, TimeUnit.SECONDS)
+				.readTimeout(90, TimeUnit.SECONDS)
+				.writeTimeout(90, TimeUnit.SECONDS)
+				.retryOnConnectionFailure(true)
 				.build();
 		return okHttpClient;
 	}
@@ -38,7 +38,7 @@ public class TriedApplication extends SpringBootServletInitializer {
 	@Bean
 	public ObjectMapper getObjectMapper() {
 		ObjectMapper defaultObjectMapper = new ObjectMapper();
-		defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
 		return defaultObjectMapper;
 	}
 

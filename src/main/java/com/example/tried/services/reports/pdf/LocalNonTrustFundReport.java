@@ -186,10 +186,11 @@ public class LocalNonTrustFundReport {
         }
 
         Image image = new Image(imageData);
-        table.setWidthPercent(50).
+        image.scaleToFit(180,120);
+        table.setWidthPercent(90).
                 setBorder(Border.NO_BORDER);
 
-        table.addCell(new Cell().add(image.scaleAbsolute(180, 80))
+        table.addCell(new Cell().add(image.scaleAbsolute(180, 120))
                 .setHorizontalAlignment(HorizontalAlignment.LEFT)
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
@@ -204,7 +205,7 @@ public class LocalNonTrustFundReport {
 
         RequestChurchDetailsResponse response1 = authApi.getMemberChurchDetails(churchDetails);
 
-        table.setWidthPercent(50);
+        table.setWidthPercent(10);
 
         table.addCell(new Cell().add("Seventh Day Adventist")
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
@@ -253,7 +254,8 @@ public class LocalNonTrustFundReport {
                 .setBold()
                 .setFontSize(font_size));
 
-        table.setHorizontalAlignment(HorizontalAlignment.RIGHT).setMarginTop(-100f);
+        table.setHorizontalAlignment(HorizontalAlignment.RIGHT).
+                setVerticalAlignment(VerticalAlignment.TOP).setMarginTop(-120f);
     }
 
     private void addHorizontalLine(Table invoice_header,String start_date,String end_date,String church_name){
@@ -419,6 +421,7 @@ public class LocalNonTrustFundReport {
     private void getSignature(Table signature) {
 
         signature.setMarginTop(50f);
+        signature.setWidthPercent(100);
 
         signature.addCell(new Cell().add("Treasurer").setFontSize(7)
                 .setFont(bolden)

@@ -178,10 +178,11 @@ public class TrustFundSummary {
         }
 
         Image image = new Image(imageData);
+        image.scaleToFit(180,120);
         table.setWidthPercent(50).
                 setBorder(Border.NO_BORDER);
 
-        table.addCell(new Cell().add(image.scaleAbsolute(180, 80))
+        table.addCell(new Cell().add(image.scaleAbsolute(180, 120))
                 .setHorizontalAlignment(HorizontalAlignment.LEFT)
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }

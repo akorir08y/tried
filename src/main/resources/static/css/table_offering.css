@@ -294,3 +294,12 @@ h2{
   opacity: 0.9;
   font-size: 13px;
 }
+
+
+#paybill_div{
+    background-color: #24478f;
+    padding: 20px;
+    text-align: center;
+    border-radius: 15px;
+    color:white;
+}

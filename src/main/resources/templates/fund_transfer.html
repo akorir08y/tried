@@ -23,7 +23,7 @@
 	}
 </style>
 </head>
-<body>
+<body onload="getMemberFirstAndLastDate()">
 <div class="container">
 <div class="navigation">
 	<ul>
@@ -33,37 +33,37 @@
 		<span class="icon" >Home</span>
 		</a>
 		<li id="dash">
-			<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 				<span class="title">Dashboard</span>
 			</a>
 		</li>
 		<li>
-			<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 				<span class="title">Registration</span>
 			</a>
 		</li>
 		<li>
-			<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 				<span class="title">Manage Accounts</span>
 			</a>
 		</li>
 		<li>
-			<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 				<span class="title">Fund Transfers</span>
 			</a>
 		</li>
 		<li>
-			<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 				<span class="title">Reports and Statements</span>
 			</a>
 		</li>
 		<li>
-			<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+			<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
 				<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 				<span class="title">Receipting and Reconciliation</span>
 			</a>
@@ -81,7 +81,7 @@
 			</a>
 		</li>
 		<li>
-			<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
+			<a th:href="@{/authenticate/login}">
 				<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 				<span class="title">Sign Out</span>
 			</a>
@@ -106,9 +106,9 @@
 			</div>
 		</div>
 
-		<input type="hidden" name="username" id="username" value="cmk">
-		<input type="hidden" name="password" id="password" value="cfms2024">
-		<input type="hidden" name="phone_number" id="phone_number" value="254797705390">
+		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
+		<input type="hidden" name="password" id="password" th:value="${personnel_password}">
+		<input type="hidden" name="phone_number" id="phone_number" th:value="${treasurer_no}">
 		
 		
 		<!-- Order Details List -->
@@ -232,8 +232,7 @@
 				<div class="loader" id="loader_spin_transfer" style="display:none;"></div>
 				<div id="content2"></div>
 			</div>
-
-				<div id="transfer_to_local_bank" style="display:none;">
+			<div id="transfer_to_local_bank" style="display:none;">
 					<div class="cardHeader">
 						<h2 style="text-align:center;margin-top:10px;margin-bottom:10px">Transfer to Conference</h2>
 						<div class="responseDiv" style="display:none;"></div>
@@ -243,26 +242,64 @@
 					<table>
 						<tbody>
 						<tr>
-							<td><label class="label_input" for="source_account"><b> Source Account</b></label></td>
-							<td><select class="login_input" aria-label="Default Select Example" id="source_account_bank" readonly>
-								<option value="Cash">Cash</option>
-							</select></td>
-						</tr>
-						<tr id="cash_option_bank">
-							<td><label class="label_input" for="cash_source_account"><b>Cash Account</b></label></td>
-							<td><select class="login_input" aria-label="Default Select Example" id="cash_source_account_bank">
-								<option value="Cash Account:104001(13274)">Cash Account:104001(13274)</option>
-							</select></td>
+							<td>From Date</td>
+							<td>To Date</td>
 						</tr>
 						<tr>
-							<td><button type="button" class="btn">Get Fund Data</button></td>
+							<td><input type="date" id="start_date_non" name="from_date"></td>
+							<td><input type="date" id="end_date_non" name="to_date"></td>
+						</tr>
+						<tr>
+							<td><label class="label_input" for="source_account"><b> Source Account</b></label></td>
+							<td><select class="login_input" aria-label="Default Select Example" id="source_account_non" onchange="getSourceNonAccount()">
+								<option value="Cash">Cash</option>
+								<option value="Bank Deposits">Bank Deposits</option>
+							</select></td>
 						</tr>
 						</tbody>
 					</table>
+
+					<div id="cash_option1">
+						<table>
+							<tr>
+								<td><label class="label_input" for="cash_source_account"><b>Cash Account</b></label></td>
+								<td colspan="2"><select class="login_input" aria-label="Default Select Example" id="cash_source_account_non">
+									<option th:each="source_account : ${cashList}"
+											th:value="${source_account}"
+											th:text="${source_account}"></option>
+								</select>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div id="bank_option1" style="display:none;">
+						<table>
+							<tr>
+								<td><label class="label_input" for="bank_source_account"><b>Bank Deposit Accounts</b></label></td>
+								<td colspan="2"><select class="login_input" aria-label="Default Select Example" id="bank_source_account_non">
+									<option th:each="source_account_bank : ${bankList}"
+											th:value="${source_account_bank}"
+											th:text="${source_account_bank}"></option>
+								</select></td>
+							</tr>
+						</table>
+					</div>
+					<tr>
+						<td><button type="button" class="btn" onclick="selectTrustFunds()">Get Fund Data</button></td>
+					</tr>
+					<tr>
+						<td><br></td>
+					</tr>
+					</table>
+					<br>
+					<br>
+					<div class="loader" id="loader_spin_transfer_non" style="display:none;"></div>
+					<div id="content_non2"></div>
 				</div>
 			
 			
 			<div id="trust_funds_div"></div>
+			<div id="non_trust_funds_div"></div>
 			
 			<div id="payment_div" style="display:none;">
 				
@@ -272,7 +309,7 @@
 							</tr>
 							<tr>
 								<td colspan="2">
-									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number" onclick="getPaymentNumber()">
 									  <label class="form-check-label" for="registered_number">
 										My Number
 									  </label>
@@ -280,12 +317,21 @@
 							</tr>
 							<tr>
 								  <td style="text-align:left;">
-									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number">
+									  <input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number" onclick="getPaymentNumber()">
 									  <label class="form-check-label" for="my_other_number">
 										My Other Number
 									  </label>	
 								  </td>
 							</tr>
+					</table>
+					<div id="other_number_div" style="display:none;">
+						 <table>
+							 <tr>
+								 <td><input type="text" id="other_number_fund" name="other_number" onkeyup="getNumberPaid()" onkeydown="getNumberPaid()"></td>
+							 </tr>
+						 </table>
+					</div>
+							<!--
 							<tr>
 								<td colspan="4" style="padding-top:10px;"><b>Other Methods:</b></td>
 							</tr>
@@ -297,17 +343,62 @@
 									  </label>
 								  </td>
 							</tr>
+							-->
+					<table>
 							<tr>
 								<td><br></td>
 							</tr>
 							<tr>
-								<td><br><p id="payment_line">Ensure 8560 /= has been deposited on the mobile money account for 254786439659</p></td>
+								<td><br><p id="payment_line"></p></td>
 							</tr>
 							<tr>
 								<td><button type="button" class="btn" onclick="fundsTransferToConference()">Initiate Transfer</button></td>
 							</tr>							
 					</table>
 				
+			</div>
+			<div id="payment_div1" style="display:none;">
+
+					<table>
+						<tr>
+							<td colspan="4" style="padding-top:10px;"><b>Initiate Payment From:</b></td>
+						</tr>
+						<tr>
+							<td colspan="2">
+								<input class="form-check-input" type="radio" name="flexRadioDefault4" id="registered_number1" onclick="getPaymentNumber1()">
+								<label class="form-check-label" for="registered_number">
+									My Number
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td style="text-align:left;">
+								<input class="form-check-input" type="radio" name="flexRadioDefault4" id="my_other_number1" onclick="getPaymentNumber1()">
+								<label class="form-check-label" for="my_other_number">
+									My Other Number
+								</label>
+							</td>
+						</tr>
+					</table>
+					<div id="other_number_div1" style="display:none;">
+						<table>
+							<tr>
+								<td><input type="text" id="other_number_fund1" name="other_number" onkeyup="getNumberPaid1()" onkeydown="getNumberPaid1()"></td>
+							</tr>
+						</table>
+					</div>
+					<table>
+						<tr>
+							<td><br></td>
+						</tr>
+						<tr>
+							<td><br><p id="payment_line1"></p></td>
+						</tr>
+						<tr>
+							<td><button type="button" class="btn" onclick="fundsTransferToBank()">Initiate Transfer</button></td>
+						</tr>
+					</table>
+
 			</div>
 			
 				

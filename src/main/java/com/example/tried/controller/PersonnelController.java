@@ -10,6 +10,10 @@ import com.example.tried.auth.financial.OfferingAuthentication;
 import com.example.tried.auth.financial.OfferingPayload;
 import com.example.tried.auth.funds.SelectTrustFunds;
 import com.example.tried.auth.funds.SelectTrustFundsResponse;
+import com.example.tried.auth.funds.delete.DeleteCashReceipting;
+import com.example.tried.auth.funds.delete.DeleteCashReceiptingResponse;
+import com.example.tried.auth.funds.non.SelectNonTrustFunds;
+import com.example.tried.auth.funds.non.SelectNonTrustFundsResponse;
 import com.example.tried.auth.member.*;
 import com.example.tried.auth.personnel.MemberPersonnel;
 import com.example.tried.auth.personnel.MemberPersonnelResponse;
@@ -27,6 +31,8 @@ import com.example.tried.auth.personnel.department.DepartmentResponse;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccounts;
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.*;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceipting;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceiptingResponse;
 import com.example.tried.auth.personnel.receipting.select.SelectCashReceipting;
 import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummary;
 import com.example.tried.auth.personnel.reports.offering.LocalChurchOfferingSummaryResponse;
@@ -336,16 +342,6 @@ public class PersonnelController {
         if(account_name.toLowerCase(Locale.ROOT).contains("account")){
             log.error("Account names should not contain the word 'Account'");
         }
-
-        /*
-            if(account_name.contains("Account")){
-                account_name = account_name.replace(" Account","");
-            }else if(account_name.contains("account")){
-                account_name = account_name.replace(" account","");
-            }else{
-                account_name = account_name;
-            }
-        */
 
         CreateLocalChurchAccount localChurchAccount = new CreateLocalChurchAccount();
 
@@ -767,6 +763,166 @@ public class PersonnelController {
         return receiptingResponse;
     }
 
+    // Edit a Cash Receipt For Members and Non Members
+    @PostMapping("/member_receipt_funds_edit")
+    public EditCashReceiptingResponse receiveFunds(@RequestParam("phone_number") String phone_number,
+                                                   @RequestParam("username") String username,
+                                                   @RequestParam("password") String password,
+                                                   @RequestParam("receipt_number") String receipt_number,
+                                                   @RequestParam("amount") int amount,
+                                                   @RequestParam("contribute") String contribute,
+                                                   @RequestParam("contribute_type") String contribute_type,
+                                                   @RequestParam("receiver_id") String receiver_id,
+                                                   @RequestParam("receiver_number") String receiver_number,
+                                                   @RequestParam("receiver_name") String receiver_name,
+                                                   @RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
+                                                   @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount,
+                                                   @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
+                                                   @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
+                                                   @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
+                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+
+        if(phone_number.contains("+")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s" ,"+", phone_number);
+        }
+
+
+        if(receiver_number.contains("+")){
+            receiver_number = receiver_number;
+        }else{
+            receiver_number = String.format("%s%s" ,"+", receiver_number);
+        }
+
+        // Member Profile Information (Treasure Information)
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber(phone_number);
+
+        // Receipted Member RPayload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Receipted Person Information
+        Profilepayload profilepayload1 = new Profilepayload();
+        profilepayload1.setFromWithin(true);
+        profilepayload1.setMobileNumber(receiver_number);
+
+        // Receipted Member RPayload
+        MemberProfile profiler1 = new MemberProfile();
+        profiler1.setProfilepayload(profilepayload1);
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+
+
+        // Request Church Details
+        ListLocalChurchPaymentAccounts accounts = new ListLocalChurchPaymentAccounts();
+        accounts.setSessionNumber(session_number1);
+        accounts.setUser(username);
+        accounts.setPassword(password);
+        accounts.setChurchCode(profile.getPayload().getChurchCode());
+        accounts.setChurchName(profile.getPayload().getChurchName());
+
+
+        ListLocalChurchPaymentAccountsResponse response = personnelApi.selectChurchPaymentAccounts(accounts);
+        String cash = response.getPayload().getCash();
+        cash = cash.substring(1, cash.length() - 1);
+        String [] cashArray = cash.split(",");
+        cashArray[0] = cashArray[0].substring(1,cashArray[0].length() - 1);
+        String [] accountInfo = cashArray[0].split("::");
+        String Account_Name =  accountInfo[0];
+        String [] accountInfo2 = accountInfo[1].split("\\(");
+        String Account_Number = accountInfo2[0];
+
+        EditCashReceipting receipting = new EditCashReceipting();
+
+        // Receipting Object
+        com.example.tried.auth.personnel.receipting.edit.Payload payload =
+                new com.example.tried.auth.personnel.receipting.edit.Payload();
+        payload.setAccessPoint("Web app");
+        payload.setAmount(amount);
+        payload.setMSISDN(phone_number);
+        payload.setCountryCode("KE");
+        payload.setNarration("Cash Received Through Web at "+ profile.getPayload().getChurchName());
+        payload.setPaymentMode("Cash");
+        payload.setAccountName(Account_Name);
+        payload.setAccountNumber(Account_Number);
+        payload.setSessionNumber(session_number);
+        payload.setCustomerNames(profile.getPayload().getMemberName());
+        payload.setDatePaymentReceived(String.valueOf(timestamp));
+
+        com.example.tried.auth.personnel.receipting.edit.ExtraData extraData = new com.example.tried.auth.personnel.receipting.edit.ExtraData();
+        HashMap<String, Integer> map1 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map2 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map3 = new HashMap<String, Integer>();
+
+        com.example.tried.auth.personnel.receipting.edit.FundDistribution fundDistribution = new
+                com.example.tried.auth.personnel.receipting.edit.FundDistribution();
+
+        if(trust_funds != null) {
+            for(int i = 0; i < trust_funds.length;i++){
+                map1.put(trust_funds[i], fund_amount[i]);
+            }
+            fundDistribution.setTrustFunds(map1);
+        }else{
+            fundDistribution.setTrustFunds(map1);
+        }
+
+        if(non_trust_funds != null) {
+            for(int i = 0; i < non_trust_funds.length;i++){
+                map2.put(non_trust_funds[i], fund_amount1[i]);
+            }
+            fundDistribution.setNonTrustFunds(map2);
+        }else {
+            fundDistribution.setNonTrustFunds(map2);
+        }
+
+        if(special_trust_funds != null){
+            for(int i = 0; i < special_trust_funds.length;i++){
+                map3.put(special_trust_funds[i], fund_amount2[i]);
+            }
+            fundDistribution.setSpecialTrustFunds(map3);
+        }else {
+            fundDistribution.setSpecialTrustFunds(map3);
+        }
+
+        extraData.setFundDistribution(fundDistribution);
+
+        // Member Details
+        com.example.tried.auth.personnel.receipting.edit.Member member = new com.example.tried.auth.personnel.receipting.edit.Member();
+        member.setReceiverContactType("Phone Number");
+        member.setReceiverId(receiver_id);
+        member.setReceiverName(receiver_name);
+        member.setReceiverContact(receiver_number);
+        member.setChurchCode(profile.getPayload().getChurchCode());
+        member.setChurchName(profile.getPayload().getChurchName());
+        member.setContributorContact(phone_number);
+        member.setContributorType(contribute_type);
+        member.setContributorContactType("Phone Number");
+        member.setContributorName(profile.getPayload().getMemberName());
+        member.setCollectingParty("Cfms Web");
+        member.setContributingFor(contribute);
+        member.setAccountName(Account_Name);
+        member.setAccountNumber(Account_Number);
+        member.setContributingAs(contribute_type);
+
+        extraData.setMember(member);
+        payload.setExtraData(extraData);
+        receipting.setPayload(payload);
+        receipting.setReceiptNumber(receipt_number);
+
+        EditCashReceiptingResponse receiptingResponse = personnelApi.editCashReceipt(receipting);
+        return receiptingResponse;
+    }
+
 
     @PostMapping("/member_receipt_funds_guest")
     public CashReceiptingResponse receiveFundsGuest(@RequestParam("phone_number") String phone_number,
@@ -924,6 +1080,167 @@ public class PersonnelController {
         return receiptingResponse;
     }
 
+
+    // Edit a Cash Receipt
+    @PostMapping("/member_receipt_funds_edit_guest")
+    public EditCashReceiptingResponse receiveFundsGuest(@RequestParam("phone_number") String phone_number,
+                                                   @RequestParam("username") String username,
+                                                   @RequestParam("password") String password,
+                                                   @RequestParam("receipt_number") String receipt_number,
+                                                   @RequestParam("amount") int amount,
+                                                   @RequestParam("contribute") String contribute,
+                                                   @RequestParam("contribute_type") String contribute_type,
+                                                   @RequestParam("receiver_id") String receiver_id,
+                                                   @RequestParam("receiver_number") String receiver_number,
+                                                   @RequestParam("receiver_name") String receiver_name,
+                                                   @RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
+                                                   @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount,
+                                                   @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
+                                                   @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
+                                                   @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
+                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+
+        if(phone_number.contains("+")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s" ,"+", phone_number);
+        }
+
+
+        if(receiver_number.contains("+")){
+            receiver_number = receiver_number;
+        }else{
+            receiver_number = String.format("%s%s" ,"+", receiver_number);
+        }
+
+        // Member Profile Information (Treasure Information)
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber(phone_number);
+
+        // Receipted Member RPayload
+        MemberProfile profiler = new MemberProfile();
+        profiler.setProfilepayload(profilepayload);
+
+        // Receipted Person Information
+        Profilepayload profilepayload1 = new Profilepayload();
+        profilepayload1.setFromWithin(true);
+        profilepayload1.setMobileNumber(receiver_number);
+
+        // Receipted Member RPayload
+        MemberProfile profiler1 = new MemberProfile();
+        profiler1.setProfilepayload(profilepayload1);
+
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
+
+        // Get Membership Number
+        MemberProfileResponse profile = authApi.getMemberDetails(profiler);
+
+
+        // Request Church Details
+        ListLocalChurchPaymentAccounts accounts = new ListLocalChurchPaymentAccounts();
+        accounts.setSessionNumber(session_number1);
+        accounts.setUser(username);
+        accounts.setPassword(password);
+        accounts.setChurchCode(profile.getPayload().getChurchCode());
+        accounts.setChurchName(profile.getPayload().getChurchName());
+
+
+        ListLocalChurchPaymentAccountsResponse response = personnelApi.selectChurchPaymentAccounts(accounts);
+        String cash = response.getPayload().getCash();
+        cash = cash.substring(1, cash.length() - 1);
+        String [] cashArray = cash.split(",");
+        cashArray[0] = cashArray[0].substring(1,cashArray[0].length() - 1);
+        String [] accountInfo = cashArray[0].split("::");
+        String Account_Name =  accountInfo[0];
+        String [] accountInfo2 = accountInfo[1].split("\\(");
+        String Account_Number = accountInfo2[0];
+
+        EditCashReceipting receipting = new EditCashReceipting();
+
+        // Receipting Object
+        com.example.tried.auth.personnel.receipting.edit.Payload payload =
+                new com.example.tried.auth.personnel.receipting.edit.Payload();
+        payload.setAccessPoint("Web app");
+        payload.setAmount(amount);
+        payload.setMSISDN(phone_number);
+        payload.setCountryCode("KE");
+        payload.setNarration("Cash Received Through Web at "+ profile.getPayload().getChurchName());
+        payload.setPaymentMode("Cash");
+        payload.setAccountName(Account_Name);
+        payload.setAccountNumber(Account_Number);
+        payload.setSessionNumber(session_number);
+        payload.setCustomerNames(profile.getPayload().getMemberName());
+        payload.setDatePaymentReceived(String.valueOf(timestamp));
+
+        com.example.tried.auth.personnel.receipting.edit.ExtraData extraData = new com.example.tried.auth.personnel.receipting.edit.ExtraData();
+        HashMap<String, Integer> map1 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map2 = new HashMap<String, Integer>();
+        HashMap<String, Integer> map3 = new HashMap<String, Integer>();
+
+        com.example.tried.auth.personnel.receipting.edit.FundDistribution fundDistribution = new
+                com.example.tried.auth.personnel.receipting.edit.FundDistribution();
+
+        if(trust_funds != null) {
+            for(int i = 0; i < trust_funds.length;i++){
+                map1.put(trust_funds[i], fund_amount[i]);
+            }
+            fundDistribution.setTrustFunds(map1);
+        }else{
+            fundDistribution.setTrustFunds(map1);
+        }
+
+        if(non_trust_funds != null) {
+            for(int i = 0; i < non_trust_funds.length;i++){
+                map2.put(non_trust_funds[i], fund_amount1[i]);
+            }
+            fundDistribution.setNonTrustFunds(map2);
+        }else {
+            fundDistribution.setNonTrustFunds(map2);
+        }
+
+        if(special_trust_funds != null){
+            for(int i = 0; i < special_trust_funds.length;i++){
+                map3.put(special_trust_funds[i], fund_amount2[i]);
+            }
+            fundDistribution.setSpecialTrustFunds(map3);
+        }else {
+            fundDistribution.setSpecialTrustFunds(map3);
+        }
+
+        extraData.setFundDistribution(fundDistribution);
+
+        // Member Details
+        com.example.tried.auth.personnel.receipting.edit.Member member = new com.example.tried.auth.personnel.receipting.edit.Member();
+        member.setReceiverContactType("Phone Number");
+        member.setReceiverId(receiver_id);
+        member.setReceiverName(receiver_name);
+        member.setReceiverContact(receiver_number);
+        member.setChurchCode(profile.getPayload().getChurchCode());
+        member.setChurchName(profile.getPayload().getChurchName());
+        member.setContributorContact(phone_number);
+        member.setContributorType(contribute_type);
+        member.setContributorContactType("Phone Number");
+        member.setContributorName(profile.getPayload().getMemberName());
+        member.setCollectingParty("Cfms Web");
+        member.setContributingFor(contribute);
+        member.setAccountName(Account_Name);
+        member.setAccountNumber(Account_Number);
+        member.setContributingAs(contribute_type);
+
+        extraData.setMember(member);
+        payload.setExtraData(extraData);
+        receipting.setPayload(payload);
+        receipting.setReceiptNumber(receipt_number);
+
+        EditCashReceiptingResponse receiptingResponse = personnelApi.editCashReceipt(receipting);
+        return receiptingResponse;
+    }
+
     @GetMapping("/accounts")
     public ListLocalChurchPaymentAccountsResponse getPaymentAccounts() throws JsonProcessingException {
         String phone_number = "254797705390";
@@ -1046,14 +1363,15 @@ public class PersonnelController {
         return churchDetails;
     }
 
+    // Get Local Church Offering Report Excel
     @GetMapping("/export/local_church_offering_report/excel")
-    public void getLocalChurchOfferingReport(@RequestParam("username") String username,
-                                             @RequestParam("password") String password,
-                                             @RequestParam("phone_number") String phone_number,
-                                             @RequestParam("start_date") String start_date,
-                                             @RequestParam("end_date") String end_date,
-                                             @RequestParam("means") String means_of_payment,
+    public void getLocalChurchOfferingReportExcel( String username, String password, String phone_number,
+                                             String start_date, String end_date, String means_of_payment, String input,
                                              HttpServletResponse Outresponse) throws IOException {
+        // Get the Phone Number
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+        }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
@@ -1111,19 +1429,21 @@ public class PersonnelController {
         Outresponse.setHeader(headerKey, headerValue);
 
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
+        System.out.println(responsed);
         LocalChurchOfferingReportExcel localChurchOfferingResponseExcel = new LocalChurchOfferingReportExcel();
         localChurchOfferingResponseExcel.export(Outresponse, responsed);
     }
 
-
+    // Get Local Church Offering Report PDF
     @GetMapping("/export/local_church_offering_report/pdf")
-    public void getLocalChurchOfferingReportPDF(@RequestParam("username") String username,
-                                             @RequestParam("password") String password,
-                                             @RequestParam("phone_number") String phone_number,
-                                             @RequestParam("start_date") String start_date,
-                                             @RequestParam("end_date") String end_date,
-                                             @RequestParam("means") String means_of_payment,
-                                             HttpServletResponse Outresponse) throws IOException {
+    public void getLocalChurchOfferingReportPDF(String username, String password, String phone_number, String start_date,
+                                              String end_date, String means_of_payment, String input, HttpServletResponse Outresponse) throws IOException {
+
+        // Get the Phone Number
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+        }
+
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
@@ -1181,9 +1501,95 @@ public class PersonnelController {
         Outresponse.setHeader(headerKey, headerValue);
 
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
+        System.out.println(responsed);
         localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed);
     }
 
+    // Get Local Church Offering Report
+    @GetMapping("/export/local_church_offering_report")
+    public void getLocalChurchOfferingReport(@RequestParam("username") String username,
+                                                @RequestParam("password") String password,
+                                                @RequestParam("phone_number") String phone_number,
+                                                @RequestParam("start_date") String start_date,
+                                                @RequestParam("end_date") String end_date,
+                                                @RequestParam("means") String means_of_payment,
+                                                @RequestParam("input") String input,HttpServletResponse Outresponse) throws IOException {
+
+        if(input.contains("PDF")){
+            getLocalChurchOfferingReportPDF(username, password, phone_number, start_date, end_date, means_of_payment, input, Outresponse);
+        }else if(input.contains("Excel")){
+            getLocalChurchOfferingReportExcel(username, password, phone_number, start_date, end_date, means_of_payment, input, Outresponse);
+        }
+        System.out.println("Local Church Offering Successfully Downloaded");
+    }
+
+
+    @PostMapping("/export/local_church_offering_report/html")
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReportHTML(@RequestParam("username") String username,
+                                             @RequestParam("password") String password,
+                                             @RequestParam("phone_number") String phone_number,
+                                             @RequestParam("start_date") String start_date,
+                                             @RequestParam("end_date") String end_date,
+                                             @RequestParam("means") String means_of_payment,HttpServletResponse Outresponse) throws IOException {
+
+        // Get the Phone Number
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+        }
+
+        // Member Profile
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        // Member Profile Response
+        MemberProfileResponse response = authApi.getMemberDetails(profile);
+
+        // Member Personnel RPayload
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setChurchCode(response.getPayload().getChurchCode());
+        personnel.setUser(username);
+        personnel.setPassword(password);
+
+        // Member Personnel Response
+        MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
+
+        LocalChurchOfferingSummary localChurchOfferingSummary = new LocalChurchOfferingSummary();
+
+        // Session Number
+        final int session_number = (int) ((Math.random() * 900000000) + 100000000);
+
+        com.example.tried.auth.personnel.reports.offering.Authentication authentication = new
+                com.example.tried.auth.personnel.reports.offering.Authentication();
+
+        // Authentication
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
+        authentication.setInstututionName(response1.getPayload().getOrganisationName());
+        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
+        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setSessionNumber(session_number);
+
+        // Local Church RPayload
+        LocalChurchPayload localChurchPayload = new LocalChurchPayload();
+        localChurchPayload.setChurchName(response1.getPayload().getOrganisationName());
+        localChurchPayload.setEndDate(end_date);
+        localChurchPayload.setStartDate(start_date);
+        localChurchPayload.setMeansOfPayment(means_of_payment);
+        localChurchPayload.setChurchCode(response1.getPayload().getOrganisationNumber());
+        localChurchPayload.setGroup("Not Applicable");
+
+        // Initialization RPayload
+        localChurchOfferingSummary.setAuthentication(authentication);
+        localChurchOfferingSummary.setPayload(localChurchPayload);
+
+        LocalChurchOfferingSummaryResponse response2 = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
+        System.out.println(response2);
+        return response2;
+    }
 
     @GetMapping("/select-account-json")
     public HashMap<String, Object> selectLocalChurchAccounts() throws IOException {
@@ -1432,6 +1838,12 @@ public class PersonnelController {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+        }else{
+            phone_number = phone_number;
+        }
+
 
         // Get the Member Authentication Details
         MemberProfile profile = new MemberProfile();
@@ -1465,6 +1877,68 @@ public class PersonnelController {
 
         SelectTrustFundsResponse selectTrustFundsResponse = personnelApi.getTrustFundsforTransfer(selectTrustFunds);
         return selectTrustFundsResponse;
+    }
+
+
+    @PostMapping("select-non-trust-funds")
+    public SelectNonTrustFundsResponse getNonTrustFunds(@RequestParam("start_date") String start_date,
+                                                        @RequestParam("end_date") String end_date,
+                                                        @RequestParam("account_name") String account_name,
+                                                        @RequestParam("account_number") String account_number,
+                                                        @RequestParam("username") String username,
+                                                        @RequestParam("password") String password,
+                                                        @RequestParam("phone_number") String phone_number) throws JsonProcessingException {
+        // Generate Session Number
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.trim();
+        }else{
+            phone_number = phone_number;
+            phone_number = phone_number.trim();
+        }
+
+        String phone = String.format("%s%s", "+", phone_number);
+
+        // Get the Member Authentication Details
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber(phone);
+        profile.setProfilepayload(payload);
+
+        System.out.println("Profile Payload:"+ profile);
+
+        MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
+
+        System.out.println("Profile Response:" +profile2);
+
+        com.example.tried.auth.funds.non.Authentication authentication = new
+                com.example.tried.auth.funds.non.Authentication();
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(session_number);
+        authentication.setPersonnelName(profile2.getPayload().getMemberName());
+        authentication.setInstututionNumber(profile2.getPayload().getChurchCode());
+        authentication.setInstututionName(profile2.getPayload().getChurchName());
+        authentication.setInstututionLevel("LOCAL CHURCH");
+
+        com.example.tried.auth.funds.non.Payload payload1 = new com.example.tried.auth.funds.non.Payload();
+        payload1.setAccountNumber(account_number);
+        payload1.setAccountName(account_name);
+        payload1.setStartDate(start_date);
+        payload1.setEndDate(end_date);
+        payload1.setChurchName(profile2.getPayload().getChurchName());
+        payload1.setChurchCode(profile2.getPayload().getChurchCode());
+
+        SelectNonTrustFunds selectNonTrustFunds = new SelectNonTrustFunds();
+        selectNonTrustFunds.setAuthentication(authentication);
+        selectNonTrustFunds.setPayload(payload1);
+
+
+        SelectNonTrustFundsResponse selectNonTrustFund = personnelApi.getNonTrustFunds(selectNonTrustFunds);
+        return selectNonTrustFund;
     }
 
 
@@ -1636,6 +2110,83 @@ public class PersonnelController {
             System.out.println("HashMapped: " + hashMap);
         }
         return hashMap;
+    }
+
+
+
+    @PostMapping("/cash-receipted")
+    public HashMap<String, Object> getReceiptedTransactions(@RequestParam("cfms_member_number") String cfms_member_number,
+                                                            @RequestParam("phone_number") String phone_number,
+                                                            @RequestParam("start_date") String start_date,
+                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException {
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s", "+", phone_number);
+        }
+
+        MemberProfile profile = new MemberProfile();
+        Profilepayload payload = new Profilepayload();
+        payload.setFromWithin(true);
+        payload.setMobileNumber(phone_number);
+
+        profile.setProfilepayload(payload);
+
+        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
+
+        SelectCashReceipting transaction = new SelectCashReceipting();
+        transaction.setStartDate(start_date);
+        transaction.setEndDate(end_date);
+        transaction.setReceiverId(cfms_member_number);
+        transaction.setChurchCode(response1.getPayload().getChurchCode());
+        transaction.setTypeOfPayment("Cash");
+
+        HashMap<String, Object> hashMap = null;
+        try {
+            hashMap = personnelApi.getCashReceiptingTransactions(transaction);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        if(hashMap.isEmpty()){
+            hashMap = hashMap;
+        }else{
+            System.out.println("HashMapped: " + hashMap);
+        }
+        return hashMap;
+    }
+
+    @PostMapping("/cash-receipted-delete")
+    public DeleteCashReceiptingResponse deleteCashReceipt(@RequestParam("cfms_member_number") String cfms_member_number,
+                                                          @RequestParam("phone_number") String phone_number,
+                                                          @RequestParam("receipt_number") String receipt_number) throws JsonProcessingException {
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number;
+        }else{
+            phone_number = String.format("%s%s", "+", phone_number);
+        }
+
+        // Member Profile Information
+        MemberProfile profile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setMobileNumber(phone_number);
+        profilepayload.setFromWithin(true);
+        profile.setProfilepayload(profilepayload);
+
+        MemberProfileResponse profileResponse = authApi.getMemberDetails(profile);
+
+        String church_code = profileResponse.getPayload().getChurchCode();
+        String church_name = profileResponse.getPayload().getChurchName();
+
+
+        // Delete Cash Receipt
+        DeleteCashReceipting cashReceipting = new DeleteCashReceipting();
+        cashReceipting.setReceiptNumber(receipt_number);
+        cashReceipting.setContributorContact(phone_number);
+        cashReceipting.setChurchName(church_name);
+        cashReceipting.setChurchCode(church_code);
+
+        DeleteCashReceiptingResponse responsed = personnelApi.deleteCashReceipt(cashReceipting);
+        return responsed;
     }
 
     @PostMapping("/get-member-statement")
@@ -1856,6 +2407,7 @@ public class PersonnelController {
             phone_number = phone_number.substring(1, phone_number.length());
         }
         profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
+        profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profile);
 
@@ -1909,6 +2461,8 @@ public class PersonnelController {
         AccountDetails details = new AccountDetails();
         details.setSourceAccount(account_name);
         details.setSourceAccountNumber(account_number);
+        details.setDestinationAccount("Conference Paybill");
+        details.setDestinationAccountNumber("909448");
         payload.setAccountDetails(details);
 
         TransferDuration transferDuration = new TransferDuration();
@@ -1937,6 +2491,5 @@ public class PersonnelController {
         MobileReceiveFundsTransferResponse responsed = personnelApi.getFundsTransfertoConference(transfer);
         return responsed;
     }
-
 
 }

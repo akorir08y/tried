@@ -51,6 +51,7 @@ input[type=checkbox]{
 	margin: 10px;
 	height: 13px;
 	width: 13px;
+	border-radius:50%;
 	font-size:12px;
 	background: #f1f1f1;
 }

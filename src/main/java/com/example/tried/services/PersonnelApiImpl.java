@@ -5,6 +5,10 @@ import com.example.tried.auth.dto.SMSResponse;
 import com.example.tried.auth.dto.SmsRequest;
 import com.example.tried.auth.funds.SelectTrustFunds;
 import com.example.tried.auth.funds.SelectTrustFundsResponse;
+import com.example.tried.auth.funds.delete.DeleteCashReceipting;
+import com.example.tried.auth.funds.delete.DeleteCashReceiptingResponse;
+import com.example.tried.auth.funds.non.SelectNonTrustFunds;
+import com.example.tried.auth.funds.non.SelectNonTrustFundsResponse;
 import com.example.tried.auth.member.specific.SpecificOfferingStatement;
 import com.example.tried.auth.member.specific.SpecificOfferingStatementResponse;
 import com.example.tried.auth.personnel.accounts.LocalChurchAccounts;
@@ -20,8 +24,11 @@ import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPayment
 import com.example.tried.auth.personnel.payments_accounts.ListLocalChurchPaymentAccountsResponse;
 import com.example.tried.auth.personnel.receipting.CashReceipting;
 import com.example.tried.auth.personnel.receipting.CashReceiptingResponse;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceipting;
+import com.example.tried.auth.personnel.receipting.edit.EditCashReceiptingResponse;
 import com.example.tried.auth.personnel.receipting.select.SelectCashReceipting;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript;
+import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscript1;
 import com.example.tried.auth.personnel.reports.transcript.TrustFundTranscriptResponse;
 import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransfer;
 import com.example.tried.auth.personnel.transfer.MobileReceiveFundsTransferResponse;
@@ -98,6 +105,35 @@ public class PersonnelApiImpl implements PersonnelApi {
         }
     }
 
+    // Edit Cash Receipting
+    @Override
+    public EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException {
+        receipting.setFunction("cashTransactionConfirmation");
+        receipting.setFunctionType("edit");
+        String requested = objectMapper.writeValueAsString(receipting);
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
+
+        System.out.println("Request Body JSON: " + HelperUtility.toJSON(receipting));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getPayment_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), EditCashReceiptingResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not complete Cash Receipting Editing Process -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), EditCashReceiptingResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 
     // Create Local Church Accounts
     @Override
@@ -173,6 +209,35 @@ public class PersonnelApiImpl implements PersonnelApi {
 
     @Override
     public TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript) throws JsonProcessingException {
+        transcript.setFunction("getLocalChurchTrustFundTranscript");
+        String requested = objectMapper.writeValueAsString(transcript);
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
+        System.out.println("Request Body JSON: " + HelperUtility.toJSON(transcript));
+        Request request = new Request.Builder()
+                .url(authConfiguration.getTrust_funds_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), TrustFundTranscriptResponse.class);
+        } catch (Exception e) {
+            log.error(String.format("Could not get Trust Fund Transcript -> %s", e.getLocalizedMessage()));
+            try {
+                return objectMapper.readValue(e.getLocalizedMessage().toString(), TrustFundTranscriptResponse.class);
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+
+    @Override
+    public TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript) throws JsonProcessingException {
         transcript.setFunction("getLocalChurchTrustFundTranscript");
         String requested = objectMapper.writeValueAsString(transcript);
 
@@ -621,6 +686,54 @@ public class PersonnelApiImpl implements PersonnelApi {
             return objectMapper.readValue(response.body().string(), MobileReceiveFundsTransferResponse.class);
         } catch (IOException e) {
             log.error(String.format("Could not Generate Funds Transfer to Conference -> %s", e.getLocalizedMessage()));
+            return null;
+        }
+    }
+
+    @Override
+    public DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException {
+        cashReceipting.setFunction("cashTransactionConfirmation");
+        cashReceipting.setFunctionType("delete");
+
+        System.out.println("Delete Cash Receipt: "+ Objects.requireNonNull(HelperUtility.toJSON(cashReceipting)));
+
+        String requested = objectMapper.writeValueAsString(cashReceipting);
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
+        Request request = new Request.Builder()
+                .url(authConfiguration.getPayment_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), DeleteCashReceiptingResponse.class);
+        } catch (IOException e) {
+            log.error(String.format("Could not Delete the Cash Receipt -> %s", e.getLocalizedMessage()));
+            return null;
+        }
+    }
+
+    @Override
+    public SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException {
+        nonTrustFunds.setFunction("getNonTrustFunds");
+        System.out.println("Get Non Trust Funds: "+ HelperUtility.toJSON(nonTrustFunds));
+
+        String requested = objectMapper.writeValueAsString(nonTrustFunds);
+
+        //Request Body
+        RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
+        Request request = new Request.Builder()
+                .url(authConfiguration.getAuth_login_url())
+                .method("POST", body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            return objectMapper.readValue(response.body().string(), SelectNonTrustFundsResponse.class);
+        } catch (IOException e) {
+            log.error(String.format("Could not get the Non Trust Funds for Transfer -> %s", e.getLocalizedMessage()));
             return null;
         }
     }

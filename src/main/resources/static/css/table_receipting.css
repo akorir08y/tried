@@ -88,7 +88,25 @@ select{
     color: white;
 }
 
+#receipted_member{
+    background-color: #560319;
+    color:white;
+    text-align:center;
+    padding: 20px;
+    border-radius: 15px;
+}
 
+
+
+#receipted_funds{
+    display: none;
+    border-radius: 15px;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2;
+    cursor: pointer;
+}
 
 .left{
 	float:left;
@@ -127,46 +145,6 @@ select{
 .second{
 	margin-top: 5px;
 	float:left;
-}
-
-.responseDiv{
-    background-color: #24478f;
-    padding:10px;
-    color:white;
-    text-align:center;
-    border-radius:10px;
-}
-
-.responseDiv1{
-    background-color: #24478f;
-    padding:10px;
-    color:white;
-    text-align:center;
-    border-radius:10px;
-}
-
-.responseDiv2{
-    background-color: #24478f;
-    padding:10px;
-    color:white;
-    text-align:center;
-    border-radius:10px;
-}
-
-.responseDiv3{
-    background-color: #24478f;
-    padding:10px;
-    color:white;
-    text-align:center;
-    border-radius:10px;
-}
-
-.responseDiv4{
-    background-color: #24478f;
-    padding:10px;
-    color:white;
-    text-align:center;
-    border-radius:10px;
 }
 
 .otp-field input{
@@ -211,7 +189,30 @@ select{
 	font-size:28px;
 }
 
-#remove_icon, #remove_icon1, #remove_icon2{
+#receipting_title{
+    padding:20px;
+    text-align:center;
+    background-color:#24478f;
+    border-radius:15px;
+    color:white;
+}
+
+.btn-add{
+    text-align:center;
+    padding: 10px 15px;
+    background-color:#24478f;
+    color:white;
+    font-size:12px;
+    border-radius:6px;
+}
+
+
+#add_icon, #add_icon1, #add_icon2,#add_icon_none,#add_icon_none1,#add_icon_none2{
+	font-size:28px;
+}
+
+
+#remove_icon, #remove_icon1, #remove_icon2,#remove_icon_none,#remove_icon_none1,#remove_icon_none2{
 	font-size:28px;
 }
 

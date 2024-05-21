@@ -220,34 +220,29 @@ function getNewMember(){
     html += "<td width=\"33%\"><select class=\"login_input\" id=\"church_group_new\" name=\"church_group_new\">";
     html += "<option value=\"Moi University\">Moi University</option>";
     html += "<option value=\"None\">None</option></select></td></tr>";
-    html += "<tr><td><b>Mobile Service Provider</b></td><td><b>Preferred Language</b></td>";
+    html += "<tr><td><b>Residence</b></td><td><b>Preferred Language</b></td>";
     html += "<td><b>Phone Number Privacy</b></td></tr>";
-    html += "<tr><td width=\"33%\"><select class=\"login_input\" aria-label=\"Default Select Example\" id=\"mobileprovider_new1\">";
-    html += "<option value=\"Safaricom\">Safaricom</option><option value=\"Airtel\">Airtel</option>";
-    html += "<option value=\"Equitel\">Equitel</option><option value=\"TIGO\">TIGO</option>";
-    html += "<option value=\"MTN\">MTN</option></select></td>";
+    html += "<tr><td width=\"33%\"><input type=\"text\" id=\"residence_new\" name=\"residence_new\" placeholder=\"Residence\"></td>";
     html += "<td width=\"33%\"><select class=\"login_input\"  aria-label=\"Default Select Example\" id=\"preferredLanguage_new1\" name=\"preferredLanguage_new1\"";
     html += "style=\"padding-left:5px;\"><option value=\"English\" selected>English</option>";
     html += "<option value=\"Kiswahili\">Kiswahili</option><option value=\"French\">French</option>";
     html += "<option value=\"Kinyandarua\">Kinyandarua</option><option value=\"Buganda\">Buganda</option></select></td>";
-    html += "<td class=\"now\"><input type=\"radio\" name=\"phone_number_privacy_new\" id=\"normal_new\" value=\"Normal\" checked>";
+    html += "<td class=\"now\"><input type=\"radio\" name=\"phone_number_privacy_new\" id=\"normal_new\" value=\"Normal\" value=\"normal\" checked>";
     html += "<label class=\"form-check-label\" for=\"flexRadioDefault1\">Normal</label>";
-    html += "<input type=\"radio\" name=\"phone_number_privacy_new\" id=\"secret_new\" value=\"Secret\">";
+    html += "<input type=\"radio\" name=\"phone_number_privacy_new\" id=\"secret_new\" value=\"secret\">";
     html += "<label class=\"form-check-label\" for=\"flexRadioDefault1\">Secret</label></td></tr>";
-    html += "<tr><td><b>Phone Owner</b></td><td><b>Church Member</b></td><td><b>Other Phone Number</b></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"checkbox\" id=\"phoneOwner_new\" checked>";
+    html += "<tr><td><b>Phone Owner</b></td><td><b>Church Member</b></td><td><b>Giving Receipt To</b></td></tr>";
+    html += "<tr><td><input class=\"form-check-input\" type=\"checkbox\" id=\"phone_owner_new\" value=\"true\" checked>";
     html += "<label for=\"phoneOwner\" class=\"label_input\">Phone Owner</label></td>";
-    html += "<td><input class=\"form-check-input\" type=\"checkbox\" id=\"churchMember_new\" checked>";
+    html += "<td><input class=\"form-check-input\" type=\"checkbox\" id=\"church_member_new\" value=\"true\" checked>";
     html += "<label for=\"church_member\" class=\"label_input\">Church Member</label></td>";
-    html += "<td><input type=\"text\" id=\"otherPhoneNumber\" name=\"otherPhoneNumber_new\" placeholder=\"Other Phone Number\" value=''></td></tr>";
-    html += "<tr><td><b>Giving Receipt To</b></td><td><b>Residence</b></td></tr>";
-    html += "<tr><td><input class=\"form-check-input\" type=\"radio\" name=\"receipt_to_new\" id=\"self_new\" value=\"Self\" checked>";
+    html += "<td><input class=\"form-check-input\" type=\"radio\" name=\"receipt_to_new\" id=\"self_new\" value=\"Self\" checked>";
     html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Self</label>";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"receipt_to_new\" id=\"family_new\" value=\"Family\">";
     html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Family</label><br>";
     html += "<input class=\"form-check-input\" type=\"radio\" name=\"receipt_to_new\" id=\"anonymous_new\" value=\"Anonymous\">";
     html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Anonymous</label></td>";
-    html += "<td><input type=\"text\" id=\"residence_new\" name=\"residence_new\" placeholder=\"Residence\"></td></tr><tr>";
+    html += "</tr><tr>";
     html += "<td><button type=\"button\" class=\"btn\" onclick=\"getBack()\">Back</button>";
     html += "  <button type=\"button\" class=\"btn\" onclick=\"registerUser()\">Submit</button></td>";
     html += "</tr></tbody></form>"
@@ -256,66 +251,67 @@ function getNewMember(){
 }
 
 function registerUser(){
-    var fullname = document.getElementById("fullname_new").value;
-    var email = document.getElementById("email_new").value;
-    var phone = document.getElementById("phone_new").value;
-    var church_code = document.getElementById("church_code_new").value;
-    var mobile_provider = document.getElementById("mobileprovider_new").value;
-    var group = document.getElementById("church_group_new").value;
-    var mobile_provider1 = document.getElementById("mobileprovider1_new").value;
-    var language = document.getElementById("preferredLanguage_new").value;
-    var phone_privacy = document.getElementsByName("phone_number_privacy_new");
-    var phone_privacy_value;
+    var fullname_new = document.getElementById("fullname_new").value;
+    var email_new = document.getElementById("email_new").value;
+    var phone_new = document.getElementById("phone_new").value;
+    var church_code_new = document.getElementById("church_code_new").value;
+    var mobile_provider_new = document.getElementById("mobileprovider_new").value;
+    var group_new = document.getElementById("church_group_new").value;
+    var language_new = document.getElementById("preferredLanguage_new1").value;
+    var phone_privacy_new = document.getElementsByName("phone_number_privacy_new");
+    var phone_privacy_value_new;
     for (var i = 0; i < phone_privacy.length; i++) {
-      if (phone_privacy[i].checked) {
-        phone_privacy_value = phone_privacy[i].value;
+      if (phone_privacy_new[i].checked) {
+        phone_privacy_value_new = phone_privacy_new[i].value;
       }
     }
-    var phone_owner = document.getElementById("phoneOwner_new");
-    if (phone_owner.checked == true){
-        phone_owner = true;
+    var phone_owner_new = document.getElementById("phone_owner_new");
+    if (phone_owner_new.checked == true){
+        phone_owner_new = true;
     }else{
-        phone_owner = false;
+        phone_owner_new = false;
     }
-    var church_member = document.getElementById("churchMember_new");
-    if (church_member.checked == true){
-        church_member = "true";
+    var church_member_new = document.getElementById("church_member_new");
+    if (church_member_new.checked == true){
+        church_member_new = "true";
     }else{
-        church_member = "false";
+        church_member_new = "false";
     }
-    var other_phone = document.getElementById("otherPhoneNumber_new").value;
-    var residence = document.getElementById("residence_new").value;
-    var receipt_to = document.getElementsByName("receipt_to_new");
-    var receipt_to_value;
-    for (var i = 0; i < receipt_to.length; i++) {
-        if (receipt_to[i].checked) {
-           receipt_to_value = receipt_to[i].value;
+    var residence_new = document.getElementById("residence_new").value;
+    var receipt_to_new = document.getElementsByName("receipt_to_new");
+    var receipt_to_value_new;
+    for (var i = 0; i < receipt_to_new.length; i++) {
+        if (receipt_to_new[i].checked) {
+           receipt_to_value_new = receipt_to_new[i].value;
         }
     }
 
-    registeredNumbers(phone);
-
     var profile_data = {
-        fullname: fullname,
-        email: email,
-        churchCode: church_code,
-        phone: phone,
-        phone_number_privacy: phone_privacy_value,
-        language: language,
-        phoneOwner: phone_owner,
-        churchMember: church_member,
-        otherPhoneNumber: other_phone,
-        receipt_to: receipt_to_value,
-        residence: residence
+        fullname_new: fullname_new,
+        email_new: email_new,
+        church_code_new: church_code_new,
+        phone_new: phone_new,
+        phone_number_privacy_new: phone_privacy_value_new,
+        language_new: language,
+        phone_owner_new: phone_owner_new,
+        church_member_new: church_member_new,
+        receipt_to_new: receipt_to_value_new,
+        residence_new: residence_new
     };
 
     console.log(profile_data);
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 
-    $.post(hosted_url + "/cfms-web-web/auth/saveProfile",profile_data ,function(data, status){
+    $.post(hosted_url + "/cfms-web-web/auth/registration",profile_data ,function(data, status){
         if(data.status == 0){
-            alert(fullname + " created successfully");
+            alert(date.state);
+        }else{
+            if(data.notice != null){
+                alert(data.notice);
+            }else{
+                alert(data.error);
+            }
         }
     });
 }

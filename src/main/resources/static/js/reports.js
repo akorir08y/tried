@@ -74,8 +74,8 @@ function getRange(){
     var trust_dated = document.getElementById("trust_dated");
     var trust_ranger = document.getElementById("trust_ranger");
 
-    trust_ranger.style.display = "none";
-    trust_dated.style.display = "block";
+    trust_ranger.style.display = "block";
+    trust_dated.style.display = "none";
 }
 
 
@@ -83,8 +83,8 @@ function getDateToDate(){
     var trust_dated = document.getElementById("trust_dated");
     var trust_ranger = document.getElementById("trust_ranger");
 
-    trust_ranger.style.display = "block";
-    trust_dated.style.display = "none";
+    trust_ranger.style.display = "none";
+    trust_dated.style.display = "block";
 }
 
 function TrustFundTranscriptReportExcel(){
@@ -204,6 +204,151 @@ function specificAccountSummaryExcel(){
     $("#specific_account_summary").submit();
 }
 
+// Local Church Offering Report In Excel
+function getLocalChurchOfferingReportExcel(){
+    var from_date = document.getElementById("from-date-offering").value;
+    var to_date = document.getElementById("to-date-offering").value;
+    document.getElementById("input_offering").value = "Excel";
+
+    if (from_date == "" || to_date == "") {
+        alert("All Dates Must be Filled Out");
+        return false;
+    }
+
+    $("#local_church_offering_report").submit();
+}
+
+// Local Church Offering Report In PDF
+function getLocalChurchOfferingReportPDF(){
+    var start_date = document.getElementById("from-date-offering").value;
+    var end_date = document.getElementById("to-date-offering").value;
+    // var username = document.getElementById("username_offering").value;
+    // var password = document.getElementById("password_offering").value;
+    // var phone_number = document.getElementById("phone_number_offering").value;
+    // var means = document.getElementById("account_name_offering").value;
+    document.getElementById("input_offering").value = "PDF";
+
+    if (start_date == "" || end_date == "") {
+        alert("All Dates Must be Filled Out");
+        return false;
+    }
+
+    $("#local_church_offering_report").submit();
+}
+
+// Local Church Offering Report In HTML
+function getLocalChurchOfferingReport(){
+    var start_date = document.getElementById("from-date-offering").value;
+    var end_date = document.getElementById("to-date-offering").value;
+    var username = document.getElementById("username_offering").value;
+    var password = document.getElementById("password_offering").value;
+    var phone_number = document.getElementById("phone_number_offering").value;
+    var means = document.getElementById("account_name_offering").value;
+
+    var contented = document.getElementById("content_local_church_offering");
+    var loader = document.getElementById("loader_spin_church_offering");
+
+    if (start_date == "" || end_date == "") {
+        alert("All Dates Must be Filled Out");
+        return false;
+    }
+
+    var dates = {
+        username: username,
+        password: password,
+        phone_number: phone_number,
+        start_date: start_date,
+        end_date: end_date,
+        means: means
+    };
+
+    loader.style.display = "block";
+
+    $.post(hosted_url + "/cfms-web/personnel/export/local_church_offering_report/html",dates ,function(data, status){
+         if(data != null){
+             console.log(data);
+             loader.style.display = "none";
+             contented.style.display = "block";
+
+             var accounts = Object.entries(data.payload.localChurchFunds);
+             var trustFunds = Object.entries(data.payload.trustFunds);
+             var members = data.payload.members;
+
+             let container = $("#content_local_church_offering");
+             let html = new String("");
+             html += "<div>";
+             html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Non Trust Funds</h2><span class=\"right-icon\"";
+             html += "onclick=\"nonTrustFundView()\" id=\"add_icon\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\" class=\"add-circle\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon\"><ion-icon name=\"remove-circle-outline\" class=\"remove-circle\"></ion-icon></span</td></tr></table>";
+             html += "<div id=\"non_trust_funds_view\" style=\"display:block;\"><table>";
+             html += "<table id=\"local_church_offering_table\"><tbody id=\"myTable\">";
+
+             if(accounts.length > 0){
+                for(let i = 0; i < accounts.length; i++){
+                    html += "<tr tabindex=\"0\">";
+                    html += "<td> "+ accounts[i][0] +" </td>";
+                    html += "<td> "+ accounts[i][1] +" </td>";
+                    html += "</tr>";
+                }
+             }else{
+                html += "";
+             }
+
+             html += "</tbody></table>";
+             html += "</div><br><br><hr>";
+
+             html += "<div>";
+             html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Trust Funds</h2><span class=\"right-icon\"";
+             html += "onclick=\"trustFundView()\" id=\"add_icon1\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\" class=\"add-circle\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon1\"><ion-icon name=\"remove-circle-outline\" class=\"remove-circle\"></ion-icon></span</td></tr></table>";
+             html += "<div id=\"trust_funds_view\" style=\"display:block;\">";
+             html += "<table id=\"trust_funds_table\"><tbody id=\"myTable\">";
+
+             if(trustFunds.length > 0){
+                for(let i = 0; i < trustFunds.length; i++){
+                    html += "<tr tabindex=\"0\">";
+                    html += "<td> "+ trustFunds[i][0] +" </td>";
+                    html += "<td> "+ trustFunds[i][1] +" </td>";
+                    html += "</tr>";
+                }
+             }else{
+                html += "";
+             }
+
+             html += "</tbody></table>";
+             html += "</div></div><br><br><hr>";
+
+             html += "<div>"
+             html += "<table><tr><td colspan=\"2\"><h2 style=\"text-align: center;font-size:14px;padding-top:10px;padding-bottom:10px;\">Members in Local Church Offering Report</h2><span class=\"right-icon\"";
+             html += "onclick=\"memberView()\" id=\"add_icon2\" style=\"display:none;\"><ion-icon name=\"add-circle-outline\" class=\"add-circle\"></ion-icon></span><span class=\"right-icon\" onclick=\"trustFundView()\" id=\"remove_icon2\"><ion-icon name=\"remove-circle-outline\" class=\"remove-circle\"></ion-icon></span</td></tr></table>";
+             html += "<div id=\"member_view\" style=\"display:block;\"><table>";
+
+             if(members.length > 0){
+                html += "<table id=\"members\"><tbody>";
+                 for(var i = 0; i < members.length; i++){
+                      var membered = Object.entries(members[i]);
+                      html += "<tr tabindex=\"0\"><td>";
+                      html += "<td>"+ membered[0] +"</td>"
+                      html += "<td>"+ membered[1] +"</td></tr>";
+                 }
+                 html += "</tbody></table>";
+             }else{
+                html += "";
+             }
+
+             html += "</div></div>";
+
+             container.html(html); //Append the table to the container element
+             }else{
+                loader.style.display = "none";
+                contented.style.display = "block";
+
+                let container = $("#content_local_church_offering");
+                let html = new String("");
+                html += "<p>No Data to Display</p>";
+                container.html(html);
+             }
+    });
+}
+
 // local_church_off_statement
 function getLocalChurchOfferingStatement(){
     var phone = document.getElementById("phone_local").value;
@@ -275,6 +420,64 @@ function getLocalChurchOfferingStatement(){
                 container.html(html);
              }
 
+    });
+}
+
+// Export Local Church Statement
+function exportLocalChurchStatement(){
+    var phone = document.getElementById("phone_local").value;
+    var pin = document.getElementById("pass_local").value;
+    var start_date = document.getElementById("start_date_local").value;
+    var end_date = document.getElementById("end_date_local").value;
+    var username = document.getElementById("local_username").value;
+    var password = document.getElementById("local_password").value;
+
+    var pdf = new jsPDF('p', 'pt', 'a1',true);
+
+    if(start_date == null || end_date == null){
+        alert("Make Sure you input the start and end dates");
+        return false;
+    }
+
+    if(pin == ""){
+        alert("Make Sure you enter the Pin");
+        return false;
+    }
+
+    if (start_date >= end_date){
+        alert("The Start Date must predate the End date");
+        return false;
+    }
+
+    var dates = {
+        start_date: start_date,
+        end_date: end_date,
+        phone_number: phone,
+        pin: pin,
+        username: username,
+        password: password
+    };
+
+    var loader = document.getElementById("loader_spin_local_church");
+    var contented = document.getElementById("content2");
+    contented.style.display = "none";
+    loader.style.display = "block";
+
+    console.log(dates)
+
+    $.ajax({
+        method: 'GET',
+        url: '/cfms-web/personnel/local_church_off_statement',
+        data: dates,
+        success: function (response) {
+            console.log(response);
+            loader.style.display = "none";
+            alert("Local Church Offering Statement Downloading");
+        },
+        error: function (response) {
+            loader.style.display = "none";
+            alert("Church Statement Download Failed");
+        },
     });
 }
 
@@ -566,6 +769,10 @@ function getSpecificMemberStatement(member_name, member_number){
     generated_member_statement.style.display = "block";
 }
 
+
+// Generate Local Church Offering
+
+/*
 function generateLocalChurchOffering(){
     var start_date = document.getElementById("from-date-offering").value;
     var end_date = document.getElementById("to-date-offering").value;
@@ -576,8 +783,7 @@ function generateLocalChurchOffering(){
     };
 
 }
-
-
+*/
 
 // Toggle Password Visibility
 function passwordVisibility(){
@@ -589,4 +795,112 @@ function passwordVisibility(){
 	} else {
 		x.type = "password";
 	}
+}
+
+
+function trustFundView(){
+	var trust_fund_view = document.getElementById("trust_funds_view");
+	var add_icon = document.getElementById("add_icon1");
+	var remove_icon = document.getElementById("remove_icon1");
+
+	if(trust_fund_view.style.display === "block"){
+		trust_fund_view.style.display = "none";
+		remove_icon.style.display = "none"
+		add_icon.style.display = "block";
+	}else{
+		trust_fund_view.style.display = "block"
+		add_icon.style.display = "none";
+		remove_icon.style.display = "block";
+	}
+}
+
+
+function nonTrustFundView(){
+	var trust_fund_view = document.getElementById("non_trust_funds_view");
+	var add_icon = document.getElementById("add_icon");
+	var remove_icon = document.getElementById("remove_icon");
+
+	if(trust_fund_view.style.display === "block"){
+		trust_fund_view.style.display = "none";
+		remove_icon.style.display = "none"
+		add_icon.style.display = "block";
+	}else{
+		trust_fund_view.style.display = "block"
+		add_icon.style.display = "none";
+		remove_icon.style.display = "block";
+	}
+}
+
+
+function memberView(){
+	var trust_fund_view = document.getElementById("member_view");
+	var add_icon = document.getElementById("add_icon2");
+	var remove_icon = document.getElementById("remove_icon2");
+
+	if(trust_fund_view.style.display === "block"){
+		trust_fund_view.style.display = "none";
+		remove_icon.style.display = "none"
+		add_icon.style.display = "block";
+	}else{
+		trust_fund_view.style.display = "block"
+		add_icon.style.display = "none";
+		remove_icon.style.display = "block";
+	}
+}
+
+
+function getFirstAndLastDate(){
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 2);
+    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+    monthYear = firstDay.toISOString().slice(0, 7);
+    firstDay = firstDay.toISOString().slice(0, 10);
+    lastDay = lastDay.toISOString().slice(0, 10);
+
+    // Trust Fund Get Month and Year
+    document.getElementById("select_month").value = monthYear;
+
+    // Trust Fund Form Dates
+    document.getElementById("from-date").value = firstDay;
+    document.getElementById("to-date").value = lastDay;
+
+    // Local Church Offering Form Dates
+    document.getElementById("from-date-offering").value = firstDay;
+    document.getElementById("to-date-offering").value = lastDay;
+
+    // Non Trust Fund Report Form Dates
+    document.getElementById("from-date-non-trust").value = firstDay;
+    document.getElementById("to-date-non-trust").value = lastDay;
+
+    // Trust Fund Transcript Report Form Dates
+    document.getElementById("from-date-transcript").value = firstDay;
+    document.getElementById("to-date-transcript").value = lastDay;
+
+    // Transaction Tracing Report Form Dates
+    document.getElementById("from-date-trace").value = firstDay;
+    document.getElementById("to-date-trace").value = lastDay;
+
+    // Transaction Tracing Report Form Dates
+    document.getElementById("from-date-specific").value = firstDay;
+    document.getElementById("to-date-specific").value = lastDay;
+
+    // Local Church Statement Form Dates
+    document.getElementById("start_date_local").value = firstDay;
+    document.getElementById("end_date_local").value = lastDay;
+}
+
+
+function getMemberFirstAndLastDate(){
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 2);
+    var lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 1);
+
+    firstDay = firstDay.toISOString().slice(0, 10);
+    lastDay = lastDay.toISOString().slice(0, 10);
+
+
+    // Local Church Statement Form Dates
+    document.getElementById("start_date_member").value = firstDay;
+    document.getElementById("end_date_member").value = lastDay;
 }

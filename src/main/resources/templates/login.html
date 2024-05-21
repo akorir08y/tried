@@ -49,7 +49,11 @@
 
         <!-- Login button -->
         <li class="nav__item" id="login-btn">
-          <a class="nav__link"><i class="ri-user-line nav__login"></i> Login</a>
+          <a class="nav__link"><i class="ri-login-circle-line nav__login"></i>  Login</a>
+        </li>
+        <!-- Personnel Login button -->
+        <li class="nav__item" id="personnel-login-btn">
+          <a class="nav__link"><i class="ri-login-box-line nav__login"></i>  Personnel Login</a>
         </li>
       </ul>
 
@@ -112,19 +116,69 @@
           <input type="text" id="ist" maxlength="1" onkeyup="clickEvent(this,'sec')" style="width:10%" class="login__input1">
           <input type="text" id="sec" maxlength="1" onkeyup="clickEvent(this,'third')" style="width:10%" class="login__input1">
           <input type="text" id="third" maxlength="1" onkeyup="clickEvent(this,'forth')" style="width:10%" class="login__input1">
-          <input type="text" id="forth" maxlength="1" style="width:10%" class="login__input1">
+          <input type="text" id="forth" maxlength="1" style="width:10%" class="login__input1" onkeyup="confirmOTP()">
         </div>
       </div>
       <div id="time"></div>
       <br>
       <div class="login_buttons">
         <button type="submit" class="login__button" style="display:none;" id="send_otp_button" onclick="sendOTP()">Resend OTP</button>
-        <button type="submit" class="login__button" style="width:200%;" id="verify_otp_button" onclick="confirmOTP()">Verify OTP</button>
+        <!--<button type="submit" class="login__button" style="width:200%;" id="verify_otp_button" onclick="">Verify OTP</button>-->
       </div>
     </div>
   </div>
 
   <i class="ri-close-line login__close" id="login-close"></i>
+</div>
+
+
+<!--==================== PERSONNEL LOGIN ====================-->
+<div class="login" id="personnel_login">
+  <div class="personnel__login__form">
+    <h2 class="login__title">Personnel Login</h2>
+    <br>
+    <form id="personnel_login_form" action="/cfms-web/authenticate/personnel" method="post">
+      <div class="login__group">
+        <div>
+          <label for="email" class="login__label">Username</label>
+          <i class="ri-user-line" id="user-icon1"></i>
+          <input type="text" placeholder="Enter Username" id="personnel_username" name="username" class="login__input">
+        </div>
+
+        <div>
+          <label for="password" class="login__label">Password</label>
+          <i class="ri-lock-password-fill" id="pin-icon6"></i>
+          <input type="password" placeholder="Enter your Password" id="personnel_password" name="password" class="login__input">
+          <i class="ri-eye-fill" id="reset-icon6" onclick="togglePersonnelLogin()"></i>
+        </div>
+        <br>
+      </div>
+    </form>
+
+    <div>
+      <button type="button" class="login__button" onclick="AuthPersonnelRequest()">Log In</button>
+    </div>
+    <div id="otp_personnel_login" style="display:none;">
+      <h2 class="login__title" style="margin-top:5px;">OTP Verification</h2>
+      <input type="hidden" id="phone_number_login_personnel" maxlength="1" name="username">
+      <div class="otp-field">
+        <div id="otp-field14">
+          <input type="text" id="ist3" maxlength="1" onkeyup="clickEvent(this,'sec3')" style="width:10%" class="login__input1">
+          <input type="text" id="sec3" maxlength="1" onkeyup="clickEvent(this,'third3')" style="width:10%" class="login__input1">
+          <input type="text" id="third3" maxlength="1" onkeyup="clickEvent(this,'forth3')" style="width:10%" class="login__input1">
+          <input type="text" id="forth3" maxlength="1" style="width:10%" class="login__input1" onkeyup="confirmPersonnelOTP()">
+        </div>
+      </div>
+      <div id="time4"></div>
+      <br>
+      <div class="login_buttons">
+        <button type="submit" class="login__button" style="display:none;" id="send_personnel_otp_button" onclick="sendPersonnelOTP()">Resend OTP</button>
+        <!--<button type="submit" class="login__button" style="width:200%;" id="verify_personnel_otp_button" onclick="">Verify OTP</button>-->
+      </div>
+    </div>
+  </div>
+
+  <i class="ri-close-line login__close" id="personnel-login-close"></i>
 </div>
 
 
@@ -144,13 +198,13 @@
             <input type="text" id="ist1" maxlength="1" onkeyup="clickEvent(this,'sec1')" style="width:10%" class="login__input1">
             <input type="text" id="sec1" maxlength="1" onkeyup="clickEvent(this,'third1')" style="width:10%" class="login__input1">
             <input type="text" id="third1" maxlength="1" onkeyup="clickEvent(this,'forth1')" style="width:10%" class="login__input1">
-            <input type="text" id="forth1" maxlength="1" style="width:10%" class="login__input1">
+            <input type="text" id="forth1" maxlength="1" style="width:10%" class="login__input1" onkeyup="confirmRegisterOTP()">
           </div>
         </div>
         <div id="time1" style="text-align:center;font-size:16px;color:black;"></div>
         <div class="login_buttons">
           <button type="submit" class="login__button" id="send_otp_register" onclick="sendRegisterOTP()">Send OTP</button>
-          <button type="submit" class="login__button" id="confirm_otp_register" onclick="confirmRegisterOTP()">Verify OTP</button>
+          <!--<button type="submit" class="login__button" id="confirm_otp_register" onclick="">Verify OTP</button>-->
         </div>
 
       </div>
@@ -233,13 +287,13 @@
             <input type="text" id="ist2" maxlength="1" onkeyup="clickEvent(this,'sec2')" style="width:10%" class="login__input1">
             <input type="text" id="sec2" maxlength="1" onkeyup="clickEvent(this,'third2')" style="width:10%" class="login__input1">
             <input type="text" id="third2" maxlength="1" onkeyup="clickEvent(this,'forth2')" style="width:10%" class="login__input1">
-            <input type="text" id="forth2" maxlength="1" style="width:10%" class="login__input1">
+            <input type="text" id="forth2" maxlength="1" style="width:10%" class="login__input1" onkeyup="confirmResetOTP()">
           </div>
         </div>
         <div id="time2"></div>
         <div class="login_buttons">
           <button type="submit" class="login__button" id="send-otp-reset" onclick="sendResetOTP()">Send OTP</button>
-          <button type="submit" class="login__button" id="verify-otp-reset" onclick="confirmResetOTP()">Verify OTP</button>
+          <!--<button type="submit" class="login__button" id="verify-otp-reset" onclick="">Verify OTP</button>-->
         </div>
         <br>
         <p class="login__signup">
@@ -282,6 +336,7 @@
 <!--=============== MAIN JS ===============-->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="/cfms-web/js/login.js"></script>
+<script src="/cfms-web/js/personnel.js"></script>
 <script src="/cfms-web/js/form.js"></script>
 </body>
 </html>

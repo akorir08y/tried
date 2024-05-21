@@ -91,11 +91,15 @@ public class LocalChurchOfferingReport {
         // Get the List of All the Accounts in the Churches
         for (Map.Entry<String,Integer> mapElement : churchFunds.entrySet()) {
             String key = mapElement.getKey();
-            keys_unfiltered.add(key);
+            if(!key.contains("local_combined_offerings")){
+                keys_unfiltered.add(key);
+            }
 
             if(key.contains("_")) {
                 key = key.replace("_", " ");
-                keys.add(key);
+                if(!key.contains("local combined offerings")){
+                    keys.add(key);
+                }
             }else{
                 keys.add(key);
             }
@@ -103,7 +107,7 @@ public class LocalChurchOfferingReport {
         }
 
         keys.add("Total");
-        keys.add("total");
+        keys_unfiltered.add("total");
 
 
         // Start by doing Font
@@ -189,10 +193,11 @@ public class LocalChurchOfferingReport {
         }
 
         Image image = new Image(imageData);
-        table.setWidthPercent(50).
+        image.scaleToFit(180,120);
+        table.setWidthPercent(90).
                 setBorder(Border.NO_BORDER);
 
-        table.addCell(new Cell().add(image.scaleAbsolute(250, 80))
+        table.addCell(new Cell().add(image.scaleAbsolute(180, 120))
                 .setHorizontalAlignment(HorizontalAlignment.LEFT)
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
@@ -207,7 +212,7 @@ public class LocalChurchOfferingReport {
 
         RequestChurchDetailsResponse response1 = authApi.getMemberChurchDetails(churchDetails);
 
-        table.setWidthPercent(50);
+        table.setWidthPercent(10);
 
         table.addCell(new Cell().add("Seventh Day Adventist")
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
@@ -256,7 +261,8 @@ public class LocalChurchOfferingReport {
                 .setBold()
                 .setFontSize(font_size));
 
-        table.setFixedPosition(380, 720, 200);
+        table.setHorizontalAlignment(HorizontalAlignment.RIGHT).
+                setVerticalAlignment(VerticalAlignment.TOP).setMarginTop(-120f);
     }
 
     private void addHorizontalLine(Table invoice_header,String start_date,String end_date,String church_name){
@@ -449,13 +455,13 @@ public class LocalChurchOfferingReport {
             }
 
             for(int i = 0;i < keys_unfiltered.size();i++){
-                if(membersItem.get(keys.get(i)) != null) {
-                    summaryReport.addCell(new Cell().add(String.valueOf(membersItem.get(keys.get(i))))).setFontSize(5)
+                if(membersItem.get(keys_unfiltered.get(i)) != null) {
+                    summaryReport.addCell(new Cell().add(String.valueOf(membersItem.get(keys_unfiltered.get(i))))).setFontSize(5)
                             .setFont(bolden)
                             .setTextAlignment(TextAlignment.CENTER)
                             .setBackgroundColor(Color.WHITE);
                 }else{
-                    summaryReport.addCell(new Cell().add("")).setFontSize(5)
+                    summaryReport.addCell(new Cell().add("0")).setFontSize(5)
                             .setFont(bolden)
                             .setTextAlignment(TextAlignment.CENTER)
                             .setBackgroundColor(Color.WHITE);
@@ -470,6 +476,7 @@ public class LocalChurchOfferingReport {
     private void getSignature(Table signature) {
 
         signature.setMarginTop(50f);
+        signature.setWidthPercent(100);
 
         signature.addCell(new Cell().add("Treasurer").setFontSize(8)
                 .setFont(bolden)

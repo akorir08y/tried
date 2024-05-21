@@ -174,10 +174,11 @@ public class SpecificAccountSummaryReport {
         }
 
         Image image = new Image(imageData);
+        image.scaleToFit(280,150);
         table.setWidthPercent(90).
                 setBorder(Border.NO_BORDER);
 
-        table.addCell(new Cell().add(image.scaleAbsolute(400, 200))
+        table.addCell(new Cell().add(image.scaleAbsolute(280, 150))
                 .setHorizontalAlignment(HorizontalAlignment.LEFT)
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }

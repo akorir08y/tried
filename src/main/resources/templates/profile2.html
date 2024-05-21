@@ -222,7 +222,7 @@
 								<input type="text" id="ist" maxlength="1" class="otp_timed" onkeyup="clickEvent(this,'sec')" style="width:15%">
 								<input type="text" id="sec" maxlength="1" class="otp_timed" onkeyup="clickEvent(this,'third')" style="width:15%">
 								<input type="text" id="third" maxlength="1" class="otp_timed" onkeyup="clickEvent(this,'forth')" style="width:15%">
-								<input type="text" id="forth" maxlength="1" class="otp_timed" style="width:15%">
+								<input type="text" id="forth" maxlength="1" class="otp_timed" style="width:15%" onkeyup="confirmResetPinOTP()">
 							</div>
 						</div>
 						<table>
@@ -238,12 +238,14 @@
 							<td colspan="2"><hr></td>
 						</tr>
 						<tr>
-							<td>
+							<td colspan="2">
 								<button type="button" class="btn" onclick="sendResetPinOTP()" id="send_otp_button">Send OTP</button>
 							</td>
+							<!--
 							<td style="text-align:right;">
 								<button type="button" class="btn" onclick="confirmResetPinOTP()" id="verify_button">Verify OTP</button>
 							</td>
+							-->
 						</tr>
 					</table>
 				</div>

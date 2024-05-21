@@ -15,6 +15,16 @@ $(document).ready(function(){
     });
   });
 });
+
+$(document).ready(function(){
+  $("#myInput_Trace").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#transaction_tracing_result div").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
 </script>
 </head>
 <body onload="getAllFundAccounts()">
@@ -28,37 +38,37 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li id="dash">
-		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_dashboard(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="speedometer-outline"></ion-icon></span>
 		<span class="title">Dashboard</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_register(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="newspaper-outline"></ion-icon></span>
 		<span class="title">Registration</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{manage_accounts(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="archive-outline"></ion-icon></span>
 		<span class="title">Manage Accounts</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{fund_transfer(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="cash-outline"></ion-icon></span>
 		<span class="title">Fund Transfers</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{reports(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="bar-chart-outline"></ion-icon></span>
 		<span class="title">Reports and Statements</span>
 		</a>
 		</li>
 		<li>
-		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username},s=${user_pin})}">
+		<a th:href="@{personnel_receipting(p=${Phone},q=${Password},r=${Username})}">
 		<span class="icon"><ion-icon name="stats-chart-outline"></ion-icon></span>
 		<span class="title">Receipting and Reconciliation</span>
 		</a>
@@ -76,7 +86,7 @@ $(document).ready(function(){
 		</a>
 		</li>
 		<li>
-		<a th:href="@{statement2(p=${Phone},q=${user_pin})}">
+		<a th:href="@{/authenticate/login}">
 		<span class="icon"><ion-icon name="log-out-outline"></ion-icon></span>
 		<span class="title">Sign Out</span>
 		</a>
@@ -122,6 +132,7 @@ $(document).ready(function(){
 		<input type="hidden" name="username" id="username" th:value="${personnel_name}">
 		<input type="hidden" name="password" id="password" th:value="${personal_password}">
 		<input type="hidden" name="phone_number" id="phone_number" th:value="${personal_no}">
+		<input type="hidden" name="church_code" id="church_code" th:value="${church_code}">
 		
 		<!-- Order Details List -->
 		<div class="details">
@@ -208,7 +219,6 @@ $(document).ready(function(){
 					</div>
 					<button type="button" class="btn" onclick="goBackToReceipting()" style="float:right;">Back</button>
 					<input type="text" placeholder="Search here" id="myInput">
-
 					<br>
 					<div class="responseDiv" style="display:none;"></div>
 					<br>
@@ -350,9 +360,23 @@ $(document).ready(function(){
 				</tr>
 				</table>				
 			</div>
-			
+
+			<div class="loader" id="loader_spin_receipting" style="display:none;"></div>
 			<div id="trust_funds_div" style="display:none;"></div>
-			
+			<div id="receipted_data"></div>
+			<div class="loader" id="loader_spin_receipting1" style="display:none;"></div>
+			<div id="trust_funds_div_edit"></div>
+			<div id="edit_receipt_select"></div>
+			<div id="receipted_edit"></div>
+			<div id="trust_funds_div_edited"></div>
+			<div class="loader" id="loader_spin_receipting2" style="display:none;"></div>
+
+			<div id="member_edited_receipts" style="display:none;">
+				<p>You can only edit an unreconciled transaction. Select the transaction date range to proceed</p>
+				<p id="member_name_edited"></p>
+				<p id="member_phone_edited"></p>
+				<p id="member_id_edited"></p>
+			</div>
 			<div id="payment_div" style="display:none;">
 				
 					<table>
@@ -469,6 +493,19 @@ $(document).ready(function(){
 			
 
 			<div class="recentCustomers">
+                <div id="add_button" style="display:none;">
+                    <div class="cardHeader">
+                        <h2 style="text-align:center;margin-top:10px;">Edit Previous Receipt</h2>
+                    </div>
+                    <table width="100%" style="border-collapse: separate;">
+                        <tbody>
+							<tr onclick="editSubmittedReceipts()">
+								<td class="btn-add">Edit Receipt</td>
+							</tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
 				<hr>
 				<div id="about_app">
 					<div class="cardHeader">
