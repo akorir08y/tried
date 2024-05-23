@@ -226,6 +226,7 @@ function getAllFundAccounts(){
             departments[i] = departments[i].replace('"','');
             departments[i] = departments[i].replace('"','');
             departments[i] = departments[i].split("::");
+            departments[i][0] = departments[i][0].replace(' Account', '');
             accounts.push(departments[i][0]);
         }
 
@@ -255,6 +256,7 @@ function getAllFundAccounts(){
             departments1[i] = departments1[i].replace('"','');
             departments1[i] = departments1[i].replace('"','');
             departments1[i] = departments1[i].split("::");
+            departments1[i][0] = departments1[i][0].replace(' Account', '');
             accounts1.push(departments1[i][0]);
         }
 
@@ -262,7 +264,7 @@ function getAllFundAccounts(){
 
         for(i=0;i < uniqueChars1.length;i++){
             html += "<tr>";
-            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
             html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
             html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt1\" name=\"amt1\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\">";
             html += "</td></tr>";
@@ -281,6 +283,7 @@ function getAllFundAccounts(){
             departments2[i] = departments2[i].replace('"','');
             departments2[i] = departments2[i].replace('"','');
             departments2[i] = departments2[i].split("::");
+            departments2[i][0] = departments2[i][0].replace(' Account', '');
             accounts2.push(departments2[i][0]);
         }
 
@@ -288,7 +291,7 @@ function getAllFundAccounts(){
 
         for(i=0;i < uniqueChars2.length;i++){
             html += "<tr>";
-            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
             html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
             html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt2\" name=\"amt2\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\">";
             html += "</td></tr>";
@@ -353,6 +356,7 @@ function getAllFundAccountsReceipted(){
             departments[i] = departments[i].replace('"','');
             departments[i] = departments[i].replace('"','');
             departments[i] = departments[i].split("::");
+            departments[i][0] = departments[i][0].replace(' Account', '');
             accounts.push(departments[i][0]);
         }
 
@@ -361,7 +365,7 @@ function getAllFundAccountsReceipted(){
 
         for(i=0;i < uniqueChars.length;i++){
             html += "<tr>";
-            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +"</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +" Account</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
             html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
             html += "<input type=\"number\" id='"+uniqueChars[i]+"' class=\"amt\" name=\"amt\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
             html += "</td></tr>";
@@ -388,7 +392,7 @@ function getAllFundAccountsReceipted(){
         var uniqueChars1 = [...new Set(accounts1)];
         for(i=0;i < uniqueChars1.length;i++){
             html += "<tr>";
-            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
             html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
             html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt1\" name=\"amt1\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
             html += "</td></tr>";
@@ -415,7 +419,7 @@ function getAllFundAccountsReceipted(){
         var uniqueChars2 = [...new Set(accounts2)];
         for(i=0;i < uniqueChars2.length;i++){
             html += "<tr>";
-            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+            html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
             html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
             html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt2\" name=\"amt2\" placeholder=\"\" onfocus=\"GetTotal4()\" onkeydown=\"GetTotal4()\"  onkeyup=\"GetTotal4()\"  readonly>";
             html += "</td></tr>";
@@ -848,8 +852,8 @@ function getMemberReceipting(){
     for (var i = 0; i < amt.length; i++) {
     	if(amt[i].value != ''){
     		var amount_id = amt[i].id;
-    		amount_id = amount_id.replace(' Account','');
     		funds1.push(amount_id);
+    		amount_id = amount_id.replace(' Account','');
     		amt3.push(amt[i].value);
         }
     }
@@ -858,7 +862,6 @@ function getMemberReceipting(){
        	if(amt1[i].value != ''){
        		var amount_id = amt1[i].id;
        		amount_id = amount_id.replace(' Account','');
-       		amount_id = amount_id.replace(' ','');
        		funds2.push(amount_id);
        		amt4.push(amt1[i].value);
        	}
@@ -979,7 +982,6 @@ function getMemberEditReceipting(){
        	if(amt1[i].value != ''){
        		var amount_id = amt1[i].id;
        		amount_id = amount_id.replace(' Account','');
-       		amount_id = amount_id.replace(' ','');
        		funds2.push(amount_id);
        		amt4.push(amt1[i].value);
        	}
@@ -1180,8 +1182,8 @@ function getSubmittedReceipts(receipted, member_id, phone_number){
 	    html += "<option value="+receipt_numbers[i]+">"+ receipt_numbers[i] +"</option>";
 	}
 	html += "</select></td></tr>";
-	html += "<tr><td colspan=\"2\"><button class=\"btn\" onclick=\"getSubmittedReceiptsEdit("+ member_id +","+ phone_number +")\">Get Receipts</button></td>";
-	html += "<td colspan=\"2\"><button class=\"btn-red\" onclick=\"deleteCashReceipt()\">Delete Receipt</button></td></tr>";
+	html += "<tr><td colspan=\"2\"><button class=\"btn\" onclick=\"getSubmittedReceiptsEdit("+ member_id +","+ phone_number +")\">Get Receipts</button>    ";
+	html += "<button class=\"btn-red\" onclick=\"deleteCashReceipt()\">Delete Receipt</button></td></tr>";
 	html += "</table>";
 	html += "</div>";
 
@@ -1255,7 +1257,7 @@ function getReceiptsEdited(){
                 html += "<option value="+receipt_numbers[i]+">"+ receipt_numbers[i] +"</option>";
             }
             html += "</select></td></tr>";
-            html += "<tr><td colspan=\"2\"><button class=\"btn-red\" onclick=\"deleteCashReceipt()\">Delete Receipt</button></td></tr>";
+            html += "<tr><td colspan=\"2\"><button class=\"btn-red\" onclick=\"deleteCashReceipted()\">Delete Receipt</button></td></tr>";
             //html += "<tr><td colspan=\"2\"><button class=\"btn\" onclick=\"getSubmittedReceiptsEdit("+ member_id +","+ phone_number +")\">Get Receipts</button></td></tr>";
             html += "</table>";
             html += "</div>";
@@ -1382,6 +1384,7 @@ function changeInfo(receipted){
     loader_spin_receipting.style.display = "block";
 
 	$.post(hosted_url + "/cfms-web/auth/check-account",profile_data ,function(data, status){
+	    console.log(data);
         document.getElementById("receipted_member").style.display = "none";
 	    loader_spin_receipting.style.display = "none";
 
@@ -1431,12 +1434,15 @@ function changeInfo(receipted){
                 departments[i] = departments[i].replace('"','');
                 departments[i] = departments[i].split("::");
                 if(departments[i][0].includes("Account")){
-                    departments[i][0] = departments[i][0].replace(" Account","");
+                    departments[i][0] = departments[i][0].replace(' Account','');
                 }else{
                     departments[i][0] = departments[i][0];
                 }
                 accounts.push(departments[i][0]);
             }
+
+            console.log(trustFund);
+            console.log(accounts);
 
             var uniqueChars = [...new Set(accounts)];
             console.log("Unique Characters: "+uniqueChars);
@@ -1444,14 +1450,14 @@ function changeInfo(receipted){
             for(i=0;i < uniqueChars.length;i++){
                 if(trustFundKeys.includes(accounts[i])){
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +" Account</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +"</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars[i]+"' class=\"amt_edit\" name=\"amt_edit\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\"  value="+request[uniqueChars[i]]+">";
                     html += "</td></tr>";
                     sum += parseInt(request[uniqueChars[i]]);
                 }else{
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +" Account</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars[i] +"</b><input type=\"hidden\" class=\"trust_funds1\" value='"+uniqueChars[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars[i]+"' class=\"amt_edit\" name=\"amt_edit\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\">";
                     html += "</td></tr>";
@@ -1478,25 +1484,28 @@ function changeInfo(receipted){
                 departments1[i] = departments1[i].replace('"','');
                 departments1[i] = departments1[i].split("::");
                 if(departments1[i][0].includes("Account")){
-                    departments1[i][0] = departments1[i][0].replace(" Account","");
+                    departments1[i][0] = departments1[i][0].replace(' Account','');
                 }else{
                     departments1[i][0] = departments1[i][0];
                 }
                 accounts1.push(departments1[i][0]);
             }
 
+            console.log(nonTrustFund);
+            console.log(accounts1);
+
             var uniqueChars1 = [...new Set(accounts1)];
             for(i=0;i < uniqueChars1.length;i++){
                 if(nonTrustFundKeys.includes(accounts1[i])){
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt_edit1\" name=\"amt_edit1\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\" value="+parseFloat(request1[uniqueChars1[i]])+">";
                     html += "</td></tr>";
                     sum += parseInt(request1[uniqueChars1[i]]);
                 }else{
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt_edit1\" name=\"amt_edit1\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\">";
                     html += "</td></tr>";
@@ -1523,7 +1532,7 @@ function changeInfo(receipted){
                 departments2[i] = departments2[i].replace('"','');
                 departments2[i] = departments2[i].split("::");
                 if(departments2[i][0].includes("Account")){
-                    departments2[i][0] = departments2[i][0].replace(" Account","");
+                    departments2[i][0] = departments2[i][0].replace(' Account','');
                 }else{
                     departments2[i][0] = departments2[i][0];
                 }
@@ -1534,14 +1543,14 @@ function changeInfo(receipted){
             for(i=0;i < uniqueChars2.length;i++){
                 if(specialTrustFundKeys.includes(accounts2[i])){
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt_edit2\" name=\"amt_edit2\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\"  value="+parseFloat(request2[uniqueChars2[i]])+">";
                     html += "</td></tr>";
                     sum += parseInt(request2[uniqueChars2[i]]);
                 }else{
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt_edit2\" name=\"amt_edit2\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\">";
                     html += "</td></tr>";
@@ -2069,8 +2078,33 @@ function traceTransactionReceipt(){
 // Delete Cash Receipt
 function deleteCashReceipt(){
     var receipt_number = document.getElementById("receipt_numbers").value;
-    var member_id = document.getElementById("member_edit_id").value;
-    var member_phone = document.getElementById("member_edit_phone").value;
+    var member_id = document.getElementById("member_id_edited").innerHTML;
+    var member_phone = document.getElementById("member_phone_edited").innerHTML;
+
+    var fund_data = {
+        cfms_member_number: member_id,
+        phone_number: member_phone,
+        receipt_number: receipt_number
+    };
+
+    $.post(hosted_url + "/cfms-web/personnel/cash-receipted-delete",fund_data ,function(data, status){
+        console.log(data);
+        if(data.status == 0){
+            alert("Cash Receipt Successfully Deleted");
+            window.location.reload();
+        }else{
+            alert("Cash Receipt Deletion UnSuccessful");
+        }
+
+    });
+}
+
+
+// Delete Cash Receipt
+function deleteCashReceipted(){
+    var receipt_number = document.getElementById("receipt_numbers").value;
+    var member_id = document.getElementById("member_id").value;
+    var member_phone = document.getElementById("member_phone").value;
 
     var fund_data = {
         cfms_member_number: member_id,

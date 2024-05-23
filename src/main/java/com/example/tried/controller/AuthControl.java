@@ -1104,6 +1104,7 @@ public class AuthControl {
         String church_level = response.getPayload().getOrganisationLevel();
         String personnel_name = response.getPayload().getPersonnelName();
         String member_no = response.getPayload().getPersonnelCfmsNumber();
+        String treasurer_no = response.getPayload().getPersonnelPhone();
 
         Dapayload dashboard = new Dapayload();
         dashboard.setChurchName(church_name);
@@ -1127,6 +1128,7 @@ public class AuthControl {
         model2.addAttribute("personal_no",phone_number);
         model2.addAttribute("personal_password",password);
         model2.addAttribute("personnel_name", username);
+        model2.addAttribute("treasurer_no", treasurer_no);
 
         model2.addAttribute("church_code", church_code);
 
