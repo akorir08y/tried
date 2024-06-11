@@ -503,9 +503,9 @@ public class PersonnelController {
     @GetMapping("/trust_fund_transcript")
     public TrustFundTranscriptResponse getTrustFundTranscript() throws JsonProcessingException, NullPointerException {
         // Credentials
-        String username = "mwakesho";
-        String password = "0389";
-        String phone_number = "254786439659";
+        String username = "";
+        String password = "";
+        String phone_number = "";
 
         if(phone_number.startsWith("+254")){
             phone_number = phone_number.substring(1);
@@ -1636,9 +1636,9 @@ public class PersonnelController {
     @GetMapping("/select-account-json")
     public HashMap<String, Object> selectLocalChurchAccounts() throws IOException {
 
-        String phone_number = "254786439659";
-        String username = "mwakesho";
-        String password = "0389";
+        String phone_number = "";
+        String username = "";
+        String password = "";
 
         if(phone_number.startsWith("+254")){
             phone_number = phone_number.substring(1);
