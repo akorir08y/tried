@@ -1,9 +1,8 @@
 package com.example.tried.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class MemberTransfer{
 
 	@JsonProperty("function")
@@ -15,15 +14,36 @@ public class MemberTransfer{
 	@JsonProperty("authentication")
 	private TransferAuthentication transferauthentication;
 
-	public String getFunction(){
+	public MemberTransfer() {
+	}
+
+	public MemberTransfer(String function, TransferAuthentication transferauthentication, Transferpayload transferpayload) {
+		this.function = function;
+		this.transferauthentication = transferauthentication;
+		this.transferpayload = transferpayload;
+	}
+
+	public String getFunction() {
 		return function;
 	}
 
-	public Transferpayload getTransferpayload(){
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public Transferpayload getTransferpayload() {
 		return transferpayload;
 	}
 
-	public TransferAuthentication getTransferauthentication(){
+	public void setTransferpayload(Transferpayload transferpayload) {
+		this.transferpayload = transferpayload;
+	}
+
+	public TransferAuthentication getTransferauthentication() {
 		return transferauthentication;
+	}
+
+	public void setTransferauthentication(TransferAuthentication transferauthentication) {
+		this.transferauthentication = transferauthentication;
 	}
 }

@@ -1,9 +1,8 @@
 package com.example.tried.auth.member;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class RequestChurchDetailsWithCodeResponse{
 
 	@JsonProperty("departmentalAccounts")
@@ -51,63 +50,144 @@ public class RequestChurchDetailsWithCodeResponse{
 	@JsonProperty("status")
 	private Integer status;
 
-	public String getDepartmentalAccounts(){
+	public RequestChurchDetailsWithCodeResponse() {
+	}
+
+	public RequestChurchDetailsWithCodeResponse(String departmentalAccounts, String churchName, String conferenceName, String districtName, String conferenceNumber, String groups, String districtNumber, String churchNumber, String settlementAccountNumber, Integer sessionNumber, String specialTrustFundAccounts, String function, String redactedSettlementAccountNumber, String availableMeansOfPayment, Integer status) {
+		this.departmentalAccounts = departmentalAccounts;
+		this.churchName = churchName;
+		this.conferenceName = conferenceName;
+		this.districtName = districtName;
+		this.conferenceNumber = conferenceNumber;
+		this.groups = groups;
+		this.districtNumber = districtNumber;
+		this.churchNumber = churchNumber;
+		this.settlementAccountNumber = settlementAccountNumber;
+		this.sessionNumber = sessionNumber;
+		this.specialTrustFundAccounts = specialTrustFundAccounts;
+		this.function = function;
+		this.redactedSettlementAccountNumber = redactedSettlementAccountNumber;
+		this.availableMeansOfPayment = availableMeansOfPayment;
+		this.status = status;
+	}
+
+	public String getDepartmentalAccounts() {
 		return departmentalAccounts;
 	}
 
-	public String getChurchName(){
+	public void setDepartmentalAccounts(String departmentalAccounts) {
+		this.departmentalAccounts = departmentalAccounts;
+	}
+
+	public String getChurchName() {
 		return churchName;
 	}
 
-	public String getConferenceName(){
+	public void setChurchName(String churchName) {
+		this.churchName = churchName;
+	}
+
+	public String getConferenceName() {
 		return conferenceName;
 	}
 
-	public String getDistrictName(){
+	public void setConferenceName(String conferenceName) {
+		this.conferenceName = conferenceName;
+	}
+
+	public String getDistrictName() {
 		return districtName;
 	}
 
-	public String getConferenceNumber(){
+	public void setDistrictName(String districtName) {
+		this.districtName = districtName;
+	}
+
+	public String getConferenceNumber() {
 		return conferenceNumber;
 	}
 
-	public String getGroups(){
+	public void setConferenceNumber(String conferenceNumber) {
+		this.conferenceNumber = conferenceNumber;
+	}
+
+	public String getGroups() {
 		return groups;
 	}
 
-	public String getDistrictNumber(){
+	public void setGroups(String groups) {
+		this.groups = groups;
+	}
+
+	public String getDistrictNumber() {
 		return districtNumber;
 	}
 
-	public String getChurchNumber(){
+	public void setDistrictNumber(String districtNumber) {
+		this.districtNumber = districtNumber;
+	}
+
+	public String getChurchNumber() {
 		return churchNumber;
 	}
 
-	public String getSettlementAccountNumber(){
+	public void setChurchNumber(String churchNumber) {
+		this.churchNumber = churchNumber;
+	}
+
+	public String getSettlementAccountNumber() {
 		return settlementAccountNumber;
 	}
 
-	public Integer getSessionNumber(){
+	public void setSettlementAccountNumber(String settlementAccountNumber) {
+		this.settlementAccountNumber = settlementAccountNumber;
+	}
+
+	public Integer getSessionNumber() {
 		return sessionNumber;
 	}
 
-	public String getSpecialTrustFundAccounts(){
+	public void setSessionNumber(Integer sessionNumber) {
+		this.sessionNumber = sessionNumber;
+	}
+
+	public String getSpecialTrustFundAccounts() {
 		return specialTrustFundAccounts;
 	}
 
-	public String getFunction(){
+	public void setSpecialTrustFundAccounts(String specialTrustFundAccounts) {
+		this.specialTrustFundAccounts = specialTrustFundAccounts;
+	}
+
+	public String getFunction() {
 		return function;
 	}
 
-	public String getRedactedSettlementAccountNumber(){
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public String getRedactedSettlementAccountNumber() {
 		return redactedSettlementAccountNumber;
 	}
 
-	public String getAvailableMeansOfPayment(){
+	public void setRedactedSettlementAccountNumber(String redactedSettlementAccountNumber) {
+		this.redactedSettlementAccountNumber = redactedSettlementAccountNumber;
+	}
+
+	public String getAvailableMeansOfPayment() {
 		return availableMeansOfPayment;
 	}
 
-	public Integer getStatus(){
+	public void setAvailableMeansOfPayment(String availableMeansOfPayment) {
+		this.availableMeansOfPayment = availableMeansOfPayment;
+	}
+
+	public Integer getStatus() {
 		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 }

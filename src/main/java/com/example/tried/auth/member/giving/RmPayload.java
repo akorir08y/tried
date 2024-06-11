@@ -2,9 +2,8 @@ package com.example.tried.auth.member.giving;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class RmPayload{
 
 	@JsonProperty("receiverName")
@@ -52,116 +51,146 @@ public class RmPayload{
 	@JsonProperty("contributingFor")
 	private String contributingFor;
 
-	public void setReceiverName(String receiverName){
+	public RmPayload() {
+
+	}
+
+	public RmPayload(String receiverName, String contributorName, String collectingParty, Integer totalAmount, String contributorContactType, String receiverId, Integer sessionNumber, String contributingAs, String churchCode, String contributorContact, String receiverContact, String contributorType, String meansOfPayment, FundDistribution fundDistribution, String contributingFor) {
 		this.receiverName = receiverName;
-	}
-
-	public String getReceiverName(){
-		return receiverName;
-	}
-
-	public void setContributorName(String contributorName){
 		this.contributorName = contributorName;
-	}
-
-	public String getContributorName(){
-		return contributorName;
-	}
-
-	public void setCollectingParty(String collectingParty){
 		this.collectingParty = collectingParty;
-	}
-
-	public String getCollectingParty(){
-		return collectingParty;
-	}
-
-	public void setTotalAmount(Integer totalAmount){
 		this.totalAmount = totalAmount;
-	}
-
-	public Integer getTotalAmount(){
-		return totalAmount;
-	}
-
-	public void setContributorContactType(String contributorContactType){
 		this.contributorContactType = contributorContactType;
-	}
-
-	public String getContributorContactType(){
-		return contributorContactType;
-	}
-
-	public void setReceiverId(String receiverId){
 		this.receiverId = receiverId;
-	}
-
-	public String getReceiverId(){
-		return receiverId;
-	}
-
-	public void setSessionNumber(Integer sessionNumber){
 		this.sessionNumber = sessionNumber;
-	}
-
-	public Integer getSessionNumber(){
-		return sessionNumber;
-	}
-
-	public void setContributingAs(String contributingAs){
 		this.contributingAs = contributingAs;
-	}
-
-	public String getContributingAs(){
-		return contributingAs;
-	}
-
-	public void setChurchCode(String churchCode){
 		this.churchCode = churchCode;
-	}
-
-	public String getChurchCode(){
-		return churchCode;
-	}
-
-	public void setContributorContact(String contributorContact){
 		this.contributorContact = contributorContact;
-	}
-
-	public String getContributorContact(){
-		return contributorContact;
-	}
-
-	public void setContributorType(String contributorType){
+		this.receiverContact = receiverContact;
 		this.contributorType = contributorType;
-	}
-
-	public String getContributorType(){
-		return contributorType;
-	}
-
-	public void setMeansOfPayment(String meansOfPayment){
 		this.meansOfPayment = meansOfPayment;
-	}
-
-	public String getMeansOfPayment(){
-		return meansOfPayment;
-	}
-
-	public void setFundDistribution(FundDistribution fundDistribution){
 		this.fundDistribution = fundDistribution;
-	}
-
-	public FundDistribution getFundDistribution(){
-		return fundDistribution;
-	}
-
-	public void setContributingFor(String contributingFor){
 		this.contributingFor = contributingFor;
 	}
 
-	public String getContributingFor(){
+	public String getReceiverName() {
+		return receiverName;
+	}
+
+	public void setReceiverName(String receiverName) {
+		this.receiverName = receiverName;
+	}
+
+	public String getContributorName() {
+		return contributorName;
+	}
+
+	public void setContributorName(String contributorName) {
+		this.contributorName = contributorName;
+	}
+
+	public String getCollectingParty() {
+		return collectingParty;
+	}
+
+	public void setCollectingParty(String collectingParty) {
+		this.collectingParty = collectingParty;
+	}
+
+	public Integer getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(Integer totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public String getContributorContactType() {
+		return contributorContactType;
+	}
+
+	public void setContributorContactType(String contributorContactType) {
+		this.contributorContactType = contributorContactType;
+	}
+
+	public String getReceiverId() {
+		return receiverId;
+	}
+
+	public void setReceiverId(String receiverId) {
+		this.receiverId = receiverId;
+	}
+
+	public Integer getSessionNumber() {
+		return sessionNumber;
+	}
+
+	public void setSessionNumber(Integer sessionNumber) {
+		this.sessionNumber = sessionNumber;
+	}
+
+	public String getContributingAs() {
+		return contributingAs;
+	}
+
+	public void setContributingAs(String contributingAs) {
+		this.contributingAs = contributingAs;
+	}
+
+	public String getChurchCode() {
+		return churchCode;
+	}
+
+	public void setChurchCode(String churchCode) {
+		this.churchCode = churchCode;
+	}
+
+	public String getContributorContact() {
+		return contributorContact;
+	}
+
+	public void setContributorContact(String contributorContact) {
+		this.contributorContact = contributorContact;
+	}
+
+	public String getReceiverContact() {
+		return receiverContact;
+	}
+
+	public void setReceiverContact(String receiverContact) {
+		this.receiverContact = receiverContact;
+	}
+
+	public String getContributorType() {
+		return contributorType;
+	}
+
+	public void setContributorType(String contributorType) {
+		this.contributorType = contributorType;
+	}
+
+	public String getMeansOfPayment() {
+		return meansOfPayment;
+	}
+
+	public void setMeansOfPayment(String meansOfPayment) {
+		this.meansOfPayment = meansOfPayment;
+	}
+
+	public FundDistribution getFundDistribution() {
+		return fundDistribution;
+	}
+
+	public void setFundDistribution(FundDistribution fundDistribution) {
+		this.fundDistribution = fundDistribution;
+	}
+
+	public String getContributingFor() {
 		return contributingFor;
+	}
+
+	public void setContributingFor(String contributingFor) {
+		this.contributingFor = contributingFor;
 	}
 
 	@Override

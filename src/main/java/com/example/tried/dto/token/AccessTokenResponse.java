@@ -1,12 +1,12 @@
 package com.example.tried.dto.token;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
-import lombok.SneakyThrows;
+
+
 
 // Access Token Response
-@Data
 public class AccessTokenResponse {
 
     @JsonProperty("access_token")
@@ -15,10 +15,38 @@ public class AccessTokenResponse {
     @JsonProperty("expires_in")
     private String expires_in;
 
-    @SneakyThrows
 
     @Override
-    public String toString(){
-        return new ObjectMapper().writeValueAsString(this);
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public AccessTokenResponse() {
+
+    }
+
+    public AccessTokenResponse(String access_token, String expires_in) {
+        this.access_token = access_token;
+        this.expires_in = expires_in;
+    }
+
+    public String getAccess_token() {
+        return access_token;
+    }
+
+    public void setAccess_token(String access_token) {
+        this.access_token = access_token;
+    }
+
+    public String getExpires_in() {
+        return expires_in;
+    }
+
+    public void setExpires_in(String expires_in) {
+        this.expires_in = expires_in;
     }
 }

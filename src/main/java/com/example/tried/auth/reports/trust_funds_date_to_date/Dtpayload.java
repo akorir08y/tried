@@ -2,9 +2,8 @@ package com.example.tried.auth.reports.trust_funds_date_to_date;
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class Dtpayload{
 
 	@JsonProperty("localChurchNumber")
@@ -15,4 +14,38 @@ public class Dtpayload{
 
 	@JsonProperty("transactions")
 	private List<TransactionsItem> transactions;
+
+	public Dtpayload() {
+
+	}
+
+	public Dtpayload(String localChurchNumber, String localChurchName, List<TransactionsItem> transactions) {
+		this.localChurchNumber = localChurchNumber;
+		this.localChurchName = localChurchName;
+		this.transactions = transactions;
+	}
+
+	public String getLocalChurchNumber() {
+		return localChurchNumber;
+	}
+
+	public void setLocalChurchNumber(String localChurchNumber) {
+		this.localChurchNumber = localChurchNumber;
+	}
+
+	public String getLocalChurchName() {
+		return localChurchName;
+	}
+
+	public void setLocalChurchName(String localChurchName) {
+		this.localChurchName = localChurchName;
+	}
+
+	public List<TransactionsItem> getTransactions() {
+		return transactions;
+	}
+
+	public void setTransactions(List<TransactionsItem> transactions) {
+		this.transactions = transactions;
+	}
 }

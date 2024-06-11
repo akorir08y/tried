@@ -35,7 +35,7 @@ public class LocalNonTrustFundReportExcel {
     List<String> keys_unfiltered = new ArrayList<String>();
 
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     public LocalNonTrustFundReportExcel() {

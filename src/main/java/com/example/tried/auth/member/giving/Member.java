@@ -1,9 +1,8 @@
 package com.example.tried.auth.member.giving;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class Member{
 
 	@JsonProperty("receiverContactType")
@@ -57,6 +56,28 @@ public class Member{
 	@JsonProperty("contributingFor")
 	private String contributingFor;
 
+	public Member() {
+	}
+
+	public Member(String receiverContactType, String cfmsTransactionId, String churchName, String accountName, String receiverContact, String receiverName, String accountNumber, String contributorName, String collectingParty, Integer totalAmount, String contributorContactType, String receiverId, String contributingAs, String contributorContact, String churchCode, String contributorType, String contributingFor) {
+		this.receiverContactType = receiverContactType;
+		this.cfmsTransactionId = cfmsTransactionId;
+		this.churchName = churchName;
+		this.accountName = accountName;
+		this.receiverContact = receiverContact;
+		this.receiverName = receiverName;
+		this.accountNumber = accountNumber;
+		this.contributorName = contributorName;
+		this.collectingParty = collectingParty;
+		this.totalAmount = totalAmount;
+		this.contributorContactType = contributorContactType;
+		this.receiverId = receiverId;
+		this.contributingAs = contributingAs;
+		this.contributorContact = contributorContact;
+		this.churchCode = churchCode;
+		this.contributorType = contributorType;
+		this.contributingFor = contributingFor;
+	}
 
 	public String getReceiverContactType() {
 		return receiverContactType;

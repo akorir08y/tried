@@ -38,13 +38,13 @@ public class ReportController {
                                                    HttpServletResponse Outresponse) throws IOException {
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
@@ -68,13 +68,18 @@ public class ReportController {
         com.example.tried.auth.personnel.reports.offering.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.offering.Authentication();
 
+        String personnel_name = response1.getPayload().getPersonnelName();
+        String institution_name = response1.getPayload().getOrganisationName();
+        String institution_level = response1.getPayload().getOrganisationLevel();
+        String institution_number = response1.getPayload().getOrganisationNumber();
+
         // Authentication
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
-        authentication.setInstututionName(response1.getPayload().getOrganisationName());
-        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
-        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setInstututionNumber(institution_number);
         authentication.setSessionNumber(session_number);
 
         // Local Church RPayload
@@ -93,7 +98,7 @@ public class ReportController {
         Outresponse.setContentType("application/octet-stream");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=local_church_offering_report-" + start_date +" - "+ end_date  + ".xlsx";
+        String headerValue = "attachment; filename=local_church_offering_report_"+ institution_name +"_"+ start_date +" - "+ end_date  + ".xlsx";
         Outresponse.setHeader(headerKey, headerValue);
 
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
@@ -109,14 +114,14 @@ public class ReportController {
 
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
@@ -140,13 +145,18 @@ public class ReportController {
         com.example.tried.auth.personnel.reports.offering.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.offering.Authentication();
 
+        String personnel_name = response1.getPayload().getPersonnelName();
+        String institution_name = response1.getPayload().getOrganisationName();
+        String institution_level = response1.getPayload().getOrganisationLevel();
+        String institution_number = response1.getPayload().getOrganisationNumber();
+
         // Authentication
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
-        authentication.setInstututionName(response1.getPayload().getOrganisationName());
-        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
-        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setInstututionNumber(institution_number);
         authentication.setSessionNumber(session_number);
 
         // Local Church RPayload
@@ -170,7 +180,8 @@ public class ReportController {
 
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
         System.out.println(responsed);
-        localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed);
+        localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed, username, password, personnel_name, institution_name,
+                 institution_number, institution_level);
     }
 
     // Get Local Church Offering Report
@@ -202,13 +213,13 @@ public class ReportController {
 
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 

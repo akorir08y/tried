@@ -2,13 +2,13 @@ package com.example.tried.auth.personnel.accounts;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Data;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Data
+
 public class AccountList{
 
 	@JsonProperty("000000")

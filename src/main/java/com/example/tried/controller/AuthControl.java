@@ -22,9 +22,11 @@ import com.example.tried.services.AuthApi;
 import com.example.tried.services.PersonnelApi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +42,7 @@ import java.util.*;
 
 @Controller
 @RequestMapping("/authenticate")
-@Slf4j
+
 public class AuthControl {
 
     @Autowired
@@ -49,7 +51,7 @@ public class AuthControl {
     @Autowired
     PersonnelApi personnelApi;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public AuthControl(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -69,9 +71,10 @@ public class AuthControl {
 
     // Get the Profile Page
     @GetMapping(path="/profile")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getProfile(Model model, Model model2,
                              @RequestParam(value="p")String p,
-                             @RequestParam(value="q")String q) throws JsonProcessingException {
+                             @RequestParam(value="q")String q) throws JsonProcessingException, NullPointerException {
 
         // String phoneNumber = "254707981971";
         // Model Attributes in Base32 Format
@@ -87,7 +90,7 @@ public class AuthControl {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s","+", phoneNumber));
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -128,7 +131,7 @@ public class AuthControl {
 
     // Get the Statement Page
     @GetMapping(path="/statement")
-    public String getStatement(Model model,@RequestParam("p")String p, @RequestParam("q")String q){
+    public String getStatement(Model model,@RequestParam("p")String p, @RequestParam("q")String q) throws NullPointerException{
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -177,10 +180,10 @@ public class AuthControl {
 
     // Get the Server Side Offering Authentication Information
     @PostMapping(path="/auth-login")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String passCredentials(@RequestParam("username")String username,
                                   @RequestParam("password") String password, Model model,
-                                  Model model2) throws JsonProcessingException {
-
+                                  Model model2) throws JsonProcessingException, NullPointerException {
 
         // Login Credentials
         LoginCredentials credentials = new LoginCredentials();
@@ -192,11 +195,12 @@ public class AuthControl {
         // Login to the Users API
         AuthMemberResponse response = authApi.getMemberCredentials(credentials);
 
+
         // Member Profile Loading
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilePayload = new Profilepayload();
-        profilePayload.setMobileNumber("+" + username);
+        profilePayload.setMobileNumber(String.format("%s%s","+", username));
         profilePayload.setFromWithin(true);
         profile.setProfilepayload(profilePayload);
 
@@ -221,7 +225,7 @@ public class AuthControl {
         MemberProfile profiled = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + username);
+        payload.setMobileNumber(String.format("%s%s","+", username));
         profiled.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profiled);
@@ -252,19 +256,20 @@ public class AuthControl {
 
     // Get the Server Side OfferingAuthentication Information
     @PostMapping(path="/auth-register")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String registerCredentials(@RequestParam("fullname")String fullname,
                                       @RequestParam("phone") String phone,
                                       @RequestParam(value = "email", required = false) String email,
                                       @RequestParam("pin") String pin,
                                       @RequestParam("church_code") String church_code,
-                                      Model model, Model model2) throws JsonProcessingException {
+                                      Model model, Model model2) throws JsonProcessingException, NullPointerException {
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         phone = phone.replace(",", "");
 
         if(phone.startsWith("+254")){
-            phone = phone.substring(1,phone.length());
+            phone = phone.substring(1);
         }
 
         // Further Registration of Files
@@ -279,7 +284,7 @@ public class AuthControl {
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone);
+        payload.setMobileNumber(String.format("%s%s","+", phone));
         profile.setProfilepayload(payload);
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
 
@@ -313,16 +318,17 @@ public class AuthControl {
     }
 
     @PostMapping(value="/registration")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String registerMember(@RequestParam("fullname") String fullname, @RequestParam(value = "email", required = false) String email,
                                  @RequestParam("churchCode")String churchCode ,@RequestParam("phone") String phone,
                                  @RequestParam("phone_number_privacy")String phone_number_privacy, @RequestParam("language")String language,
                                  @RequestParam(value="phoneOwner", required = false)Boolean phoneOwner, @RequestParam(value="church_member", required = false)String churchMember,
                                  @RequestParam("receipt_to") String receipt_to, @RequestParam(value = "residence", required = false)String residence,
-                                 @RequestParam("pin") String pin) throws JsonProcessingException {
+                                 @RequestParam("pin") String pin) throws JsonProcessingException, NullPointerException {
 
         if (phoneOwner == null) {
             phoneOwner = false;
-        }else if(phoneOwner == true){
+        }else if(phoneOwner){
             phoneOwner = true;
         }
 
@@ -333,12 +339,12 @@ public class AuthControl {
         }
 
         if(phone.startsWith("0")){
-            phone = phone.substring(1, phone.length());
+            phone = phone.substring(1);
             phone = String.format("%s%s", "254", phone);
         }
 
         if(phone.startsWith("+254")){
-            phone = phone.substring(1,phone.length());
+            phone = phone.substring(1);
         }
 
         // Member Registration
@@ -430,20 +436,21 @@ public class AuthControl {
     }
 
     // OfferingAuthentication on the Server Side
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/auth-personnel")
     public String serverLogin(@RequestParam("username") String username,
                               @RequestParam("password") String password,
                               @RequestParam("phone_number") String phone_number,
-                              @RequestParam("pin") String pin, Model model, Model model2, Model model3) throws JsonProcessingException {
+                              @RequestParam("pin") String pin, Model model, Model model2, Model model3) throws JsonProcessingException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Member Profile Information
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profilepayload.setFromWithin(true);
 
         memberProfile.setProfilepayload(profilepayload);
@@ -521,10 +528,11 @@ public class AuthControl {
 
 
     // Personnel Authentication on the Server Side
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/personnel")
     public String serverLogin(@RequestParam("username") String username,
                               @RequestParam("password") String password,
-                              Model model, Model model2, Model model3) throws JsonProcessingException {
+                              Model model, Model model2, Model model3) throws JsonProcessingException, NullPointerException {
 
         // Login Credentials
         MemberPersonnel personnel = new MemberPersonnel();
@@ -601,6 +609,7 @@ public class AuthControl {
 
     // Registration on the Server Side
     @GetMapping(path="/register-member")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String ServerRegistration(){
         return "register-member";
     }
@@ -608,6 +617,7 @@ public class AuthControl {
 
     // Get the Authenticator Login Page
     @GetMapping(path="/settings")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String checkSettings(@RequestParam("p")String p, @RequestParam("q")String q, Model model){
 
         // Model Attributes in Base32 Format
@@ -623,15 +633,16 @@ public class AuthControl {
         return "settings";
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/logout")
     public String authLogout(){
         return "redirect:/authenticate/login";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping(path="/personnel_dashboard")
     public String getDashboard(@RequestParam("p") String p, @RequestParam("q") String q,
-                               @RequestParam("r") String r, Model model, Model model2, Model model3) throws JsonProcessingException {
+                               @RequestParam("r") String r, Model model, Model model2, Model model3) throws JsonProcessingException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -644,7 +655,7 @@ public class AuthControl {
 
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
 
@@ -654,7 +665,7 @@ public class AuthControl {
         // Member Profile Information
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profilepayload.setFromWithin(true);
 
         memberProfile.setProfilepayload(profilepayload);
@@ -721,11 +732,11 @@ public class AuthControl {
         return "personnel_dashboard";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping(path="/personnel_register")
     public String getPersonnelRegistration(@RequestParam(value="p")String p,@RequestParam(value="q")String q
                                         ,@RequestParam(value="r")String r,
-                                           Model model, Model model2,Model model3, Model model4) throws JsonProcessingException {
+                                           Model model, Model model2,Model model3, Model model4) throws JsonProcessingException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -737,19 +748,18 @@ public class AuthControl {
         String username = new String(decodedBytes2);
 
 
-
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone_number);
+        payload.setMobileNumber(String.format("%s%s","+", phone_number));
         profiler.setProfilepayload(payload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profiler);
@@ -820,6 +830,7 @@ public class AuthControl {
 
         Set<com.example.tried.auth.dashboard.deactivated.MembersItem> hSet =
                 new HashSet<com.example.tried.auth.dashboard.deactivated.MembersItem>(membersList1);
+
         model2.addAttribute("listDeactivatedMembers", hSet);
         model2.addAttribute("deactivatedSize", hSet.size());
 
@@ -827,8 +838,6 @@ public class AuthControl {
         model3.addAttribute("Phone", p);
         model3.addAttribute("Password", q);
         model3.addAttribute("Username", r);
-
-
 
         // Credentials
         model4.addAttribute("church_code", response.getPayload().getOrganisationNumber());
@@ -848,10 +857,11 @@ public class AuthControl {
 
 
     // New Interface Profile Information
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/profile2")
     public String getProfileInformation(Model model, @RequestParam(value="p")String p,
                                         @RequestParam(value="q")String q,
-                                        Model model2) throws JsonProcessingException {
+                                        Model model2) throws JsonProcessingException, NullPointerException {
 
 
 
@@ -862,14 +872,14 @@ public class AuthControl {
         String pin = new String(decodedBytes1);
 
         if(phoneNumber.startsWith("+254")){
-            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+            phoneNumber = phoneNumber.substring(1);
         }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s","+", phoneNumber));
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -913,8 +923,9 @@ public class AuthControl {
 
     // Get the Statement 2
     @GetMapping("/statement2")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getOfferingStatement(@RequestParam(value="p")String p,
-                                       @RequestParam(value="q")String q, Model model) throws JsonProcessingException {
+                                       @RequestParam(value="q")String q, Model model) throws JsonProcessingException, NullPointerException {
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
@@ -927,7 +938,7 @@ public class AuthControl {
         model.addAttribute("Password", q);
 
         if(phoneNumber.startsWith("+254")){
-            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+            phoneNumber = phoneNumber.substring(1);
         }
 
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -935,7 +946,7 @@ public class AuthControl {
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s","+", phoneNumber));
         profile.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
@@ -1002,8 +1013,9 @@ public class AuthControl {
 
 
     @GetMapping("/offering")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getMemberOffering(@RequestParam(value="p")String p,
-                                    @RequestParam(value="q")String q,Model model, Model model2) throws JsonProcessingException {
+                                    @RequestParam(value="q")String q,Model model, Model model2) throws JsonProcessingException, NullPointerException {
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
         byte[] decodedBytes1 = base32.decode(q);
@@ -1017,14 +1029,14 @@ public class AuthControl {
         System.out.println("Phone Number Retrieved using Post Request: "+phoneNumber);
 
         if(phoneNumber.startsWith("+254")){
-            phoneNumber = phoneNumber.substring(1,phoneNumber.length());
+            phoneNumber = phoneNumber.substring(1);
         }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s","+", phoneNumber));
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -1056,8 +1068,9 @@ public class AuthControl {
     }
 
     @GetMapping("/personnel_receipting")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getPersonnelReceipting(@RequestParam("p") String p,@RequestParam("q") String q,
-                                         @RequestParam("r") String r,Model model, Model model2, Model model3) throws JsonProcessingException {
+                                         @RequestParam("r") String r,Model model, Model model2, Model model3) throws JsonProcessingException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -1073,14 +1086,14 @@ public class AuthControl {
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Get Profile Information
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone_number);
+        payload.setMobileNumber(String.format("%s%s","+",phone_number));
         profiler.setProfilepayload(payload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profiler);
@@ -1142,9 +1155,10 @@ public class AuthControl {
     }
 
     @GetMapping("/reports")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getReportsAndStatements(@RequestParam("p") String p,@RequestParam("q") String q,
                                          @RequestParam("r") String r,Model model, Model model2, Model model3,
-                                          Model model4) throws JsonProcessingException {
+                                          Model model4) throws JsonProcessingException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -1157,7 +1171,7 @@ public class AuthControl {
 
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Plaintext Credentials
@@ -1169,7 +1183,7 @@ public class AuthControl {
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+"+ phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profile);
@@ -1279,10 +1293,11 @@ public class AuthControl {
 
 
     @GetMapping("/report-member")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getMemberStatement(@RequestParam("p") String p,@RequestParam("q") String q,
                                           @RequestParam("r") String r,
                                      @RequestParam("member_name") String member_name,@RequestParam("member_number") String member_number,
-                                     Model model, Model model2, Model model3) throws JsonProcessingException {
+                                     Model model, Model model2, Model model3) throws JsonProcessingException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -1295,7 +1310,7 @@ public class AuthControl {
 
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Plaintext Credentials
@@ -1307,7 +1322,7 @@ public class AuthControl {
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+"+ phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profile);
@@ -1337,8 +1352,9 @@ public class AuthControl {
     }
 
     @GetMapping("/manage_accounts")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String selectLocalChurchAccounts(@RequestParam("p") String p, @RequestParam("q") String q,
-                                            @RequestParam("r") String r,Model model, Model model2) throws IOException, JsonProcessingException {
+                                            @RequestParam("r") String r,Model model, Model model2) throws IOException, NullPointerException {
 
         Base32 base32 = new Base32();
         byte[] decodedBytes = base32.decode(p);
@@ -1351,7 +1367,7 @@ public class AuthControl {
 
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
 
@@ -1360,7 +1376,7 @@ public class AuthControl {
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profile.setProfilepayload(profilepayload);
 
         //Get the Member Profile Response
@@ -1443,9 +1459,10 @@ public class AuthControl {
     }
 
     @GetMapping("/fund_transfer")
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     public String getPaymentAccounts(@RequestParam("p") String p, @RequestParam("q") String q,
                                      @RequestParam("r") String r, Model model,
-                                     Model model2, Model model3, Model model4) throws JsonProcessingException {
+                                     Model model2, Model model3, Model model4) throws JsonProcessingException, NullPointerException {
 
         // Encrypted Credentials
         Base32 base32 = new Base32();
@@ -1461,13 +1478,13 @@ public class AuthControl {
         final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profile.setProfilepayload(profilepayload);
 
         // Get Membership Number

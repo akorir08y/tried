@@ -16,7 +16,7 @@ import java.util.List;
 
 public class SpecificAccountReportExcel {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     public SpecificAccountReportExcel() {
@@ -64,6 +64,11 @@ public class SpecificAccountReportExcel {
         font.setFontHeight(10);
         style.setFont(font);
 
+        double sum = 0.00;
+
+        int size = transaction.size();
+        int lastRow = size + rowCount;
+
         // Session Numbers
         for (TransactionsItem transactionItem : transaction) {
             Row row = sheet.createRow(rowCount++);
@@ -72,10 +77,16 @@ public class SpecificAccountReportExcel {
             createCell(row, columnCount++,transactionItem.getBusinessMemberId() , style);
             createCell(row, columnCount++, transactionItem.getContributorName(), style);
             createCell(row, columnCount++, transactionItem.getSum(), style);
+            sum += Double.valueOf(transactionItem.getSum());
         }
+
+        Row row = sheet.createRow(lastRow);
+        createCell(row, 0,"" , style);
+        createCell(row, 1,"Total Sum" , style);
+        createCell(row, 2,sum , style);
     }
 
-    public void export(HttpServletResponse response,List<com.example.tried.auth.reports.specific.TransactionsItem> transactionsItems) throws IOException, java.io.IOException {
+    public void export(HttpServletResponse response,List<com.example.tried.auth.reports.specific.TransactionsItem> transactionsItems) throws IOException, NullPointerException, java.io.IOException {
         writeHeaderLine();
         getSpecificAccountSummary(transactionsItems);
 

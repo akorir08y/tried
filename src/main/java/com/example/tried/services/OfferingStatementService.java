@@ -30,7 +30,7 @@ import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -205,7 +205,7 @@ public class OfferingStatementService {
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
 
-    private void addHeaderData(Table table, MemberProfileResponse response,String phoneNumber) {
+    private void addHeaderData(Table table, MemberProfileResponse response,String phoneNumber) throws JsonProcessingException {
         // Member Church Details Response
         RequestChurchDetails churchDetails = new RequestChurchDetails();
         churchDetails.setChurchCode(response.getPayload().getChurchCode());
@@ -516,7 +516,7 @@ public class OfferingStatementService {
                     .setBackgroundColor(Color.WHITE));
 
 
-            Statement.addCell(new Cell().add("("+String.valueOf(mem.getBalance())+")")
+            Statement.addCell(new Cell().add("("+ mem.getBalance() +")")
                         .setFontSize(10)
                         .setFont(bolden)
                         .setWidthPercent(10)

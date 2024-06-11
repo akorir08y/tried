@@ -23,7 +23,7 @@ import java.util.List;
 
 public class TransactionTracingExcel {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     public TransactionTracingExcel() {

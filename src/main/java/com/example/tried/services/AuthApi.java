@@ -34,93 +34,93 @@ import org.json.JSONObject;
 public interface AuthApi {
 
     // Login as a Member Credentials
-    AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException;
+    AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException,NullPointerException;
 
     // Verify Phone Number Using OTP
-    public SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException;
+    SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException,NullPointerException;
 
     // Reset Member Pin
-    AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException;
+    AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException,NullPointerException;
 
     // Member Registration
-    AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException;
+    AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException,NullPointerException;
 
     // Member Registration Update
-    AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException;
+    AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException,NullPointerException;
 
     // Member Personnel Login
-    MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException;
+    MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException,NullPointerException;
 
     // Member Personnel Password Reset
-    PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException;
+    PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException,NullPointerException;
 
     // Valid OTP
     // Member Personnel Password Reset
-    public String validateOTPPassword(OtpValidationRequest otpValidationRequest);
+    String validateOTPPassword(OtpValidationRequest otpValidationRequest) throws NullPointerException;
 
-    public int getOTPPin();
+    int getOTPPin();
 
 
     // Fetch Member Details
-    public MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException;
+    MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException, NullPointerException;
 
     // Get the Member Statement
-    public MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException;
+    MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException, NullPointerException;
 
     // Get the Member Church Details
-    public RequestChurchDetailsResponse getMemberChurchDetails(RequestChurchDetails request);
+    RequestChurchDetailsResponse getMemberChurchDetails(RequestChurchDetails request) throws JsonProcessingException, NullPointerException;
 
     // Get the Member Transfer Details
-    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException;
+    MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException, NullPointerException;
 
     // Get Member Details
-    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails request) throws JsonProcessingException;
+    RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails request) throws JsonProcessingException, NullPointerException;
 
     // Request Church Details with Church Code
-    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException;
+    RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException, NullPointerException;
 
 
     // Member Registration Update Details
-    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException;
+    MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException, NullPointerException;
 
 
     // List Church Members
-    public ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException;
+    ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException, NullPointerException;
 
     // List Deactivated Church Members
-    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException;
+    ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException, NullPointerException;
 
     // List Payment Accounts
-    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException;
+    LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException, NullPointerException;
 
     // Get the Local Church Trust Fund Summary
-    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException;
+    LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException, NullPointerException;
 
     // Mobile Initiate Home Church Payment
-    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException;
+    ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException, NullPointerException;
 
     // Host Church Payment
-    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException;
+    ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException, NullPointerException;
 
     // Mobile Receive Funds Live
-    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException;
+    MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException, NullPointerException;
 
 
     // MPESA STK Push Response
-    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest request) throws JsonProcessingException;
+    MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest request) throws JsonProcessingException, NullPointerException;
 
 
     // Transaction Tracing Summary Funds
-    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException;
+    LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException, NullPointerException;
 
     // Get the Local Church Non Trust Fund Summary
-    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException;
+    LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException, NullPointerException;
 
 
     // Get the Local Church Offering Reports
-    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException;
+    LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException, NullPointerException;
 
 
     // Get the Specific Offering Statement
-    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException;
+    SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException, NullPointerException;
 }

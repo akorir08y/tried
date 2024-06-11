@@ -1,11 +1,14 @@
 package com.example.tried.utils;
 
 
+import com.example.tried.services.AuthApiImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -25,8 +28,9 @@ import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@Slf4j
 public class HelperUtility {
+
+    static Logger log = LogManager.getLogger(HelperUtility.class);
 
     // To Base64 Function
     public static String toBase64String(String value){

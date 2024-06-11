@@ -52,95 +52,107 @@ import java.util.HashMap;
 public interface PersonnelApi {
 
     // Personnel Cash Receipting
-    CashReceiptingResponse getCashReceipting(CashReceipting receipting) throws JsonProcessingException;
+    CashReceiptingResponse getCashReceipting(CashReceipting receipting)
+            throws JsonProcessingException, NullPointerException;
 
     // Creating Local Church Accounts
-    CreateLocalChurchAccountResponse createLocalChurchAccount(CreateLocalChurchAccount localChurchAccount) throws JsonProcessingException;
+    CreateLocalChurchAccountResponse createLocalChurchAccount(CreateLocalChurchAccount localChurchAccount)
+            throws JsonProcessingException, NullPointerException;
 
     // Updating Local Church Accounts
-    UpdateLocalChurchAccountResponse updateLocalChurchAccount(UpdateLocalChurchAccount localChurchAccount) throws JsonProcessingException;
+    UpdateLocalChurchAccountResponse updateLocalChurchAccount(UpdateLocalChurchAccount localChurchAccount)
+            throws JsonProcessingException, NullPointerException;
 
     // Generate Trust Fund Transcript Report
-    TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript) throws JsonProcessingException;
+    TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript)
+            throws JsonProcessingException, NullPointerException;
 
 
     // Generate Trust Fund Transcript Report without Any Payment Modes
-    TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript) throws JsonProcessingException;
+    TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript)
+            throws JsonProcessingException, NullPointerException;
 
 
     // Select Local Church Accounts
-    LocalChurchAccountsSelectResponse selectLocalChurchAccounts(LocalChurchAccounts selectAccounts) throws JsonProcessingException;
+    LocalChurchAccountsSelectResponse selectLocalChurchAccounts(LocalChurchAccounts selectAccounts)
+            throws JsonProcessingException, NullPointerException;
 
 
     // List Payment Accounts for Personnel Receipting
-    ListLocalChurchPaymentAccountsResponse selectChurchPaymentAccounts(ListLocalChurchPaymentAccounts selectAccounts) throws JsonProcessingException;
+    ListLocalChurchPaymentAccountsResponse selectChurchPaymentAccounts(ListLocalChurchPaymentAccounts selectAccounts)
+            throws JsonProcessingException, NullPointerException;
 
 
     // Generate Specific Offering Summary Statement
-    SpecificOfferingStatementResponse getSpecificMemberOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException;
+    SpecificOfferingStatementResponse getSpecificMemberOfferingStatement(SpecificOfferingStatement statement)
+            throws JsonProcessingException, NullPointerException;
 
 
 
     // Local Church Specific Account Summary
     LocalChurchSpecificAccountSummaryResponse getLocalChurchSpecificAccountSummary
-    (LocalChurchSpecificAccountSummary specificAccountSummary) throws JsonProcessingException;
+    (LocalChurchSpecificAccountSummary specificAccountSummary) throws JsonProcessingException, NullPointerException;
 
 
     // Get Local Church Accounts
-    public HashMap<String, Object> getLocalChurchAccounts(HashMap<String,Object> hashMap) throws JsonProcessingException;
+    HashMap<String, Object> getLocalChurchAccounts(HashMap<String, Object> hashMap) throws JsonProcessingException, NullPointerException;
 
 
     // Get the Departmental Accounts
-    public DepartmentResponse getDepartmentAccounts(DepartmentRequest request) throws JsonProcessingException;
+    DepartmentResponse getDepartmentAccounts(DepartmentRequest request) throws JsonProcessingException, NullPointerException;
 
 
     // Get the Local Church Offering Statement
-    public LocalChurchOfferingStatementResponse getLocalChurchOfferingStatement(LocalChurchOfferingStatement statement) throws JsonProcessingException;
+    LocalChurchOfferingStatementResponse getLocalChurchOfferingStatement(LocalChurchOfferingStatement statement)
+            throws JsonProcessingException, NullPointerException;
 
     // Get the Trust Funds for Transfer
-    public SelectTrustFundsResponse getTrustFundsforTransfer(SelectTrustFunds trustFunds) throws JsonProcessingException;
+    SelectTrustFundsResponse getTrustFundsforTransfer(SelectTrustFunds trustFunds) throws JsonProcessingException, NullPointerException;
 
 
     // Get Transaction Tracing Using Member Phone Number
-    public TransactionTracingMemberResponse getTransactionTracingByPhone(TransactionTracingMember tracing) throws JsonProcessingException;
+    TransactionTracingMemberResponse getTransactionTracingByPhone(TransactionTracingMember tracing)
+            throws JsonProcessingException, NullPointerException;
 
     // Get Transaction Tracing Using Receipt Number
-    public TransactionTracingMemberReceiptResponse getTransactionTracingByReceipt(TransactionTracingMemberReceipt receipt) throws JsonProcessingException;
+    TransactionTracingMemberReceiptResponse getTransactionTracingByReceipt(TransactionTracingMemberReceipt receipt)
+            throws JsonProcessingException, NullPointerException;
 
     // Get the Specific Account Summary Reports
-    public LocalChurchSpecificAccountSummaryResponse getSpecificAccountSummary(LocalChurchSpecificAccountSummary localChurchSpecificAccountSummary) throws JsonProcessingException;
+    LocalChurchSpecificAccountSummaryResponse getSpecificAccountSummary(LocalChurchSpecificAccountSummary localChurchSpecificAccountSummary)
+            throws JsonProcessingException, NullPointerException;
 
     // Select Cash Receipting Transactions
-    public HashMap<String, Object> getCashReceiptingTransactions(SelectCashReceipting transactions) throws JsonProcessingException;
+    HashMap<String, Object> getCashReceiptingTransactions(SelectCashReceipting transactions) throws JsonProcessingException, NullPointerException;
 
 
     // Send Registration Message
-    public SMSResponse sendRegistrationMessage(SMS request) throws JsonProcessingException;
+    SMSResponse sendRegistrationMessage(SMS request) throws JsonProcessingException, NullPointerException;
 
 
     // Trust Fund Date to Date Summary
-    public TrustFundDateToDateResponse getTrustFromDateToDate(TrustFundDateToDate dateToDate) throws JsonProcessingException;
+    TrustFundDateToDateResponse getTrustFromDateToDate(TrustFundDateToDate dateToDate) throws JsonProcessingException, NullPointerException;
 
     // Trust Fund Summary Month By Month Report
-    public TrustFundsSummaryWithPaymentModeResponse getTrustFundSummaryWithPaymentMode(TrustFundsSummaryWithPaymentMode trustFundsPayment)
-            throws JsonProcessingException;
+    TrustFundsSummaryWithPaymentModeResponse getTrustFundSummaryWithPaymentMode(TrustFundsSummaryWithPaymentMode trustFundsPayment)
+            throws JsonProcessingException, NullPointerException;
 
     // Trust Fund Summary Date By Date Report
-    public TrustFundSummaryDateToDatePaymentModeResponse getTrustFundSummaryDateByDateWithPaymentMode(TrustFundSummaryDateToDatePaymentMode dateToDatePaymentMode)
-            throws JsonProcessingException;
+    TrustFundSummaryDateToDatePaymentModeResponse getTrustFundSummaryDateByDateWithPaymentMode(TrustFundSummaryDateToDatePaymentMode dateToDatePaymentMode)
+            throws JsonProcessingException, NullPointerException;
 
 
     // Fund Transfer
-    public MobileReceiveFundsTransferResponse getFundsTransfertoConference(MobileReceiveFundsTransfer fundsTransfer) throws JsonProcessingException;
+    MobileReceiveFundsTransferResponse getFundsTransfertoConference(MobileReceiveFundsTransfer fundsTransfer) throws JsonProcessingException, NullPointerException;
 
 
-    public EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException;
+    EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException, NullPointerException;
 
     // Delete Cash Receipts
-    public DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException;
+    DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException, NullPointerException;
 
 
     // Select Non Trust Funds
-    public SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException;
+    SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException, NullPointerException;
 }
 

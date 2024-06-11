@@ -38,8 +38,10 @@ import com.example.tried.services.reports.pdf.*;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+
 import okhttp3.OkHttpClient;
 import org.apache.commons.codec.binary.Base32;
 import org.json.JSONException;
@@ -49,6 +51,8 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,10 +64,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/auth")
-@Slf4j
 public class AuthController {
 
     @Autowired
@@ -85,7 +89,7 @@ public class AuthController {
     TrustFundDateToDateSummary trustFundSummaryDatetoDate;
 
     @Autowired
-    LocalNonTrustFundReport testPDFSummary;
+    LocalNonTrustFundReport localNonTrustFundSummary;
 
     @Autowired
     TransactionTracingSummary transactionTracingSummary;
@@ -95,6 +99,9 @@ public class AuthController {
 
     @Autowired
     SpecificAccountSummaryReport specificAccountSummaryReport;
+
+    // Circuit Breaker Function
+    public static final String Report_Service = "ReportService";
 
 
     private final OkHttpClient okHttpClient;
@@ -277,7 +284,7 @@ public class AuthController {
 
         if (phoneOwner == null) {
             phoneOwner = false;
-        }else if(phoneOwner == true){
+        }else if(phoneOwner){
             phoneOwner = true;
         }
 
@@ -288,7 +295,7 @@ public class AuthController {
         }
 
         if(phone.startsWith("0")){
-            phone = phone.substring(1, phone.length());
+            phone = phone.substring(1);
             phone = String.format("%s%s", "254", phone);
         }
 
@@ -370,11 +377,11 @@ public class AuthController {
             }else if(response.getStatus() == 1){
                 if(response.getNotice() != null) {
                     responsed = response.getNotice();
-                    log.error("Error:" + responsed);
+                    System.out.println("Error:" + responsed);
                     return response;
                 }else{
                     responsed = response.getError();
-                    log.error("Error:" + responsed);
+                    System.out.println("Error:" + responsed);
                     return response;
                 }
             }
@@ -390,7 +397,7 @@ public class AuthController {
                                         @RequestParam("phone_number") String phone_number) throws JsonProcessingException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }else if(phone_number.startsWith("254")){
             phone_number = phone_number;
         }
@@ -422,6 +429,7 @@ public class AuthController {
         return authApi.getMemberDetails(profile);
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/statement",produces = "application/json")
     public MemberOfferingResponse getMemberOfferingStatement(@RequestParam("phone_number") String phone_number,
                                                              @RequestParam("start_date") String start_date,
@@ -470,7 +478,7 @@ public class AuthController {
         return authApi.getMemberOffering(offering);
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/statement-specific",produces = "application/json")
     public SpecificOfferingStatementResponse getMemberOfferingStatementSpecific(@RequestParam("phone_number") String phone_number,
                                                                                 @RequestParam("start_date") String start_date,
@@ -526,28 +534,32 @@ public class AuthController {
 
 
     @PostMapping(path="/member-transfer")
-    public MemberTransferResponse startMemberTransfer(@RequestParam("phone_number")String phoneNumber,
-                                                      @RequestParam("church_code")String churchCode) throws JsonProcessingException {
+    public MemberTransferResponse startMemberTransfer(@RequestParam("phone_number")String phone_number,
+                                                      @RequestParam("church_code")String church_code) throws JsonProcessingException, NullPointerException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s", "+",phone_number));
         profile.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
 
         // Generate the Session Number
-        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+        String member_number = response1.getPayload().getMembershipNumber();
+        String church_code_new = response1.getPayload().getChurchCode();
 
         // Transfer RPayload
         Transferpayload transferpayload = new Transferpayload();
-        transferpayload.setCurrentChurchCode(response1.getPayload().getChurchCode());
-        transferpayload.setMemberNumber(response1.getPayload().getMembershipNumber());
-        transferpayload.setSessionNumber(rand);
-        transferpayload.setNewChurchCode(churchCode);
-
-
+        transferpayload.setCurrentChurchCode(church_code_new);
+        transferpayload.setMemberNumber(member_number);
+        transferpayload.setSessionNumber(session_number);
+        transferpayload.setNewChurchCode(church_code);
 
         // Member Transfer RPayload
         MemberTransfer memberTransfer = new MemberTransfer();
@@ -559,33 +571,37 @@ public class AuthController {
 
     // Transfer Church Code
     @PostMapping(path="/check-status")
-    public String TransferChurch(@RequestParam("phone_number")String PhoneNumber,
-                                      @RequestParam("church_code")String ChurchCode) throws JsonProcessingException {
+    public String TransferChurch(@RequestParam("phone_number")String phone_number,
+                                      @RequestParam("church_code")String church_code) throws JsonProcessingException {
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
+
         // Get the Member Details
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + PhoneNumber);
+        payload.setMobileNumber(String.format("%s%s", "+",phone_number));
         profile.setProfilepayload(payload);
 
         // Get the Member Details
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
-        String church_code = response1.getPayload().getChurchCode();
+        String church_code_old = response1.getPayload().getChurchCode();
 
         RequestChurchDetailsWithCode requestDetails = new RequestChurchDetailsWithCode();
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
 
         // Church RPayload
         Churchpayload churchpayload = new Churchpayload();
-        churchpayload.setAccessNumber(PhoneNumber);
+        churchpayload.setAccessNumber(phone_number);
         churchpayload.setMobileServiceProvider("Safaricom");
-        churchpayload.setChurchCode(ChurchCode);
+        churchpayload.setChurchCode(church_code);
         churchpayload.setSessionNumber(rand);
         requestDetails.setChurchpayload(churchpayload);
         RequestChurchDetailsWithCodeResponse request = authApi.getChurchCodeDetails(requestDetails);
 
 
-        if(church_code.equals(ChurchCode)){
+        if(church_code_old.contains(church_code)){
             return "You are already Registered to this Church Code";
         }else if(request.getChurchName() == null){
             return "Unable to Locate this Church";
@@ -595,14 +611,20 @@ public class AuthController {
     }
 
     // Get the Profile Items to Save Registration MemberRegisterUpdateResponse
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @PostMapping(path="/saveProfile")
     public MemberRegisterUpdateResponse setProfileDetails(@RequestParam("fullname") String fullname, @RequestParam("email") String email,
                                     @RequestParam("churchCode")String churchCode ,@RequestParam("phone") String phone,
                                     @RequestParam("phone_number_privacy")String phone_number_privacy, @RequestParam("language")String language,
                                     @RequestParam(value = "phoneOwner", required = false)Boolean phoneOwner, @RequestParam(value = "churchMember", required = false)String churchMember,
                                     @RequestParam("receipt_to") String receipt_to, @RequestParam(value = "otherPhoneNumber",required = false) String otherPhoneNumber,
-                                    @RequestParam(value = "residence",required = false)String residence)  throws JsonProcessingException{
+                                    @RequestParam(value = "residence",required = false)String residence)  throws JsonProcessingException, NullPointerException{
 
+        if(phone.startsWith("+254")){
+            phone = phone;
+        }else{
+            phone = String.format("%s%s", "+", phone);
+        }
         // Register Profile
         MemberRegistrationUpdate authMemberRegister = new MemberRegistrationUpdate();
 
@@ -613,11 +635,8 @@ public class AuthController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        if(phone.contains("+")) {
-            payload.setMobileNumber(phone);
-        }else{
-            payload.setMobileNumber("+" + phone);
-        }
+        payload.setMobileNumber(phone);
+
         profiler.setProfilepayload(payload);
 
         // Profile Info
@@ -634,52 +653,55 @@ public class AuthController {
         }else{
             updatepayload.setEmail(email);
         }
-        if(phone.contains("+")){
-            phone = phone.substring(1,phone.length());
-            updatepayload.setMobileNumber(phone);
-        }else{
+
+        if(phone.contains("+254")){
+            phone = phone.substring(1);
             updatepayload.setMobileNumber(phone);
         }
         updatepayload.setChurchCode(churchCode);
         updatepayload.setPreferredLanguage(language);
+        updatepayload.setStatus(1);
         updatepayload.setPhoneNumberPrivacy(phone_number_privacy);
         updatepayload.setResidence(residence);
+
         if (phoneOwner == null) {
             phoneOwner = false;
             updatepayload.setPhoneOwner(phoneOwner);
         }else{
             updatepayload.setPhoneOwner(phoneOwner);
         }
+
         if (churchMember == null) {
             churchMember = "false";
             updatepayload.setIsMember(churchMember);
         }else{
             updatepayload.setIsMember(churchMember);
         }
+
         updatepayload.setGivingReceiptedTo(receipt_to);
         updatepayload.setAreas("");
         updatepayload.setMembershipNumber(profile.getPayload().getMembershipNumber());
+
         if(otherPhoneNumber.startsWith("+254")) {
             updatepayload.setOtherPhoneNumber(otherPhoneNumber);
         }else{
             updatepayload.setOtherPhoneNumber("+");
         }
         updatepayload.setSessionNumber(rand);
-
         authMemberRegister.setUpdatepayload(updatepayload);
 
-        System.out.println("Update RPayload: " + updatepayload.toString());
         System.out.println("Auth Member Registration: "+ HelperUtility.toJSON(authMemberRegister));
         MemberRegisterUpdateResponse responsed = authApi.getMemberRegistrationUpdate(authMemberRegister);
         System.out.println(responsed);
         return responsed;
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/off-statement")
     public String generateOfferingStatement(@RequestParam("phone_number") String phone_number,
                                             @RequestParam("start_date") String start_date,
                                             @RequestParam("end_date") String end_date,
-                                            @RequestParam("pin") String pin, HttpServletResponse response) throws IOException,JsonProcessingException {
+                                            @RequestParam("pin") String pin, HttpServletResponse response) throws IOException {
 
         // Offering Statement Information
         OfferStatement statement = new OfferStatement();
@@ -688,7 +710,7 @@ public class AuthController {
         statement.setPin(pin);
         statement.setPhone_number(phone_number);
 
-        System.out.println("Statement to Download: "+ statement.toString());
+        System.out.println("Statement to Download: "+ statement);
 
         // Member Profile Information
         Profilepayload profilepayload = new Profilepayload();
@@ -717,14 +739,14 @@ public class AuthController {
         return "Generate Offering Statement";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/off-statement-specific")
     public String generateSpecificOfferingStatement(@RequestParam("phone_number_specific") String phone_number,
                                             @RequestParam("start_date_specific") String start_date,
                                             @RequestParam("end_date_specific") String end_date,
                                             @RequestParam("pin_specific") String pin,
                                             @RequestParam("account_name") String account_info,
-                                            HttpServletResponse response) throws IOException, JsonProcessingException {
+                                            HttpServletResponse response) throws IOException {
 
         // Final Session Number
         final long session_number = (long) ((Math.random() * 900000000) + 100000000);
@@ -811,7 +833,7 @@ public class AuthController {
         LocalDate localDate = LocalDate.now();
 
         System.out.println("Get the Month Value: " + localDate.getMonthValue());
-        System.out.println("Get the Previous Month Value: "+String.valueOf(localDate.getMonthValue() - 1));
+        System.out.println("Get the Previous Month Value: "+ (localDate.getMonthValue() - 1));
         return String.valueOf(localDate.getMonthValue() - 1);
     }
 
@@ -893,13 +915,20 @@ public class AuthController {
 
 
     @GetMapping("/church-trust-funds")
+    @Retry(name=Report_Service, fallbackMethod = "getErrorMethod")
     public LocalChurchTrustFundSummaryResponse getUSSDandCashSummary(@RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number) throws JsonProcessingException {
+                                                                     @RequestParam("phone_number")String phone_number) throws
+            JsonProcessingException, NullPointerException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
+        }
 
         // Session Numbers
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
-
 
         //Member Profile Information
         MemberProfile memberProfile = new MemberProfile();
@@ -971,6 +1000,10 @@ public class AuthController {
         Integer total_month_transactions = total_transactions - total_zone;
         System.out.println("Transaction Size: "+ total_month_transactions);
         return localChurchTrustFund;
+    }
+
+    public String getErrorMethod(){
+        return "Try the Request Again in a few seconds";
     }
 
     @PostMapping("/home_church")
@@ -1067,7 +1100,7 @@ public class AuthController {
                                ) throws JsonProcessingException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }else{
             phone_number = phone_number;
         }
@@ -1121,13 +1154,13 @@ public class AuthController {
         String receiver_contact = MemberDetailsResponse.getPhoneNumber();
 
         if(receiver_contact.startsWith("+254")){
-            receiver_contact = receiver_contact.substring(1, receiver_contact.length());
+            receiver_contact = receiver_contact.substring(1);
         }else{
             receiver_contact = receiver_contact;
         }
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }else{
             phone_number = phone_number;
         }
@@ -1250,13 +1283,15 @@ public class AuthController {
         return "Saved";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_summary_pdf")
     public String getTrustFundSummaryPDF(HttpServletResponse response, String phone_number, String username, String password,
-                                         Integer year, Integer month, String account_name) throws IOException, JsonProcessingException {
+                                         Integer year, Integer month, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         // Member Profile
@@ -1288,6 +1323,7 @@ public class AuthController {
         String church_name = response2.getPayload().getOrganisationName();
         String church_level = response2.getPayload().getOrganisationLevel();
         String personnel_name = response2.getPayload().getPersonnelName();
+        String personnel_phone_number = response2.getPayload().getPersonnelPhone();
         String member_no = response2.getPayload().getPersonnelCfmsNumber();
 
         // Get the Previous Month Trust Fund Summary
@@ -1324,17 +1360,19 @@ public class AuthController {
         response.setHeader(headerKey, headerValue);
 
 
-        trustFundSummary.trustFundSummaryReport(localChurchTrustFundSummary, response);
+        trustFundSummary.trustFundSummaryReport(localChurchTrustFundSummary, response, church_code, church_name, personnel_phone_number, personnel_name);
         return "Trust Fund Summary PDF Generated";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_summary_excel")
     public String getTrustFundSummaryExcel(HttpServletResponse response, String phone_number, String username, String password,
-                                           Integer year, Integer month, String account_name) throws IOException, JsonProcessingException {
+                                           Integer year, Integer month, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         // Member Profile
@@ -1413,13 +1451,15 @@ public class AuthController {
         return "Trust Fund Summary Excel Generated";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_summary_date_pdf")
     public String getTrustFundSummaryDateToDatePDF(HttpServletResponse response, String phone_number, String username, String password
-            , String start_date, String end_date) throws IOException, JsonProcessingException {
+            , String start_date, String end_date) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         // Member Profile
@@ -1453,18 +1493,21 @@ public class AuthController {
         String church_level = response2.getPayload().getOrganisationLevel();
         String personnel_name = response2.getPayload().getPersonnelName();
         String member_no = response2.getPayload().getPersonnelCfmsNumber();
+        String personnel_number = response2.getPayload().getPersonnelPhone();
 
         // Member Request Church Details
         RequestChurchDetailsWithCode requestChurchCode = new RequestChurchDetailsWithCode();
         Churchpayload churchpayload = new Churchpayload();
         churchpayload.setSessionNumber(session_number);
-        churchpayload.setAccessNumber(response2.getPayload().getPersonnelPhone());
+        churchpayload.setAccessNumber(personnel_number);
         churchpayload.setMobileServiceProvider("Safaricom");
         churchpayload.setChurchCode(church_code);
         requestChurchCode.setChurchpayload(churchpayload);
 
         RequestChurchDetailsWithCodeResponse requestChurchDetails = authApi.getChurchCodeDetails(requestChurchCode);
 
+        String conference_name = requestChurchDetails.getConferenceName();
+        String district_name = requestChurchDetails.getDistrictName();
 
         // Get the Previous Month Trust Fund Summary
         TrustFundSummaryDateToDatePaymentMode dateToDate = new TrustFundSummaryDateToDatePaymentMode();
@@ -1475,10 +1518,9 @@ public class AuthController {
         payload.setStartDate(start_date);
         payload.setEndDate(end_date);
         payload.setChurchCode(church_code);
-        payload.setConferenceName(church_code);
+        payload.setConferenceName(conference_name);
         dateToDate.setPayload(payload);
 
-        //
         com.example.tried.auth.reports.payment_mode.date_to_date.Authentication authentication1 =
                 new com.example.tried.auth.reports.payment_mode.date_to_date.Authentication();
 
@@ -1497,17 +1539,20 @@ public class AuthController {
         String headerValue = "attachment; filename=trust_fund_summary_date_to_date_" + start_date +"_"+ end_date  + ".pdf";
         response.setHeader(headerKey, headerValue);
 
-        trustFundSummaryDatetoDate.trustFundSummaryReport(dateToDate, response);
+        trustFundSummaryDatetoDate.trustFundSummaryReport(dateToDate, response, church_code, church_name, personnel_name,
+                personnel_number,conference_name,district_name);
         return "Trust Fund Summary Date To Date PDF Generated";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_summary_date_excel")
     public String getTrustFundSummaryDateToDateExcel(HttpServletResponse response, String phone_number, String username, String password,
-                                                     String start_date, String end_date) throws IOException, JsonProcessingException {
+                                                     String start_date, String end_date) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         // Member Profile
@@ -1552,7 +1597,6 @@ public class AuthController {
         requestChurchCode.setChurchpayload(churchpayload);
 
         RequestChurchDetailsWithCodeResponse requestChurchDetails = authApi.getChurchCodeDetails(requestChurchCode);
-
 
         // Get the Previous Month Trust Fund Summary
         TrustFundSummaryDateToDatePaymentMode dateToDate = new TrustFundSummaryDateToDatePaymentMode();
@@ -1582,7 +1626,6 @@ public class AuthController {
 
         response.setContentType("application/octet-stream");
 
-
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=trust_fund_summary_date_to_date_" + start_date + "_" + end_date + ".xlsx";
         response.setHeader(headerKey, headerValue);
@@ -1592,17 +1635,21 @@ public class AuthController {
         return "Trust Fund Summary Date to Date Generated";
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/transactions_tracing_summary")
     public String getTransactionTracingSummary(HttpServletResponse response,String start_date,
-                                               String end_date,String username, String password, String phone_number) throws IOException, JsonProcessingException {
+                                               String end_date,String username, String password, String phone_number)
+            throws IOException, NullPointerException {
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
@@ -1614,26 +1661,60 @@ public class AuthController {
 
         MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
 
-        String church_name = personnelResponse.getPayload().getOrganisationName();
+        String institution_name = personnelResponse.getPayload().getOrganisationName();
+        String institution_level = personnelResponse.getPayload().getOrganisationLevel();
+        String institution_number = personnelResponse.getPayload().getOrganisationNumber();
+        String personnel_name = personnelResponse.getPayload().getPersonnelName();
+        String conference_name = response1.getPayload().getConferenceName();
 
         response.setContentType("application/pdf");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=transaction_tracing_summary_" + start_date +"_"+ end_date  + "_"+church_name+".pdf";
+        String headerValue = "attachment; filename=transaction_tracing_summary_" + start_date +"_"+ end_date  + "_"+ institution_name +".pdf";
         response.setHeader(headerKey, headerValue);
 
-        transactionTracingSummary.transactionSummaryReport(phone_number,response,start_date,end_date,username,password);
+        // Session Numbers
+        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        // Authentication
+        com.example.tried.auth.personnel.tracing.Authentication authenticate = new com.example.
+                tried.auth.personnel.tracing.Authentication();
+        authenticate.setInstitutionLevel(institution_level);
+        authenticate.setInstitutionNumber(institution_number);
+        authenticate.setInstitutionName(institution_name);
+        authenticate.setUser(username);
+        authenticate.setPassword(password);
+        authenticate.setPersonnelName(personnel_name);
+        authenticate.setSessionNumber(String.valueOf(rand));
+
+        com.example.tried.auth.personnel.tracing.TracingPayload payload = new com.example.tried.
+                auth.personnel.tracing.TracingPayload();
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        LocalChurchTransactionTracing tracing = new LocalChurchTransactionTracing();
+        tracing.setPayload(payload);
+        tracing.setAuthentication(authenticate);
+
+        LocalChurchTransactionTracingResponse transactionTracingResponse = authApi.getTransactionTracingSummary(tracing);
+
+        transactionTracingSummary.transactionSummaryReport(phone_number,response,start_date,end_date,personnel_name,
+                institution_name, institution_number, conference_name, transactionTracingResponse);
         return "Transaction Tracing Summary";
     }
 
-
+    @Retryable(value =NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/non_trust_fund_summary")
     public LocalChurchNonTrustSummaryResponse getNonTrustFundSummary(@RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number) throws IOException,JsonProcessingException {
+                                                                     @RequestParam("phone_number")String phone_number)
+                throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         // Member Profile
@@ -1657,6 +1738,9 @@ public class AuthController {
         // Get the Personnel Response
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
 
+        String institution_number = response.getPayload().getOrganisationNumber();
+        String institution_level = response.getPayload().getOrganisationLevel();
+        String institution_name = response.getPayload().getOrganisationName();
 
         // Non Trust Fund Authentication
         com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
@@ -1664,9 +1748,9 @@ public class AuthController {
         authentication.setSessionNumber(session_number);
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setInstitutionNumber(response.getPayload().getOrganisationNumber());
-        authentication.setInstitutionLevel(response.getPayload().getOrganisationLevel());
-        authentication.setInstitutionName(response.getPayload().getOrganisationName());
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionLevel(institution_level);
+        authentication.setInstitutionName(institution_name);
 
         // Dates
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -1677,9 +1761,9 @@ public class AuthController {
         // Non Trust Fund RPayload
         com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
                 new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
-        payload.setChurchCode(response.getPayload().getOrganisationNumber());
+        payload.setChurchCode(institution_number);
         payload.setGroup("Not Applicable");
-        payload.setChurchName(response.getPayload().getOrganisationName());
+        payload.setChurchName(institution_name);
         payload.setMeansOfPayment("Cash");
         payload.setStartDate(start_date);
         payload.setEndDate(end_date);
@@ -1695,67 +1779,177 @@ public class AuthController {
         return response1;
     }
 
+    // Function to Get Non Trust Fund Dashboard Information USSD (Information)
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
+    @GetMapping("/report/non_trust_fund")
+    public HashMap<String, Object> generateNonTrustFundReport(@RequestParam("username")String username,
+                                                              @RequestParam("password")String password,
+                                                              @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException {
 
-    @GetMapping("/timers")
-    public String getTimers() throws JsonProcessingException {
-        Map<String, Integer> map = new HashMap<>();
-        map.put("trustFunds", 1);
-        map.put("specialTrustFunds", 2);
-        JSONObject new_object = new JSONObject(map);
-        System.out.println("Object: " + new_object);
-        String jsonResult = objectMapper.writerWithDefaultPrettyPrinter()
-                .writeValueAsString(map);
-        System.out.println(jsonResult);
-        return "Get the Timers";
-    }
-
-
-    // Testing the Effectiveness of List and Set
-    @GetMapping("/timered")
-    public String getTimed(){
-        // Creating a list of strings
-        List<String> aList = Arrays.asList("Geeks", "for", "GeeksQuiz", "Geeks", "for",
-                "GeeksQuiz", "GFG", "GeeksforGeeks", "GFG");
-
-        // Creating a hash set using constructor
-        Set<String> hSet = new HashSet<String>(aList);
-
-        System.out.println("Created HashSet is");
-        for (String x : hSet)
-            System.out.println(x);
-
-
-        System.out.println("Created List is");
-        for (String x : aList)
-            System.out.println(x);
-        return "Set of Information";
-    }
-
-
-    @GetMapping("/export/excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
-        response.setContentType("application/octet-stream");
-        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-        String currentDateTime = dateFormatter.format(new Date());
-
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
-        response.setHeader(headerKey, headerValue);
-
-        // trustFundSummaryExcel.export(response);
-        TestExcelForm testExcelForm = new TestExcelForm();
-        testExcelForm.export(response);
-    }
-
-
-    @GetMapping("/export/transaction-tracing")
-    public void exportTransactionTracingDocument(HttpServletResponse outResponse,String start_date,String end_date,String username,
-                                                 String password, String phone_number) throws IOException,JsonProcessingException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate now = LocalDate.now();
+        String start_date = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).format(format);
+        String end_date = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(format);
+
+        String Cash = "Cash";
+        String USSD = "USSD";
+        String All = "Not Applicable";
+
+        // Member Info
+        MemberProfile memberProfile = new MemberProfile();
+        Profilepayload profilepayload = new Profilepayload();
+        profilepayload.setFromWithin(true);
+        profilepayload.setMobileNumber("+" + phone_number);
+
+        memberProfile.setProfilepayload(profilepayload);
+        MemberProfileResponse responsed = authApi.getMemberDetails(memberProfile);
+
+        String church_name = responsed.getPayload().getChurchName();
+        String church_code = responsed.getPayload().getChurchCode();
+
+        // Personnel Info
+        MemberPersonnel personnel = new MemberPersonnel();
+        personnel.setUser(username);
+        personnel.setPassword(password);
+        personnel.setChurchCode(church_code);
+
+        // Get the Personnel Response
+        MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
+
+        // Non Trust Fund RPayload(USSD)
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload.setChurchCode(church_code);
+        payload.setGroup("Not Applicable");
+        payload.setChurchName(church_name);
+        payload.setMeansOfPayment("USSD");
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        String name = responsed2.getPayload().getPersonnelName();
+        String institution_level = responsed2.getPayload().getOrganisationLevel();
+        String institution_number = responsed2.getPayload().getOrganisationNumber();
+        String institution_name = responsed2.getPayload().getOrganisationName();
+
+        System.out.println("Non Trust Funds Loading");
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(name);
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionLevel(institution_level);
+        authentication.setInstitutionName(institution_name);
+
+        // USSD Non Trust Fund
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload);
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+
+
+        LocalChurchNonTrustSummaryResponse response2 = getCashResponseDashboard(username, password, name,
+                institution_number, institution_level, institution_name, start_date, end_date);
+
+        if(response1.getTotalAmount() != null && response2.getTotalAmount() != null) {
+
+            Double total_amount1 = Double.parseDouble(response1.getTotalAmount());
+            Double total_amount2 = Double.parseDouble(response2.getTotalAmount());
+
+            Double Total_Amount = total_amount1 + total_amount2;
+            List<HashMap<String, Object>> transactions = response2.getNonTrpayload().getMembers();
+
+            Double combined_offering1 = Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings")));
+            Double combined_offering2 = Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings")));
+
+            // Total Combined Offerings
+            Double Total_Combined_Offerings = combined_offering1 + combined_offering2;
+
+            List<HashMap<String, Object>> valid_transactions =
+                    new ArrayList<HashMap<String, Object>>();
+
+            // Valid Transactions
+            for (HashMap<String, Object> said_transaction : transactions) {
+                if (said_transaction.get("receiptNumber") != null) {
+                    valid_transactions.add(said_transaction);
+                }
+            }
+
+            // Non Trust Fund HashMap to Add Information to the Non Trust Fund JSON File
+            HashMap<String, Object> nonTrustFundSummaryReport = new HashMap<String, Object>();
+            nonTrustFundSummaryReport.put("USSD", Double.parseDouble(response1.getTotalAmount()));
+            nonTrustFundSummaryReport.put("totalAmount", Total_Amount);
+            nonTrustFundSummaryReport.put("cashAmount", Double.parseDouble(response2.getTotalAmount()));
+            nonTrustFundSummaryReport.put("transactions", Double.parseDouble(String.valueOf(valid_transactions.size())));
+            nonTrustFundSummaryReport.put("localCombinedOfferingsUSSD", Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings"))));
+            nonTrustFundSummaryReport.put("localCombinedOfferingsCash", Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings"))));
+            nonTrustFundSummaryReport.put("localCombinedOfferings", Total_Combined_Offerings);
+            return nonTrustFundSummaryReport;
+        }else{
+            return null;
+        }
+    }
+
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
+    public LocalChurchNonTrustSummaryResponse getCashResponseDashboard(String username, String password, String name,
+                                                                       String institution_number,String institution_level,
+                                                                       String institution_name, String start_date, String end_date)
+            throws JsonProcessingException, NullPointerException {
+        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // USSD Non Trust Fund
+        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
+
+        // Non Trust Fund Authentication
+        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
+        authentication.setSessionNumber(session_number);
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setPersonnelName(name);
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionLevel(institution_level);
+        authentication.setInstitutionName(institution_name);
+
+        // Non Trust Fund RPayload(All)
+        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload1 =
+                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
+        payload1.setChurchCode(institution_number);
+        payload1.setGroup("Not Applicable");
+        payload1.setChurchName(institution_name);
+        payload1.setMeansOfPayment("Cash");
+        payload1.setStartDate(start_date);
+        payload1.setEndDate(end_date);
+
+        // Total Non Trust Fund
+        nonTrustFundSummary.setAuthentication(authentication);
+        nonTrustFundSummary.setPayload(payload1);
+
+        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
+        return response1;
+    }
+
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
+    @GetMapping("/export/transaction-tracing")
+    public void exportTransactionTracingDocument(HttpServletResponse outResponse,String start_date,String end_date,String username,
+                                                 String password, String phone_number) throws IOException, NullPointerException {
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
+        }
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
 
@@ -1765,7 +1959,6 @@ public class AuthController {
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
         profilepayload.setMobileNumber("+" + phone_number);
-
         memberProfile.setProfilepayload(profilepayload);
 
         MemberProfileResponse profiler = authApi.getMemberDetails(memberProfile);
@@ -1818,12 +2011,15 @@ public class AuthController {
         transactionTracingExcel.export(outResponse,transaction);
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/export/trust-fund-transcript/excel")
     public void exportTrustFundTranscriptDocument(HttpServletResponse outResponse,String start_date,String end_date,String username,
-                                                 String password, String phone_number, String account_name) throws IOException,JsonProcessingException {
+                                                 String password, String phone_number, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
@@ -1911,13 +2107,15 @@ public class AuthController {
         trustFundTranscriptExcel.export(outResponse,transaction);
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/export/specific_account_summary/excel")
     public void exportSpecificAccountSummaryDocument(HttpServletResponse outResponse,String start_date,String end_date,String username,
-                                               String password, String phone_number, String account_name) throws IOException,JsonProcessingException {
+                                               String password, String phone_number, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
@@ -1987,23 +2185,22 @@ public class AuthController {
         reportExcel.export(outResponse,transaction);
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/export/specific-account-summary/pdf")
     public String generateSpecificAccountSummary(HttpServletResponse outResponse,String start_date,String end_date,String username,
-                                              String password, String phone_number, String account_name) throws IOException, JsonProcessingException {
+                                              String password, String phone_number, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
 
         // Member Profile
         MemberProfile memberProfile = new MemberProfile();
-
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
-
+        profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
         memberProfile.setProfilepayload(profilepayload);
 
         MemberProfileResponse profiler = authApi.getMemberDetails(memberProfile);
@@ -2019,6 +2216,11 @@ public class AuthController {
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
 
         String church_name = response.getPayload().getOrganisationName();
+        String institution_number = response.getPayload().getOrganisationNumber();
+        String institution_name = response.getPayload().getOrganisationName();
+        String personnel_name = response.getPayload().getPersonnelName();
+        String institutional_level = response.getPayload().getOrganisationLevel();
+        String conference_name = profiler.getPayload().getConferenceName();
 
         // Authentication
         LocalChurchSpecificAccountSummary summary = new LocalChurchSpecificAccountSummary();
@@ -2029,10 +2231,10 @@ public class AuthController {
         authentication.setUser(username);
         authentication.setPassword(password);
         authentication.setSessionNumber(rand);
-        authentication.setInstitutionNumber(response.getPayload().getOrganisationNumber());
-        authentication.setInstitutionName(response.getPayload().getOrganisationName());
-        authentication.setPersonnelName(response.getPayload().getPersonnelName());
-        authentication.setInstitutionLevel(response.getPayload().getOrganisationLevel());
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionName(institution_name);
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstitutionLevel(institutional_level);
 
         com.example.tried.auth.reports.specific.Payload payload = new
                 com.example.tried.auth.reports.specific.Payload();
@@ -2043,8 +2245,12 @@ public class AuthController {
         summary.setAuthentication(authentication);
         summary.setPayload(payload);
 
+        System.out.println("Specific Account Summary Report" + HelperUtility.toJSON(summary));
+
         LocalChurchSpecificAccountSummaryResponse responsed =
                 personnelApi.getSpecificAccountSummary(summary);
+
+        System.out.println("Specific Account Summary Report Response" + HelperUtility.toJSON(responsed));
 
         List<com.example.tried.auth.reports.specific.TransactionsItem> transaction =
                 responsed.getSpecpayload().getTransactions();
@@ -2052,21 +2258,22 @@ public class AuthController {
         outResponse.setContentType("application/pdf");
 
         String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=specific_account_summary-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
+        String headerValue = "attachment; filename=specific_account_summary_" + start_date +"_"+ end_date  + "_"+church_name+".pdf";
         outResponse.setHeader(headerKey, headerValue);
 
-        specificAccountSummaryReport.getSpecificAccountSummaryReport(phone_number,outResponse, start_date, end_date, username, password, responsed);
+        specificAccountSummaryReport.getSpecificAccountSummaryReport(phone_number,outResponse, start_date, end_date,
+                transaction, personnel_name,conference_name, institution_name, institution_number);
         return "Generate Specific Account Summary Reports";
     }
 
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/export/trust-fund-transcript/pdf")
     public String generateTrustFundTranscript(HttpServletResponse outResponse,String start_date,String end_date,String username,
-                                              String password, String phone_number, String account_name) throws IOException, JsonProcessingException {
+                                              String password, String phone_number, String account_name) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
@@ -2076,7 +2283,7 @@ public class AuthController {
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" ,phone_number));
 
         memberProfile.setProfilepayload(profilepayload);
 
@@ -2093,11 +2300,13 @@ public class AuthController {
         MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
 
         String church_name = response.getPayload().getOrganisationName();
+        String institution_number = response.getPayload().getOrganisationNumber();
+        String personnel_name = response.getPayload().getPersonnelName();
+        String institution_level = response.getPayload().getOrganisationLevel();
+        String conference_name = profiler.getPayload().getConferenceName();
 
         // Authentication
-        TrustFundTranscript transcript = new TrustFundTranscript();
         TrustFundTranscript1 transcript1 = new TrustFundTranscript1();
-
 
         com.example.tried.auth.personnel.reports.transcript.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.transcript.Authentication();
@@ -2105,10 +2314,10 @@ public class AuthController {
         authentication.setUser(username);
         authentication.setPassword(password);
         authentication.setSessionNumber(String.valueOf(rand));
-        authentication.setInstitutionNumber(response.getPayload().getOrganisationNumber());
-        authentication.setInstitutionName(response.getPayload().getOrganisationName());
-        authentication.setPersonnelName(response.getPayload().getPersonnelName());
-        authentication.setInstitutionLevel(response.getPayload().getOrganisationLevel());
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionName(church_name);
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstitutionLevel(institution_level);
 
         com.example.tried.auth.personnel.reports.transcript.Payload payload = new
                 com.example.tried.auth.personnel.reports.transcript.Payload();
@@ -2116,33 +2325,28 @@ public class AuthController {
         com.example.tried.auth.personnel.reports.transcript.Payload1 payload1 = new
                 com.example.tried.auth.personnel.reports.transcript.Payload1();
 
-        TrustFundTranscriptResponse response1 = new TrustFundTranscriptResponse();
+
         TrustFundTranscriptResponse response2 = new TrustFundTranscriptResponse();
 
         List<TransactionItem> transaction = new ArrayList<TransactionItem>();
 
-        if(account_name.equals("Cash") || account_name.equals("USSD")){
-            payload.setChurchName(response.getPayload().getOrganisationName());
-            payload.setChurchCode(response.getPayload().getOrganisationNumber());
-            payload.setMeansOfPayment(account_name);
-            payload.setStartDate(start_date);
-            payload.setEndDate(end_date);
-            transcript.setPayload(payload);
-            transcript.setAuthentication(authentication);
-            response1 = personnelApi.getTrustFundTranscript(transcript);
-            transaction = response1.getTrpayload().getTransactions();
+        if(account_name.contains("Cash") || account_name.contains("USSD")){
+            TrustFundTranscriptResponse response1 = generateUSSDandCashTranscriptReport(personnel_name, church_name, institution_number,
+                    institution_level, start_date, end_date, username, password, account_name);
 
+            transaction = response1.getTrpayload().getTransactions();
 
             outResponse.setContentType("application/pdf");
 
             String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=trust_fund_transcript-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
+            String headerValue = "attachment; filename=trust_fund_transcript_" + start_date +"_"+ end_date  + "_"+church_name+".pdf";
             outResponse.setHeader(headerKey, headerValue);
 
-            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, username, password, response1);
+            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, response1, conference_name
+                    ,personnel_name,institution_number, church_name);
         }else{
-            payload1.setChurchName(response.getPayload().getOrganisationName());
-            payload1.setChurchCode(response.getPayload().getOrganisationNumber());
+            payload1.setChurchName(church_name);
+            payload1.setChurchCode(institution_number);
             payload1.setStartDate(start_date);
             payload1.setEndDate(end_date);
             transcript1.setPayload(payload1);
@@ -2156,21 +2360,63 @@ public class AuthController {
             String headerValue = "attachment; filename=trust_fund_transcript-" + start_date +" - "+ end_date  + " - "+church_name+".pdf";
             outResponse.setHeader(headerKey, headerValue);
 
-            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, username, password, response2);
+            transcriptReport.trustFundTranscriptReport (phone_number,outResponse, start_date, end_date, response2, conference_name
+                    , personnel_name,institution_number, church_name);
         }
 
         return "Generate Trust Fund Transcript";
     }
 
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
+    public TrustFundTranscriptResponse generateUSSDandCashTranscriptReport(String personnel_name,String church_name,String institution_number,
+                                                                           String institution_level,String start_date,String end_date,
+                             String username, String password, String account_name) throws IOException {
+
+        final int rand = (int) ((Math.random() * 9000000) + 1000000);
+
+
+        TrustFundTranscript transcript = new TrustFundTranscript();
+
+        List<TransactionItem> transaction = new ArrayList<TransactionItem>();
+
+        com.example.tried.auth.personnel.reports.transcript.Authentication authentication = new
+                com.example.tried.auth.personnel.reports.transcript.Authentication();
+
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(String.valueOf(rand));
+        authentication.setInstitutionNumber(institution_number);
+        authentication.setInstitutionName(church_name);
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstitutionLevel(institution_level);
+
+
+        com.example.tried.auth.personnel.reports.transcript.Payload payload = new
+                com.example.tried.auth.personnel.reports.transcript.Payload();
+
+        payload.setChurchName(church_name);
+        payload.setChurchCode(institution_number);
+        payload.setMeansOfPayment(account_name);
+        payload.setStartDate(start_date);
+        payload.setEndDate(end_date);
+        transcript.setPayload(payload);
+        transcript.setAuthentication(authentication);
+
+        TrustFundTranscriptResponse response1 = personnelApi.getTrustFundTranscript(transcript);
+        return response1;
+    }
+
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/export/non_trust_fund")
     public void exportNonTrustFundDocument(HttpServletResponse response, String start_date, String end_date, String account_name,
-                                           String username,String password, String phone_number) throws IOException, JsonProcessingException {
+                                           String username,String password, String phone_number) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
+        }else{
+            phone_number = phone_number;
         }
-
 
         response.setContentType("application/octet-stream");
         DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
@@ -2240,15 +2486,14 @@ public class AuthController {
         nonTrustFundReportExcel.export(response, membersItems, accounts);
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/pdf/non_trust_fund")
     public String generateNonTrustFund(HttpServletResponse response,String start_date,String end_date,String account_name,
-                                       String username,String password, String phone_number) throws IOException, JsonProcessingException {
+                                       String username,String password, String phone_number) throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1, phone_number.length());
         }
-
 
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
@@ -2280,6 +2525,21 @@ public class AuthController {
         MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
 
         String church_name = responsed2.getPayload().getOrganisationName();
+        String personnel_name = responsed2.getPayload().getPersonnelName();
+        String church_code = responsed2.getPayload().getOrganisationNumber();
+        String church_level = responsed2.getPayload().getOrganisationLevel();
+
+        // Request Church Details
+        // Member Church Details Response
+        RequestChurchDetails churchDetails = new RequestChurchDetails();
+        churchDetails.setChurchCode(church_code);
+        churchDetails.setAccessNumber(phone_number);
+        churchDetails.setMobileServiceProvider("Safaricom");
+
+        RequestChurchDetailsResponse responser = authApi.getMemberChurchDetails(churchDetails);
+
+        String district_name = responser.getDistrictName();
+        String conference_name = responser.getConferenceName();
 
         // Non Trust Fund Authentication
         com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
@@ -2287,10 +2547,10 @@ public class AuthController {
         authentication.setSessionNumber(session_number);
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setPersonnelName(responsed2.getPayload().getPersonnelName());
-        authentication.setInstitutionNumber(responsed2.getPayload().getOrganisationNumber());
-        authentication.setInstitutionLevel(responsed2.getPayload().getOrganisationLevel());
-        authentication.setInstitutionName(responsed2.getPayload().getOrganisationName());
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstitutionNumber(church_code);
+        authentication.setInstitutionLevel(church_level);
+        authentication.setInstitutionName(church_name);
 
         LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
         nonTrustFundSummary.setAuthentication(authentication);
@@ -2310,7 +2570,8 @@ public class AuthController {
         String headerValue = "attachment; filename=local_non_trust_fund " + start_date +" - "+ end_date + "-"+church_name+".pdf";
         response.setHeader(headerKey, headerValue);
 
-        testPDFSummary.nonTrustFundSummaryReport(response, phone_number, start_date, end_date, membersItems, accounts);
+        localNonTrustFundSummary.nonTrustFundSummaryReport(response, phone_number, start_date, end_date, membersItems, accounts,
+                personnel_name, church_name, district_name, conference_name);
         return "Generate Local Non Trust Fund";
     }
 
@@ -2419,146 +2680,15 @@ public class AuthController {
     }
 
 
-    // Function to Get Non Trust Fund Dashboard Information
-    @GetMapping("/report/non_trust_fund")
-    public HashMap<String, Object> generateNonTrustFundReport(@RequestParam("username")String username,
-                                                              @RequestParam("password")String password,
-                                                              @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException {
-
-
-        if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
-        }
-
-
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate now = LocalDate.now();
-        String start_date = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).format(format);
-        String end_date = now.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(format);
-
-        String Cash = "Cash";
-        String USSD = "USSD";
-        String All = "Not Applicable";
-
-        MemberProfile memberProfile = new MemberProfile();
-        Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
-
-        memberProfile.setProfilepayload(profilepayload);
-
-        MemberProfileResponse responsed = authApi.getMemberDetails(memberProfile);
-
-        // Non Trust Fund RPayload(USSD)
-        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload =
-                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
-        payload.setChurchCode(responsed.getPayload().getChurchCode());
-        payload.setGroup("Not Applicable");
-        payload.setChurchName(responsed.getPayload().getChurchName());
-        payload.setMeansOfPayment("USSD");
-        payload.setStartDate(start_date);
-        payload.setEndDate(end_date);
-
-
-
-        final int session_number = (int) ((Math.random() * 9000000) + 1000000);
-        // final int session_number1 = (int) ((Math.random() * 9000000) + 1000000);
-
-        MemberPersonnel personnel = new MemberPersonnel();
-        personnel.setUser(username);
-        personnel.setPassword(password);
-        personnel.setChurchCode(responsed.getPayload().getChurchCode());
-
-        // Get the Personnel Response
-        MemberPersonnelResponse responsed2 = authApi.loginMemberPersonnel(personnel);
-
-        String name = responsed2.getPayload().getPersonnelName();
-
-        System.out.println("Member Name: "+ responsed.getPayload().getMemberName());
-        System.out.println("Member Name 2: "+ responsed2.getPayload().getPersonnelName());
-
-        // Non Trust Fund Authentication
-        com.example.tried.auth.personnel.reports.non_trust_funds.Authentication authentication =
-                new com.example.tried.auth.personnel.reports.non_trust_funds.Authentication();
-        authentication.setSessionNumber(session_number);
-        authentication.setUser(username);
-        authentication.setPassword(password);
-        authentication.setPersonnelName(responsed2.getPayload().getPersonnelName());
-        authentication.setInstitutionNumber(responsed2.getPayload().getOrganisationNumber());
-        authentication.setInstitutionLevel(responsed2.getPayload().getOrganisationLevel());
-        authentication.setInstitutionName(responsed2.getPayload().getOrganisationName());
-
-        // USSD Non Trust Fund
-        LocalChurchNonTrustSummary nonTrustFundSummary = new LocalChurchNonTrustSummary();
-        nonTrustFundSummary.setAuthentication(authentication);
-        nonTrustFundSummary.setPayload(payload);
-
-        LocalChurchNonTrustSummaryResponse response1 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary);
-
-        // Non Trust Fund RPayload(All)
-        com.example.tried.auth.personnel.reports.non_trust_funds.Payload payload1 =
-                new com.example.tried.auth.personnel.reports.non_trust_funds.Payload();
-        payload1.setChurchCode(responsed.getPayload().getChurchCode());
-        payload1.setGroup("Not Applicable");
-        payload1.setChurchName(responsed.getPayload().getChurchName());
-        payload1.setMeansOfPayment("Cash");
-        payload1.setStartDate(start_date);
-        payload1.setEndDate(end_date);
-
-        // Total Non Trust Fund
-        LocalChurchNonTrustSummary nonTrustFundSummary1 = new LocalChurchNonTrustSummary();
-        nonTrustFundSummary1.setAuthentication(authentication);
-        nonTrustFundSummary1.setPayload(payload1);
-
-
-        LocalChurchNonTrustSummaryResponse response2 = authApi.getLocalChurchNonTrustFund(nonTrustFundSummary1);
-
-        if(response1.getTotalAmount() != null && response2.getTotalAmount() != null) {
-
-            Double total_amount1 = Double.parseDouble(response1.getTotalAmount());
-            Double total_amount2 = Double.parseDouble(response2.getTotalAmount());
-
-            Double Total_Amount = total_amount1 + total_amount2;
-            List<HashMap<String, Object>> transactions = response2.getNonTrpayload().getMembers();
-
-            Double combined_offering1 = Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings")));
-            Double combined_offering2 = Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings")));
-
-            // Total Combined Offerings
-            Double Total_Combined_Offerings = combined_offering1 + combined_offering2;
-
-            List<HashMap<String, Object>> valid_transactions =
-                    new ArrayList<HashMap<String, Object>>();
-
-            // Valid Transactions
-            for (HashMap<String, Object> said_transaction : transactions) {
-                if (said_transaction.get("receiptNumber") != null) {
-                    valid_transactions.add(said_transaction);
-                }
-            }
-
-            // Non Trust Fund HashMap to Add Information to the Non Trust Fund JSON File
-            HashMap<String, Object> nonTrustFundSummaryReport = new HashMap<String, Object>();
-            nonTrustFundSummaryReport.put("USSD", Double.parseDouble(response1.getTotalAmount()));
-            nonTrustFundSummaryReport.put("totalAmount", Total_Amount);
-            nonTrustFundSummaryReport.put("cashAmount", Double.parseDouble(response2.getTotalAmount()));
-            nonTrustFundSummaryReport.put("transactions", Double.parseDouble(String.valueOf(valid_transactions.size())));
-            nonTrustFundSummaryReport.put("localCombinedOfferingsUSSD", Double.parseDouble(String.valueOf(response1.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings"))));
-            nonTrustFundSummaryReport.put("localCombinedOfferingsCash", Double.parseDouble(String.valueOf(response2.getNonTrpayload().getLocalChurchFunds().get("local_combined_offerings"))));
-            nonTrustFundSummaryReport.put("localCombinedOfferings", Total_Combined_Offerings);
-            return nonTrustFundSummaryReport;
-        }else{
-            return null;
-        }
-    }
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/report/local_church_offering")
     public HashMap<String, Object> generateLocalChurchOfferingReport(@RequestParam("phone_number")String phone_number,
                                                                      @RequestParam("username")String username,
-                                                                     @RequestParam("password")String password) throws IOException, JsonProcessingException {
+                                                                     @RequestParam("password")String password) throws IOException
+            , NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -2575,7 +2705,6 @@ public class AuthController {
 
         // Member Profile Information
         MemberProfile profile = new MemberProfile();
-
         // Profile RPayload
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
@@ -2590,28 +2719,30 @@ public class AuthController {
         personnel.setUser(username);
         personnel.setPassword(password);
         personnel.setChurchCode(response.getPayload().getChurchCode());
-
         MemberPersonnelResponse personnelResponse = authApi.loginMemberPersonnel(personnel);
 
+        String institution_name = personnelResponse.getPayload().getOrganisationName();
+        String institution_number = personnelResponse.getPayload().getOrganisationNumber();
+        String institution_level = personnelResponse.getPayload().getOrganisationLevel();
+        String personnel_name = personnelResponse.getPayload().getPersonnelName();
 
         // Authentication Details
         authentication.setUser(username);
         authentication.setPassword(password);
         authentication.setSessionNumber(session_number);
-        authentication.setInstututionName(personnelResponse.getPayload().getOrganisationName());
-        authentication.setInstututionNumber(personnelResponse.getPayload().getOrganisationNumber());
-        authentication.setInstututionLevel(personnelResponse.getPayload().getOrganisationLevel());
-        authentication.setPersonnelName(personnelResponse.getPayload().getPersonnelName());
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionNumber(institution_number);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setPersonnelName(personnel_name);
 
         // RPayload Information
         LocalChurchPayload localChurchPayload = new LocalChurchPayload();
-        localChurchPayload.setChurchCode(response.getPayload().getChurchCode());
+        localChurchPayload.setChurchCode(institution_number);
         localChurchPayload.setGroup("Not Applicable");
-        localChurchPayload.setChurchName(response.getPayload().getChurchName());
+        localChurchPayload.setChurchName(institution_name);
         localChurchPayload.setMeansOfPayment("Not Applicable");
         localChurchPayload.setStartDate(start_date);
         localChurchPayload.setEndDate(end_date);
-
 
         // Local Church Offering Reports
         LocalChurchOfferingSummary summary = new LocalChurchOfferingSummary();
@@ -2619,11 +2750,9 @@ public class AuthController {
         summary.setAuthentication(authentication);
 
         LocalChurchOfferingSummaryResponse localChurch = authApi.getLocalChurchOfferingReports(summary);
-
         HashMap<String,String> trustFunds = localChurch.getPayload().getTrustFunds();
 
         int total = 0;
-
         List<String> keys = new ArrayList<String>();
 
         if(!trustFunds.isEmpty()) {
@@ -2641,22 +2770,9 @@ public class AuthController {
             }
         }
 
+        LocalChurchOfferingSummaryResponse localChurch2 = getLocalChurchOfferingInDashboard(username, password, personnel_name, institution_name,
+                institution_number, institution_level, start_date, end_date);
 
-        // RPayload Information
-        LocalChurchPayload localChurchPayload2 = new LocalChurchPayload();
-        localChurchPayload2.setChurchCode(response.getPayload().getChurchCode());
-        localChurchPayload2.setGroup("Not Applicable");
-        localChurchPayload2.setChurchName(response.getPayload().getChurchName());
-        localChurchPayload2.setMeansOfPayment("USSD");
-        localChurchPayload2.setStartDate(start_date);
-        localChurchPayload2.setEndDate(end_date);
-
-        // Local Church Offering Reports
-        LocalChurchOfferingSummary summary1 = new LocalChurchOfferingSummary();
-        summary1.setPayload(localChurchPayload2);
-        summary1.setAuthentication(authentication);
-
-        LocalChurchOfferingSummaryResponse localChurch2 = authApi.getLocalChurchOfferingReports(summary1);
         if(localChurch.getTotalAmount() != null && localChurch2.getTotalAmount() != null){
             Double total_amount_all = Double.parseDouble(localChurch.getTotalAmount());
             Double total_amount_cash = Double.parseDouble(localChurch2.getTotalAmount());
@@ -2677,6 +2793,46 @@ public class AuthController {
         }
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingInDashboard(String username, String password, String personnel_name, String institution_name,
+                                                                                String institution_number, String institution_level,
+                                                                                String start_date, String end_date) throws JsonProcessingException
+            , NullPointerException {
+        // Session Number
+        final int session_number = (int) ((Math.random() * 900000000) + 100000000);
+
+        // Local Church Authentication
+        com.example.tried.auth.personnel.reports.offering.Authentication authentication =
+                new com.example.tried.auth.personnel.reports.offering.Authentication();
+
+        // Authentication Details
+        authentication.setUser(username);
+        authentication.setPassword(password);
+        authentication.setSessionNumber(session_number);
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionNumber(institution_number);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setPersonnelName(personnel_name);
+
+        // RPayload Information
+        LocalChurchPayload localChurchPayload = new LocalChurchPayload();
+        localChurchPayload.setChurchCode(institution_number);
+        localChurchPayload.setGroup("Not Applicable");
+        localChurchPayload.setChurchName(institution_name);
+        localChurchPayload.setMeansOfPayment("Not Applicable");
+        localChurchPayload.setStartDate(start_date);
+        localChurchPayload.setEndDate(end_date);
+
+        // Local Church Offering Reports
+        LocalChurchOfferingSummary summary1 = new LocalChurchOfferingSummary();
+        summary1.setPayload(localChurchPayload);
+        summary1.setAuthentication(authentication);
+
+        LocalChurchOfferingSummaryResponse responser = authApi.getLocalChurchOfferingReports(summary1);
+        return responser;
+    }
+
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_reporting")
     public String generateTrustFundReport(HttpServletResponse response,
                                           @RequestParam("select_month") String select_month,
@@ -2684,7 +2840,7 @@ public class AuthController {
                                           @RequestParam("account_name") String account_name,
                                           @RequestParam("username") String username,
                                           @RequestParam("password") String password,
-                                          @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException {
+                                          @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
         String [] account_info = select_month.split("-");
         Integer month =  Integer.parseInt(account_info[1]);
         Integer year = Integer.parseInt(account_info[0]);
@@ -2696,6 +2852,7 @@ public class AuthController {
         return "Trust Fund Successfully Downloaded";
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/trust_fund_reporting_date")
     public String generateTrustFundDateToDateReport(HttpServletResponse response,
                                           @RequestParam("start_date") String start_date,
@@ -2704,7 +2861,7 @@ public class AuthController {
                                           @RequestParam("input") String input,
                                           @RequestParam("username") String username,
                                           @RequestParam("password") String password,
-                                          @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException {
+                                          @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
         if(input.contains("PDF")){
             getTrustFundSummaryDateToDatePDF(response,phone_number,username,password,start_date,end_date);
@@ -2714,6 +2871,7 @@ public class AuthController {
         return "Excel Successfully Downloaded";
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/exporting-non-trust-fund")
     public String generateNonTrustFundReport(HttpServletResponse response,
                                              @RequestParam("from_date_non_trust") String start_date,
@@ -2722,7 +2880,7 @@ public class AuthController {
                                              @RequestParam("input") String input,
                                              @RequestParam("username") String username,
                                              @RequestParam("password") String password,
-                                             @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException{
+                                             @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
 
         if(input.contains("Excel")){
@@ -2733,7 +2891,7 @@ public class AuthController {
         return "Non Trust Fund Report Downloaded Successfully";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/exporting-transaction-tracing")
     public String generateTransactionTracing(HttpServletResponse response,
                                              @RequestParam("start_date") String start_date,
@@ -2742,7 +2900,7 @@ public class AuthController {
                                              @RequestParam("input") String input,
                                              @RequestParam("username") String username,
                                              @RequestParam("password") String password,
-                                             @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException{
+                                             @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
 
         if(input.contains("Excel")){
@@ -2753,7 +2911,7 @@ public class AuthController {
         return "Transaction Tracing Report Report Downloaded Successfully";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/exporting_trust_fund_transcript")
     public String generateTrustFundTranscript(HttpServletResponse response,
                                              @RequestParam("start_date") String start_date,
@@ -2762,7 +2920,7 @@ public class AuthController {
                                              @RequestParam("input") String input,
                                              @RequestParam("username") String username,
                                              @RequestParam("password") String password,
-                                             @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException{
+                                             @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
 
         if(input.contains("Excel")){
@@ -2773,6 +2931,7 @@ public class AuthController {
         return "Trust Fund Transcript Report Report Downloaded Successfully";
     }
 
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/exporting_specific_account_summary")
     public String generateSpecificAccountSummary(HttpServletResponse response,
                                               @RequestParam("start_date") String start_date,
@@ -2781,7 +2940,7 @@ public class AuthController {
                                               @RequestParam("input") String input,
                                               @RequestParam("username") String username,
                                               @RequestParam("password") String password,
-                                              @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException{
+                                              @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
 
         if(input.contains("Excel")){
@@ -2792,7 +2951,7 @@ public class AuthController {
         return "Transaction Tracing Report Report Downloaded Successfully";
     }
 
-
+    @Retryable(value = NullPointerException.class, maxAttempts = 2, backoff = @Backoff(delay = 100))
     @GetMapping("/exporting_local_church_offering")
     public String generateLocalChurchOfferingReport(HttpServletResponse response,
                                                  @RequestParam("start_date") String start_date,
@@ -2801,7 +2960,7 @@ public class AuthController {
                                                  @RequestParam("input") String input,
                                                  @RequestParam("username") String username,
                                                  @RequestParam("password") String password,
-                                                 @RequestParam("phone_number") String phone_number) throws IOException, JsonProcessingException{
+                                                 @RequestParam("phone_number") String phone_number) throws IOException, NullPointerException {
 
 
         if(input.contains("Excel")){
@@ -2840,7 +2999,6 @@ public class AuthController {
         return detailsWithCodeResponse;
     }
 
-
     // Personnel Login
     @PostMapping(path="/auth-personnel")
     public MemberPersonnelResponse personnelLogin(@RequestParam("username") String username,
@@ -2856,4 +3014,54 @@ public class AuthController {
         System.out.println("Personnel Login Response: "+ responsed);
         return responsed;
     }
+
+    @GetMapping("/timers")
+    public String getTimers() throws JsonProcessingException {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("trustFunds", 1);
+        map.put("specialTrustFunds", 2);
+        JSONObject new_object = new JSONObject(map);
+        System.out.println("Object: " + new_object);
+        String jsonResult = objectMapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(map);
+        System.out.println(jsonResult);
+        return "Get the Timers";
+    }
+
+    // Testing the Effectiveness of List and Set
+    @GetMapping("/timered")
+    public String getTimed(){
+        // Creating a list of strings
+        List<String> aList = Arrays.asList("Geeks", "for", "GeeksQuiz", "Geeks", "for",
+                "GeeksQuiz", "GFG", "GeeksforGeeks", "GFG");
+
+        // Creating a hash set using constructor
+        Set<String> hSet = new HashSet<String>(aList);
+
+        System.out.println("Created HashSet is");
+        for (String x : hSet)
+            System.out.println(x);
+
+
+        System.out.println("Created List is");
+        for (String x : aList)
+            System.out.println(x);
+        return "Set of Information";
+    }
+
+    @GetMapping("/export/excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException, NullPointerException {
+        response.setContentType("application/octet-stream");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=users_" + currentDateTime + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        // trustFundSummaryExcel.export(response);
+        TestExcelForm testExcelForm = new TestExcelForm();
+        testExcelForm.export(response);
+    }
+
 }

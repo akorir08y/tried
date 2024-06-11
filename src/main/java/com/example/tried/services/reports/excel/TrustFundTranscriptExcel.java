@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TrustFundTranscriptExcel {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     public TrustFundTranscriptExcel() {

@@ -1,9 +1,9 @@
 package com.example.tried.dto.transactionstatus;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
+
 public class InternalTransactionStatusRequest{
 
 	@JsonProperty("TransactionID")
@@ -11,4 +11,29 @@ public class InternalTransactionStatusRequest{
 
 	@JsonProperty("OriginatorConversationID")
 	private String originatorConversationID;
+
+	public InternalTransactionStatusRequest() {
+
+	}
+
+	public InternalTransactionStatusRequest(String transactionID, String originatorConversationID) {
+		this.transactionID = transactionID;
+		this.originatorConversationID = originatorConversationID;
+	}
+
+	public String getTransactionID() {
+		return transactionID;
+	}
+
+	public void setTransactionID(String transactionID) {
+		this.transactionID = transactionID;
+	}
+
+	public String getOriginatorConversationID() {
+		return originatorConversationID;
+	}
+
+	public void setOriginatorConversationID(String originatorConversationID) {
+		this.originatorConversationID = originatorConversationID;
+	}
 }

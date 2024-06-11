@@ -205,7 +205,7 @@ public class MemberOfferingStatementService {
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
 
-    private void addHeaderData(Table table, RequestMemberDetailsResponse response) {
+    private void addHeaderData(Table table, RequestMemberDetailsResponse response) throws JsonProcessingException {
         // Member Church Details Response
         RequestChurchDetails churchDetails = new RequestChurchDetails();
         churchDetails.setChurchCode(response.getChurchNumber());
@@ -490,7 +490,7 @@ public class MemberOfferingStatementService {
                     .setBackgroundColor(Color.WHITE));
 
 
-            Statement.addCell(new Cell().add("("+String.valueOf(mem.getBalance())+")")
+            Statement.addCell(new Cell().add("("+ mem.getBalance() +")")
                         .setFontSize(9)
                         .setFont(bolden)
                         .setWidthPercent(10)

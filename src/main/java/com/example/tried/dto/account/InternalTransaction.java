@@ -1,9 +1,8 @@
 package com.example.tried.dto.account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class InternalTransaction{
 
 	@JsonProperty("TransactionID")
@@ -14,4 +13,38 @@ public class InternalTransaction{
 
 	@JsonProperty("Occassion")
 	private String occassion;
+
+	public InternalTransaction() {
+
+	}
+
+	public InternalTransaction(String transactionID, int amount, String occassion) {
+		this.transactionID = transactionID;
+		this.amount = amount;
+		this.occassion = occassion;
+	}
+
+	public String getTransactionID() {
+		return transactionID;
+	}
+
+	public void setTransactionID(String transactionID) {
+		this.transactionID = transactionID;
+	}
+
+	public int getAmount() {
+		return amount;
+	}
+
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+
+	public String getOccassion() {
+		return occassion;
+	}
+
+	public void setOccassion(String occassion) {
+		this.occassion = occassion;
+	}
 }

@@ -1,9 +1,9 @@
 package com.example.tried.auth.personnel.accounts.new_account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
+
 public class CreateLocalChurchAccount{
 
 	@JsonProperty("payload")
@@ -14,4 +14,37 @@ public class CreateLocalChurchAccount{
 
 	@JsonProperty("authentication")
 	private Authentication authentication;
+
+	public CreateLocalChurchAccount() {
+	}
+
+	public CreateLocalChurchAccount(Payload payload, String function, Authentication authentication) {
+		this.payload = payload;
+		this.function = function;
+		this.authentication = authentication;
+	}
+
+	public Payload getPayload() {
+		return payload;
+	}
+
+	public void setPayload(Payload payload) {
+		this.payload = payload;
+	}
+
+	public String getFunction() {
+		return function;
+	}
+
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public Authentication getAuthentication() {
+		return authentication;
+	}
+
+	public void setAuthentication(Authentication authentication) {
+		this.authentication = authentication;
+	}
 }

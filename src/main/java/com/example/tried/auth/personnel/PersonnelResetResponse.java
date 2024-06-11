@@ -1,9 +1,8 @@
 package com.example.tried.auth.personnel;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class PersonnelResetResponse{
 
 	@JsonProperty("status")
@@ -11,4 +10,28 @@ public class PersonnelResetResponse{
 
 	@JsonProperty("notice")
 	private String notice;
+
+	public PersonnelResetResponse() {
+	}
+
+	public PersonnelResetResponse(int status, String notice) {
+		this.status = status;
+		this.notice = notice;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	public String getNotice() {
+		return notice;
+	}
+
+	public void setNotice(String notice) {
+		this.notice = notice;
+	}
 }

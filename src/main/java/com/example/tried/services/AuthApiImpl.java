@@ -29,12 +29,14 @@ import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +47,9 @@ import java.util.*;
 import static com.example.tried.utils.Constants.JSON_MEDIA_TYPE;
 
 @Service
-@Slf4j
 public class AuthApiImpl implements AuthApi{
+
+    Logger log = LogManager.getLogger(AuthApiImpl.class);
 
     // Prepare a Hash Map
     HashMap<String, String> otpMap = new HashMap<String, String>();
@@ -64,7 +67,7 @@ public class AuthApiImpl implements AuthApi{
 
     // Login As a Member
     @Override
-    public AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException {
+    public AuthMemberResponse getMemberCredentials(LoginCredentials credentials) throws JsonProcessingException, NullPointerException {
 
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -108,7 +111,7 @@ public class AuthApiImpl implements AuthApi{
 
 
     @Override
-    public SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException {
+    public SMSResponse VerifyPhoneNumber(String recipient) throws JsonProcessingException, NullPointerException {
         // Generate Random OTP
 
         int rand = getOTPPin();
@@ -119,7 +122,7 @@ public class AuthApiImpl implements AuthApi{
         String message = "<#>Your CFMS Authorization Code is " + rand + "   \n   nCR3mHWdawrw    \n";
 
         if(recipient.startsWith("+254")){
-            recipient = recipient.substring(1,recipient.length());
+            recipient = recipient.substring(1);
         }
 
         // OfferingAuthentication Details
@@ -175,7 +178,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException {
+    public AuthMemberResetResponse resetMemberPin(Payload payload) throws JsonProcessingException, NullPointerException {
         AuthMemberReset memberReset = new AuthMemberReset();
 
         // Generate Session Number
@@ -208,7 +211,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException {
+    public AuthMemberRegistrationResponse registerMember(MemberRegister register) throws JsonProcessingException, NullPointerException {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
         System.out.println("The Session Number is: " + session_number);
@@ -240,7 +243,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException {
+    public AuthMemberRegistrationResponse updateRegisterMember(AuthMemberRegister register) throws JsonProcessingException, NullPointerException {
 
         MemberRegistrationUpdate registration = new MemberRegistrationUpdate();
         registration.setFunction("mobileRegistrationUpdates");
@@ -267,11 +270,11 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException {
+    public MemberPersonnelResponse loginMemberPersonnel(MemberPersonnel personnel) throws JsonProcessingException, NullPointerException  {
         // Function Name
         personnel.setFunction("login");
         personnel.setConnectionPurpose("Web Administration");
-        System.out.println("Login Personnel Credentials: "+personnel.toString());
+        System.out.println("Login Personnel Credentials: "+ personnel);
 
         String requested = objectMapper.writeValueAsString(personnel);
 
@@ -292,7 +295,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException {
+    public PersonnelResetResponse resetPersonnelPassword(MemberPersonnelReset reset) throws JsonProcessingException, NullPointerException  {
         reset.setFunction("resetPassword");
 
         String requested = objectMapper.writeValueAsString(reset);
@@ -315,7 +318,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public String validateOTPPassword(OtpValidationRequest otpValidationRequest)  {
+    public String validateOTPPassword(OtpValidationRequest otpValidationRequest) throws NullPointerException  {
 
         String rand = String.valueOf(otpMap.get("otp"));
         System.out.println("Rand: "+rand);
@@ -348,7 +351,7 @@ public class AuthApiImpl implements AuthApi{
 
     // Get the Member Details
     @Override
-    public MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException {
+    public MemberProfileResponse getMemberDetails(MemberProfile profile) throws JsonProcessingException, NullPointerException  {
         profile.setFunction("mobileFetchProfile");
 
         String requested = objectMapper.writeValueAsString(profile);
@@ -371,7 +374,7 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException {
+    public MemberOfferingResponse getMemberOffering(MemberOffering offering) throws JsonProcessingException, NullPointerException  {
         // Profile
         offering.setFunction("getMemberOfferingStatement");
 
@@ -397,9 +400,9 @@ public class AuthApiImpl implements AuthApi{
         }
     }
 
-    @SneakyThrows
     @Override
-    public RequestChurchDetailsResponse getMemberChurchDetails(RequestChurchDetails requestChurchDetails) {
+    public RequestChurchDetailsResponse getMemberChurchDetails(RequestChurchDetails requestChurchDetails) throws JsonProcessingException,
+            NullPointerException  {
         // Profile
         requestChurchDetails.setFunction("mobileRequestChurchDetails");
         requestChurchDetails.setAccessPoint("Web App");
@@ -420,12 +423,13 @@ public class AuthApiImpl implements AuthApi{
             return objectMapper.readValue(response.body().string(),RequestChurchDetailsResponse.class);
         } catch (Exception e) {
             log.error(String.format("Could not retrieve the Member Church Details -> %s", e.getLocalizedMessage()));
-            return objectMapper.readValue(e.getLocalizedMessage().toString(), RequestChurchDetailsResponse.class);
+            return objectMapper.readValue(e.getLocalizedMessage(), RequestChurchDetailsResponse.class);
         }
     }
 
     @Override
-    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException {
+    public MemberTransferResponse getMemberTransfer(MemberTransfer transfer) throws JsonProcessingException,
+            NullPointerException  {
         // Member Transfer RPayload
         transfer.setFunction("memberTransfer");
 
@@ -434,6 +438,8 @@ public class AuthApiImpl implements AuthApi{
         authentication.setPassword("7Zu2pBUFgsaTOuMOvfqNpg==");
 
         transfer.setTransferauthentication(authentication);
+
+        System.out.println("Member Transfer: "+ HelperUtility.toJSON(transfer));
 
         String requested = objectMapper.writeValueAsString(transfer);
 
@@ -451,7 +457,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not facilitate Member Transfer Details -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), MemberTransferResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), MemberTransferResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -459,7 +465,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails requestMember) throws JsonProcessingException {
+    public RequestMemberDetailsResponse getFullMemberDetails(RequestMemberDetails requestMember) throws JsonProcessingException,
+            NullPointerException  {
         requestMember.setFunction("mobileRequestMemberDetails");
 
         String requested = objectMapper.writeValueAsString(requestMember);
@@ -478,7 +485,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not retrieve Member Details -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), RequestMemberDetailsResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), RequestMemberDetailsResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -486,7 +493,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException {
+    public RequestChurchDetailsWithCodeResponse getChurchCodeDetails(RequestChurchDetailsWithCode requestChurchDetails) throws JsonProcessingException,
+            NullPointerException  {
         requestChurchDetails.setFunction("mobileRequestChurchDetailsWithChurchCode");
 
         System.out.println("RequestChurchDetailsWithCode:"+ requestChurchDetails);
@@ -507,7 +515,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not retrieve the Member Church Details with Code -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), RequestChurchDetailsWithCodeResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), RequestChurchDetailsWithCodeResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -515,7 +523,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException {
+    public MemberRegisterUpdateResponse getMemberRegistrationUpdate(MemberRegistrationUpdate registrationUpdate) throws JsonProcessingException,
+            NullPointerException  {
         registrationUpdate.setFunction("mobileRegistrationUpdates");
 
         System.out.println("Registration Update: "+ HelperUtility.toJSON(registrationUpdate));
@@ -536,7 +545,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not update the Member Details -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), MemberRegisterUpdateResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), MemberRegisterUpdateResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -544,7 +553,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException {
+    public ListMembersResponse getChurchMembers(ListMembers members) throws JsonProcessingException,
+            NullPointerException  {
         members.setFunction("getListOfChurchMembers");
 
         String register = objectMapper.writeValueAsString(members);
@@ -563,7 +573,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get the Active Members -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), ListMembersResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), ListMembersResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -571,7 +581,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException {
+    public ListDeactivatedMembersResponse getDeactivatedMembers(ListDeactivatedMembers members) throws JsonProcessingException,
+            NullPointerException  {
         members.setFunction("mobileRequestDeactivatedMemberDetails");
 
         String register = objectMapper.writeValueAsString(members);
@@ -590,7 +601,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), ListDeactivatedMembersResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), ListDeactivatedMembersResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -598,7 +609,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException {
+    public LocalChurchPaymentAccountsResponse getPaymentAccounts(LocalChurchPaymentAccounts paymentAccount) throws JsonProcessingException,
+            NullPointerException  {
         paymentAccount.setFunction("getLocalChurchPaymentAccounts");
 
         String requested = objectMapper.writeValueAsString(paymentAccount);
@@ -617,7 +629,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get Deactivated Members -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchPaymentAccountsResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchPaymentAccountsResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -625,8 +637,11 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException {
+    public LocalChurchTrustFundSummaryResponse getLocalChurchTrustFundSummary(LocalChurchTrustFundSummary trustFundSummary) throws JsonProcessingException,
+            NullPointerException  {
         trustFundSummary.setFunction("getLocalChurchTrustFundsSummary");
+
+        System.out.println("Trust Fund Summary" + HelperUtility.toJSON(trustFundSummary));
 
         String requested = objectMapper.writeValueAsString(trustFundSummary);
 
@@ -644,7 +659,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get the Local Church Trust Fund Summary -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTrustFundSummaryResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchTrustFundSummaryResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -652,7 +667,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException {
+    public ChurchPaymentResponse getHomeChurchPayment(HomeChurchPayment homePayment) throws JsonProcessingException,
+            NullPointerException  {
         homePayment.setFunction("");
 
         String requested = objectMapper.writeValueAsString(homePayment);
@@ -670,7 +686,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not complete Home Church Payment -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(),ChurchPaymentResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(),ChurchPaymentResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -678,7 +694,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException {
+    public ChurchPaymentResponse getHostChurchPayment(HostChurchPayment hostChurchPayment) throws JsonProcessingException,
+            NullPointerException  {
         hostChurchPayment.setFunction("mobileInitiateHostChurchPayment");
 
         String requested = objectMapper.writeValueAsString(hostChurchPayment);
@@ -696,7 +713,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not complete Host Church Payment -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), ChurchPaymentResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), ChurchPaymentResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -704,7 +721,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException {
+    public MobileReceiveFundsResponse receiveMemberFunds(MobileReceiveFundsGiving giving) throws JsonProcessingException,
+            NullPointerException  {
         giving.setFunction("mobileReceiveFunds");
         String requested = objectMapper.writeValueAsString(giving);
 
@@ -734,7 +752,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest stkRequest) throws JsonProcessingException {
+    public MpesaSTKRequestResponse getMPESASTKResponse(MpesaSTKRequest stkRequest) throws JsonProcessingException,
+            NullPointerException  {
         stkRequest.setChannel("M-PESA");
 
         String requested = objectMapper.writeValueAsString(stkRequest);
@@ -742,7 +761,7 @@ public class AuthApiImpl implements AuthApi{
         //Request Body
         RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, requested);
 
-        System.out.println("Request Body: " + body.toString());
+        System.out.println("Request Body: " + body);
         Request request = new Request.Builder()
                 .url(authConfiguration.getMpesa_stk_request_url())
                 .method("POST", body)
@@ -755,7 +774,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not Send Mobile Receive Funds -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), MpesaSTKRequestResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), MpesaSTKRequestResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -763,7 +782,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException {
+    public LocalChurchTransactionTracingResponse getTransactionTracingSummary(LocalChurchTransactionTracing transactionTracing) throws JsonProcessingException,
+            NullPointerException  {
         transactionTracing.setFunction("getLocalChurchPaymentTraceReport");
         String requested = objectMapper.writeValueAsString(transactionTracing);
 
@@ -783,7 +803,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get Transaction Tracing Report -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchTransactionTracingResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchTransactionTracingResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -791,7 +811,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException {
+    public LocalChurchNonTrustSummaryResponse getLocalChurchNonTrustFund(LocalChurchNonTrustSummary nonTrustSummary) throws JsonProcessingException,
+            NullPointerException  {
         nonTrustSummary.setFunction("getLocalChurchNonTrustFundsOfferingsReport");
         String requested = objectMapper.writeValueAsString(nonTrustSummary);
 
@@ -812,7 +833,7 @@ public class AuthApiImpl implements AuthApi{
         } catch (Exception e) {
             log.error(String.format("Could not get Local Non Trust Fund Report -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchNonTrustSummaryResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchNonTrustSummaryResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -820,7 +841,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException {
+    public LocalChurchOfferingSummaryResponse getLocalChurchOfferingReports(LocalChurchOfferingSummary churchOfferingSummary) throws JsonProcessingException,
+            NullPointerException  {
         churchOfferingSummary.setFunction("getLocalChurchOfferingsReport");
         String requested = objectMapper.writeValueAsString(churchOfferingSummary);
 
@@ -845,7 +867,8 @@ public class AuthApiImpl implements AuthApi{
     }
 
     @Override
-    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException {
+    public SpecificOfferingStatementResponse getSpecificOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException,
+            NullPointerException  {
         statement.setFunction("getMemberSpecificOfferingStatement");
         String requested = objectMapper.writeValueAsString(statement);
 

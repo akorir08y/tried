@@ -606,23 +606,20 @@ function GetTotal5()
 
     for (let index = 0; index < amts.length; index++){
         var amt = amts[index].value;
-        sum = +(sum) +  +(parseInt(amt));
-        console.log("Sum 1: "+ sum)
+        sum = +(sum) +  +(amt);
     }
 
     for (let index = 0; index < amts1.length; index++){
         var amt1 = amts1[index].value;
-        sum1 = +(sum1) +  +(parseInt(amt1));
-        console.log("Sum 2: "+ sum1)
+        sum1 = +(sum1) +  +(amt1);
     }
 
 	for (let index = 0; index < amts2.length; index++){
         var amt2 = amts2[index].value;
-        sum2 = +(sum2) +  +(parseInt(amt2));
-        console.log("Sum 3: "+ sum2)
+        sum2 = +(sum2) +  +(amt2);
     }
 
-    sum3 = parseInt(sum) + parseInt(sum1) + parseInt(sum2);
+    sum3 = sum + sum1 + sum2;
     console.log(sum3)
     document.getElementById("FTotal_edit3").value = sum3;
 }
@@ -894,6 +891,7 @@ function getMemberReceipting(){
          fund_amount2: amt5
     }
 
+    alert("Receipting Process Initiated");
 
     if(church_member.checked == true || visiting_member.checked == true){
         $.post(hosted_url + "/cfms-web/personnel/member_receipt_funds",funds ,function(data, status){
@@ -1014,6 +1012,8 @@ function getMemberEditReceipting(){
          fund_amount2: amt5,
          receipt_number: receipt_number
     }
+
+    alert("Receipt Editing Process Initiated");
 
 
     if(church_member.checked == true || visiting_member.checked == true){
@@ -1498,14 +1498,14 @@ function changeInfo(receipted){
             for(i=0;i < uniqueChars1.length;i++){
                 if(nonTrustFundKeys.includes(accounts1[i])){
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt_edit1\" name=\"amt_edit1\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\" value="+parseFloat(request1[uniqueChars1[i]])+">";
                     html += "</td></tr>";
                     sum += parseInt(request1[uniqueChars1[i]]);
                 }else{
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +"</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars1[i] +" Account</b><input type=\"hidden\" class=\"non_trust_funds1\" value='"+uniqueChars1[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars1[i]+"' class=\"amt_edit1\" name=\"amt_edit1\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\">";
                     html += "</td></tr>";
@@ -1543,14 +1543,14 @@ function changeInfo(receipted){
             for(i=0;i < uniqueChars2.length;i++){
                 if(specialTrustFundKeys.includes(accounts2[i])){
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt_edit2\" name=\"amt_edit2\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\"  value="+parseFloat(request2[uniqueChars2[i]])+">";
                     html += "</td></tr>";
                     sum += parseInt(request2[uniqueChars2[i]]);
                 }else{
                     html += "<tr>";
-                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +"</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
+                    html += "<td style=\"font-size:12px;padding-top:10px;\" colspan=\"2\"><b>"+ uniqueChars2[i] +" Account</b><input type=\"hidden\" class=\"special_trust_funds1\" value='"+uniqueChars2[i]+"'></td>";
                     html += "<td style=\"padding-left:15px;padding-top:10px;\" colspan=\"2\">";
                     html += "<input type=\"number\" id='"+uniqueChars2[i]+"' class=\"amt_edit2\" name=\"amt_edit2\" placeholder=\"\" onfocus=\"GetTotal5()\" onkeydown=\"GetTotal5()\"  onkeyup=\"GetTotal5()\">";
                     html += "</td></tr>";
@@ -1567,6 +1567,7 @@ function changeInfo(receipted){
         html += "</table>";
 
         $("#trust_funds_div_edit").html(html);
+        console.log(sum);
         document.getElementById("receipting_total_edit").value = parseFloat(sum);
     });
 
@@ -2087,6 +2088,8 @@ function deleteCashReceipt(){
         receipt_number: receipt_number
     };
 
+    alert("Receipt Deletion Process Initiated");
+
     $.post(hosted_url + "/cfms-web/personnel/cash-receipted-delete",fund_data ,function(data, status){
         console.log(data);
         if(data.status == 0){
@@ -2112,6 +2115,8 @@ function deleteCashReceipted(){
         receipt_number: receipt_number
     };
 
+    alert("Receipt Deletion Process Initiated");
+
     $.post(hosted_url + "/cfms-web/personnel/cash-receipted-delete",fund_data ,function(data, status){
         if(data.status == 0){
             alert("Cash Receipt Successfully Deleted");
@@ -2121,4 +2126,28 @@ function deleteCashReceipted(){
         }
 
     });
+}
+
+
+function displayReconciliation(){
+    var continue_reconciliation = document.getElementById("continue_reconciliation");
+    var recon_header = document.getElementById("recon_header");
+
+    continue_reconciliation.style.display = "none";
+    recon_header.innerHTML = "Continuing Reconciliation";
+}
+
+
+function getReconciliation(){
+    var start_date = document.getElementById("start_date_recon").value;
+    var end_date = document.getElementById("end_date_recon").value;
+    var actual_amount = document.getElementById("actual_amount").value;
+
+    var recon = {
+        start_date: start_date,
+        end_date: end_date,
+        actual_amount: actual_amount
+    };
+
+    console.log(recon);
 }

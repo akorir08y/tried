@@ -12,11 +12,17 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.retry.backoff.FixedBackOffPolicy;
+import org.springframework.retry.policy.SimpleRetryPolicy;
+import org.springframework.retry.support.RetryTemplate;
 
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableRetry
 @EnableConfigurationProperties({MpesaConfiguration.class})
 public class TriedApplication extends SpringBootServletInitializer {
 
@@ -30,6 +36,7 @@ public class TriedApplication extends SpringBootServletInitializer {
 				.readTimeout(90, TimeUnit.SECONDS)
 				.writeTimeout(90, TimeUnit.SECONDS)
 				.retryOnConnectionFailure(true)
+				.followRedirects(false)
 				.build();
 		return okHttpClient;
 	}
@@ -40,6 +47,23 @@ public class TriedApplication extends SpringBootServletInitializer {
 		ObjectMapper defaultObjectMapper = new ObjectMapper();
 		defaultObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);
 		return defaultObjectMapper;
+	}
+
+	// Retry Template
+	@Bean
+	public RetryTemplate retryTemplate()
+	{
+		RetryTemplate retryTemplate = new RetryTemplate();
+
+		FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
+		backOffPolicy.setBackOffPeriod(100);
+
+		SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
+		simpleRetryPolicy.setMaxAttempts(2);
+
+		retryTemplate.setRetryPolicy(simpleRetryPolicy);
+		retryTemplate.setBackOffPolicy(backOffPolicy);
+		return retryTemplate;
 	}
 
 	// Global Instance of Acknowledge Response

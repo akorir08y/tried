@@ -24,7 +24,7 @@ public class LocalChurchOfferingReportExcel {
 
     Map<String, Object> otpMap = new HashMap<>();
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     public LocalChurchOfferingReportExcel() {

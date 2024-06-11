@@ -1,10 +1,9 @@
 package com.example.tried.auth.reports.specific;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
 
-@Data
+
 public class LocalChurchSpecificAccountSummary{
 
 	@JsonProperty("payload")
@@ -15,4 +14,37 @@ public class LocalChurchSpecificAccountSummary{
 
 	@JsonProperty("authentication")
 	private Authentication authentication;
+
+	public LocalChurchSpecificAccountSummary() {
+	}
+
+	public LocalChurchSpecificAccountSummary(Payload payload, String function, Authentication authentication) {
+		this.payload = payload;
+		this.function = function;
+		this.authentication = authentication;
+	}
+
+	public Payload getPayload() {
+		return payload;
+	}
+
+	public void setPayload(Payload payload) {
+		this.payload = payload;
+	}
+
+	public String getFunction() {
+		return function;
+	}
+
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public Authentication getAuthentication() {
+		return authentication;
+	}
+
+	public void setAuthentication(Authentication authentication) {
+		this.authentication = authentication;
+	}
 }

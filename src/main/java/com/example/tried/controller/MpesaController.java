@@ -24,9 +24,10 @@ import com.example.tried.dto.transactionstatus.TransactionStatusSyncResponse;
 import com.example.tried.services.DarajaApi;
 import com.example.tried.services.MpesaService;
 import com.example.tried.utils.HelperUtility;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("mobile-money")
-@Slf4j
 public class MpesaController {
     private final DarajaApi darajaApi;
     private final ObjectMapper objectMapper;
@@ -87,12 +87,12 @@ public class MpesaController {
     }
 
     // ==== Business to Customer Transaction Region ==== //
-    @SneakyThrows
+    
     @PostMapping(path= "/transaction-result", produces="application/json")
     public ResponseEntity<AcknowledgeResponse> b2cTransactionAsyncResults(@RequestBody B2CTransactionAsyncResponse
-                                                                                  b2CTransactionAsyncResponse){
-        log.info("==== B2CTransaction Response ====");
-        log.info(objectMapper.writeValueAsString(b2CTransactionAsyncResponse));
+                                                                                  b2CTransactionAsyncResponse) throws JsonProcessingException {
+        System.out.println("==== B2CTransaction Response ====");
+        System.out.println(objectMapper.writeValueAsString(b2CTransactionAsyncResponse));
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
@@ -125,7 +125,7 @@ public class MpesaController {
     // Perform the STK Push Request
     @PostMapping(path="/stk-transaction-request", produces = "application/json")
     public ResponseEntity<STKPushSyncResponse> performStkPushTransaction
-    (@RequestBody InternalSTKPushRequest internalSTKPushRequest){
+    (@RequestBody InternalSTKPushRequest internalSTKPushRequest)  throws JsonProcessingException{
 
         // STK Push Response
         STKPushSyncResponse response = darajaApi.performSTKPushTransaction(internalSTKPushRequest);
@@ -147,13 +147,13 @@ public class MpesaController {
     }
 
     // Get the STK Response
-    @SneakyThrows
+    
     @PostMapping(path="/stk-transaction-result", produces = "application/json")
     public ResponseEntity<AcknowledgeResponse> acknowledgeStkPushResponse
-            (@RequestBody STKPushAsyncResponse stkPushAsyncResponse){
+            (@RequestBody STKPushAsyncResponse stkPushAsyncResponse)  throws JsonProcessingException{
 
-        log.info("==== STK Push Async Response ====");
-        log.info(objectMapper.writeValueAsString(stkPushAsyncResponse));
+        System.out.println("==== STK Push Async Response ====");
+        System.out.println(objectMapper.writeValueAsString(stkPushAsyncResponse));
 
         String getCheckOutId = stkPushAsyncResponse.getBody().getStkCallback().getCheckoutRequestID();
         CallbackMetadata items = stkPushAsyncResponse.getBody().getStkCallback().getCallbackMetadata();
@@ -188,30 +188,26 @@ public class MpesaController {
     // Reverse the Transaction
     @PostMapping(path="/transaction-reversal", produces = "application/json")
     public ResponseEntity<TransactionReversalResponse> performReversal
-    (@RequestBody InternalTransaction internalTransaction){
+    (@RequestBody InternalTransaction internalTransaction)  throws JsonProcessingException{
         return ResponseEntity.ok(darajaApi.performReversal(internalTransaction));
     }
 
 
     // Get the Transaction Reversal Response
-    @SneakyThrows
+    
     @PostMapping(path="/transaction-reversal-result", produces = "application/json")
     public ResponseEntity<AcknowledgeResponse> reverseTransaction
-    (@RequestBody TransactionReversalAsyncResponse transactionReversalAsyncResponse){
+    (@RequestBody TransactionReversalAsyncResponse transactionReversalAsyncResponse)  throws JsonProcessingException{
 
-        log.info("==== Reverse the Transaction ====");
-        log.info(objectMapper.writeValueAsString(transactionReversalAsyncResponse));
-
-        FileWriter file = new FileWriter("reverse_transfer.json");
-        file.write(Objects.requireNonNull(HelperUtility.toJSON(transactionReversalAsyncResponse)));
-        file.flush();
+        System.out.println("==== Reverse the Transaction ====");
+        System.out.println(objectMapper.writeValueAsString(transactionReversalAsyncResponse));
 
 
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
 
-    @SneakyThrows
+    
     @PostMapping(path="/tax-transaction-request", produces = "application/json")
     public ResponseEntity<TaxRemittanceResponse> performTaxTransaction
             (@RequestBody InternalTaxRequest internalTaxRequest){
@@ -220,24 +216,25 @@ public class MpesaController {
     }
 
 
-    @SneakyThrows
+    
     @PostMapping(path="/tax-transaction-result", produces = "application/json")
     public ResponseEntity<AcknowledgeResponse> getTaxTransactionResult
-            (@RequestBody TaxRemittanceAsyncResponse remittanceAsyncResponse){
+            (@RequestBody TaxRemittanceAsyncResponse remittanceAsyncResponse) throws JsonProcessingException{
 
-        log.info("==== KRA Tax Transaction Response ====");
-        log.info(objectMapper.writeValueAsString(remittanceAsyncResponse));
+        System.out.println("==== KRA Tax Transaction Response ====");
+        System.out.println(objectMapper.writeValueAsString(remittanceAsyncResponse));
 
+        /*
         FileWriter file = new FileWriter("kra_transfer.json");
         file.write(Objects.requireNonNull(HelperUtility.toJSON(remittanceAsyncResponse)));
-        file.flush();
+        file.flush();*/
 
 
         return ResponseEntity.ok(acknowledgeResponse);
     }
 
 
-    @SneakyThrows
+    
     @PostMapping(path="/generate-qr-code", produces = "application/json")
     public ResponseEntity<QRCodeResponse> generateQRCode(){
         return ResponseEntity.ok(darajaApi.performQRCode());

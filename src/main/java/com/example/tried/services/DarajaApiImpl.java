@@ -24,11 +24,13 @@ import com.example.tried.dto.transactionstatus.TransactionStatusRequest;
 import com.example.tried.dto.transactionstatus.TransactionStatusSyncResponse;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -39,8 +41,11 @@ import static com.example.tried.utils.Constants.*;
 
 // Daraja API Implementation
 @Service
-@Slf4j
+
 public class DarajaApiImpl implements DarajaApi {
+
+    Logger log = LogManager.getLogger(DarajaApiImpl.class);
+
     private final MpesaConfiguration mpesaConfiguration;
     private final OkHttpClient okHttpClient;
     private final ObjectMapper objectMapper;
@@ -105,7 +110,7 @@ public class DarajaApiImpl implements DarajaApi {
         registerUrlRequest.setShortCode(mpesaConfiguration.getShortCode());
         registerUrlRequest.setValidationURL(mpesaConfiguration.getValidationUrl());
 
-        System.out.println("Register URL Request: "+ registerUrlRequest.toString());
+        System.out.println("Register URL Request: "+ registerUrlRequest);
 
         // Register URL Response
         RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(registerUrlRequest)));
@@ -173,13 +178,13 @@ public class DarajaApiImpl implements DarajaApi {
         b2CTransactionRequest.setSecurityCredential(HelperUtility.getSecurityCredentials
                 (mpesaConfiguration.getB2cInitiatorPassword()));
 
-        System.out.println(String.format("Security Creds: %s", b2CTransactionRequest.getSecurityCredential()));
+        System.out.printf("Security Creds: %s%n", b2CTransactionRequest.getSecurityCredential());
         b2CTransactionRequest.setResultURL(mpesaConfiguration.getB2cResultUrl());
         b2CTransactionRequest.setQueueTimeOutURL(mpesaConfiguration.getB2cQueueTimeoutUrl());
         b2CTransactionRequest.setInitiatorName(mpesaConfiguration.getB2cInitiatorName());
         b2CTransactionRequest.setPartyA(mpesaConfiguration.getShortCode());
 
-        System.out.println("Business to Customer Transaction: "+b2CTransactionRequest.toString());
+        System.out.println("Business to Customer Transaction: "+ b2CTransactionRequest);
         RequestBody body = RequestBody.create(JSON_MEDIA_TYPE, Objects.requireNonNull(HelperUtility.toJSON(b2CTransactionRequest)));
 
         // Sending the B2C Request
@@ -197,7 +202,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), B2CTransactionSyncResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not perform the B2C Transaction -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not perform the B2C Transaction -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -224,7 +229,7 @@ public class DarajaApiImpl implements DarajaApi {
 
         // Get the Access Token
         AccessTokenResponse accessTokenResponse = getAccessToken();
-        System.out.println("Transaction Status Request"+ transactionStatusRequest.toString());
+        System.out.println("Transaction Status Request"+ transactionStatusRequest);
         System.out.println("Transaction Status Request JSON"+ HelperUtility.toJSON(transactionStatusRequest));
 
         // Set up the Transaction Request
@@ -245,7 +250,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), TransactionStatusSyncResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not fetch the status of the transaction -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not fetch the status of the transaction -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -290,7 +295,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), CheckAccountBalanceSyncResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not check the Account Balance -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not check the Account Balance -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -341,7 +346,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), STKPushSyncResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not perform the STK Push Request -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not perform the STK Push Request -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -387,7 +392,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), TransactionReversalResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not perform the Reverse Transaction Request -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not perform the Reverse Transaction Request -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -432,7 +437,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), TaxRemittanceResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not perform the KRA Tax Remittance Transaction Request -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not perform the KRA Tax Remittance Transaction Request -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }
@@ -472,7 +477,7 @@ public class DarajaApiImpl implements DarajaApi {
 
             return objectMapper.readValue(response.body().string(), QRCodeResponse.class);
         } catch (IOException e) {
-            System.out.println(String.format("Could not generate the qr code request -> %s", e.getLocalizedMessage()));
+            System.out.printf("Could not generate the qr code request -> %s%n", e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
     }

@@ -1,9 +1,8 @@
 package com.example.tried.auth.reports.payment_mode;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class TransactionsItem{
 
 	@JsonProperty("sabbath")
@@ -59,4 +58,173 @@ public class TransactionsItem{
 
 	@JsonProperty("receiptNumber")
 	private String receiptNumber;
+
+	public TransactionsItem() {
+
+	}
+
+	public TransactionsItem(String sabbath, String campMeetingPaid, String modeOfPayment, String combinedOfferingsPaid, String tithe, String thirteenthSabbathPaid, String thirteenthSabbath, String totalReceiptedAmountPaid, String combinedOfferings, String transactionDate, String contributorName, String campMeeting, String balance, String tithePaid, String conferenceDevelopmentPaid, String conferenceDevelopment, String totalReceiptedAmount, String receiptNumber) {
+		this.sabbath = sabbath;
+		this.campMeetingPaid = campMeetingPaid;
+		this.modeOfPayment = modeOfPayment;
+		this.combinedOfferingsPaid = combinedOfferingsPaid;
+		this.tithe = tithe;
+		this.thirteenthSabbathPaid = thirteenthSabbathPaid;
+		this.thirteenthSabbath = thirteenthSabbath;
+		this.totalReceiptedAmountPaid = totalReceiptedAmountPaid;
+		this.combinedOfferings = combinedOfferings;
+		this.transactionDate = transactionDate;
+		this.contributorName = contributorName;
+		this.campMeeting = campMeeting;
+		this.balance = balance;
+		this.tithePaid = tithePaid;
+		this.conferenceDevelopmentPaid = conferenceDevelopmentPaid;
+		this.conferenceDevelopment = conferenceDevelopment;
+		this.totalReceiptedAmount = totalReceiptedAmount;
+		this.receiptNumber = receiptNumber;
+	}
+
+	public String getSabbath() {
+		return sabbath;
+	}
+
+	public void setSabbath(String sabbath) {
+		this.sabbath = sabbath;
+	}
+
+	public String getCampMeetingPaid() {
+		return campMeetingPaid;
+	}
+
+	public void setCampMeetingPaid(String campMeetingPaid) {
+		this.campMeetingPaid = campMeetingPaid;
+	}
+
+	public String getModeOfPayment() {
+		return modeOfPayment;
+	}
+
+	public void setModeOfPayment(String modeOfPayment) {
+		this.modeOfPayment = modeOfPayment;
+	}
+
+	public String getCombinedOfferingsPaid() {
+		return combinedOfferingsPaid;
+	}
+
+	public void setCombinedOfferingsPaid(String combinedOfferingsPaid) {
+		this.combinedOfferingsPaid = combinedOfferingsPaid;
+	}
+
+	public String getTithe() {
+		return tithe;
+	}
+
+	public void setTithe(String tithe) {
+		this.tithe = tithe;
+	}
+
+	public String getThirteenthSabbathPaid() {
+		return thirteenthSabbathPaid;
+	}
+
+	public void setThirteenthSabbathPaid(String thirteenthSabbathPaid) {
+		this.thirteenthSabbathPaid = thirteenthSabbathPaid;
+	}
+
+	public String getThirteenthSabbath() {
+		return thirteenthSabbath;
+	}
+
+	public void setThirteenthSabbath(String thirteenthSabbath) {
+		this.thirteenthSabbath = thirteenthSabbath;
+	}
+
+	public String getTotalReceiptedAmountPaid() {
+		return totalReceiptedAmountPaid;
+	}
+
+	public void setTotalReceiptedAmountPaid(String totalReceiptedAmountPaid) {
+		this.totalReceiptedAmountPaid = totalReceiptedAmountPaid;
+	}
+
+	public String getCombinedOfferings() {
+		return combinedOfferings;
+	}
+
+	public void setCombinedOfferings(String combinedOfferings) {
+		this.combinedOfferings = combinedOfferings;
+	}
+
+	public String getTransactionDate() {
+		return transactionDate;
+	}
+
+	public void setTransactionDate(String transactionDate) {
+		this.transactionDate = transactionDate;
+	}
+
+	public String getContributorName() {
+		return contributorName;
+	}
+
+	public void setContributorName(String contributorName) {
+		this.contributorName = contributorName;
+	}
+
+	public String getCampMeeting() {
+		return campMeeting;
+	}
+
+	public void setCampMeeting(String campMeeting) {
+		this.campMeeting = campMeeting;
+	}
+
+	public String getBalance() {
+		return balance;
+	}
+
+	public void setBalance(String balance) {
+		this.balance = balance;
+	}
+
+	public String getTithePaid() {
+		return tithePaid;
+	}
+
+	public void setTithePaid(String tithePaid) {
+		this.tithePaid = tithePaid;
+	}
+
+	public String getConferenceDevelopmentPaid() {
+		return conferenceDevelopmentPaid;
+	}
+
+	public void setConferenceDevelopmentPaid(String conferenceDevelopmentPaid) {
+		this.conferenceDevelopmentPaid = conferenceDevelopmentPaid;
+	}
+
+	public String getConferenceDevelopment() {
+		return conferenceDevelopment;
+	}
+
+	public void setConferenceDevelopment(String conferenceDevelopment) {
+		this.conferenceDevelopment = conferenceDevelopment;
+	}
+
+	public String getTotalReceiptedAmount() {
+		return totalReceiptedAmount;
+	}
+
+	public void setTotalReceiptedAmount(String totalReceiptedAmount) {
+		this.totalReceiptedAmount = totalReceiptedAmount;
+	}
+
+	public String getReceiptNumber() {
+		return receiptNumber;
+	}
+
+	public void setReceiptNumber(String receiptNumber) {
+		this.receiptNumber = receiptNumber;
+	}
 }

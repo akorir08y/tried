@@ -1,9 +1,8 @@
 package com.example.tried.auth.tracing.receipt;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class TransactionTracingMemberReceipt{
 
 	@JsonProperty("payload")
@@ -14,4 +13,38 @@ public class TransactionTracingMemberReceipt{
 
 	@JsonProperty("authentication")
 	private Authentication authentication;
+
+	public TransactionTracingMemberReceipt() {
+
+	}
+
+	public TransactionTracingMemberReceipt(Payload payload, String function, Authentication authentication) {
+		this.payload = payload;
+		this.function = function;
+		this.authentication = authentication;
+	}
+
+	public Payload getPayload() {
+		return payload;
+	}
+
+	public void setPayload(Payload payload) {
+		this.payload = payload;
+	}
+
+	public String getFunction() {
+		return function;
+	}
+
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public Authentication getAuthentication() {
+		return authentication;
+	}
+
+	public void setAuthentication(Authentication authentication) {
+		this.authentication = authentication;
+	}
 }

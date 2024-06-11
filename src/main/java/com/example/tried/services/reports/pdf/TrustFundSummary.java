@@ -37,7 +37,7 @@ import com.itextpdf.layout.property.HorizontalAlignment;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -87,7 +87,8 @@ public class TrustFundSummary {
     // private PdfWriter pdfWriter;
 
 
-    public void trustFundSummaryReport(TrustFundsSummaryWithPaymentMode trustFundSummary, HttpServletResponse OutputResponse) throws IOException {
+    public void trustFundSummaryReport(TrustFundsSummaryWithPaymentMode trustFundSummary, HttpServletResponse OutputResponse,
+                                       String church_code, String church_name, String phone_number, String personnel_name) throws IOException, NullPointerException {
 
         // Load Resource Fonts
         Resource REGULAR = resourceLoader.getResource("classpath:fonts/trebuc.ttf");
@@ -95,20 +96,6 @@ public class TrustFundSummary {
         Resource ITALIC = resourceLoader.getResource("classpath:fonts/TrebuchetMSItalic.ttf");
         Resource BOLDEN = resourceLoader.getResource("classpath:fonts/trebucbd.ttf");
 
-        MemberPersonnel personnel = new MemberPersonnel();
-        personnel.setUser(trustFundSummary.getAuthentication().getUser());
-        personnel.setPassword(trustFundSummary.getAuthentication().getPassword());
-        personnel.setChurchCode(trustFundSummary.getPayload().getLocalChurchNumber());
-
-        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
-
-        MemberProfile profile = new MemberProfile();
-        Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber(response.getPayload().getPersonnelPhone());
-        profilepayload.setFromWithin(true);
-        profile.setProfilepayload(profilepayload);
-
-        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
 
         // Start by doing Font
         try {
@@ -134,7 +121,7 @@ public class TrustFundSummary {
         // Adding Header Data
         Table table = new Table(1);
         table.setBorder(Border.NO_BORDER);
-        addHeaderData(table,trustFundSummary);
+        addHeaderData(table, church_code, church_name, phone_number);
 
         // Horizontal Header
         Table invoice_header = new Table(1);
@@ -145,12 +132,12 @@ public class TrustFundSummary {
         Table summary_report = new Table(11);
         getTrustFundSummaryReport(summary_report,trustFundSummary);
 
-        float width [] = {100,170,100,170};
+        float[] width = {100,170,100,170};
         Table signature = new Table(width);
         getSignature(signature);
 
         Table footer = new Table(1);
-        accountSummaryFooter(footer, response1);
+        accountSummaryFooter(footer, personnel_name);
 
 
         document.add(image);
@@ -187,26 +174,18 @@ public class TrustFundSummary {
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
 
-    private void addHeaderData(Table table, TrustFundsSummaryWithPaymentMode trustFundSummary) throws JsonProcessingException {
-        // Member Church Details Response
-        String church_code = trustFundSummary.getPayload().getLocalChurchNumber();
-        String church_name = trustFundSummary.getPayload().getChurchName();
-
-        MemberPersonnel personnel = new MemberPersonnel();
-        personnel.setUser(trustFundSummary.getAuthentication().getUser());
-        personnel.setPassword(trustFundSummary.getAuthentication().getPassword());
-        personnel.setChurchCode(church_code);
-
-        MemberPersonnelResponse response = authApi.loginMemberPersonnel(personnel);
+    private void addHeaderData(Table table, String church_code, String church_name, String phone_number) throws JsonProcessingException {
 
         // Session Numbers
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
+
+        // church_code, phone_number, church_name
 
         // Request Church Details with Code
         RequestChurchDetailsWithCode requestDetails = new RequestChurchDetailsWithCode();
         Churchpayload churchPayload = new Churchpayload();
         churchPayload.setChurchCode(church_code);
-        churchPayload.setAccessNumber(response.getPayload().getPersonnelPhone());
+        churchPayload.setAccessNumber(phone_number);
         churchPayload.setMobileServiceProvider("Safaricom");
         churchPayload.setSessionNumber(session_number);
         requestDetails.setChurchpayload(churchPayload);
@@ -300,7 +279,7 @@ public class TrustFundSummary {
                 .setBackgroundColor(Color.WHITE);
     }
 
-    private void getTrustFundSummaryReport(Table summaryReport, TrustFundsSummaryWithPaymentMode trustFundSummary) throws JsonProcessingException {
+    private void getTrustFundSummaryReport(Table summaryReport, TrustFundsSummaryWithPaymentMode trustFundSummary) throws JsonProcessingException, NullPointerException {
 
         System.out.println("Trust Fund Summary Report: " + HelperUtility.toJSON(trustFundSummary));
 
@@ -670,9 +649,9 @@ public class TrustFundSummary {
     }
 
 
-    private void accountSummaryFooter(Table accountSum, MemberProfileResponse profile){
+    private void accountSummaryFooter(Table accountSum, String personnel_name){
 
-        accountSum.addCell(new Cell().add("Statement generated by "+profile.getPayload().getMemberName() + ", " + new Date())
+        accountSum.addCell(new Cell().add("Statement generated by "+ personnel_name + ", " + new Date())
                 .setFontSize(8)
                 .setFont(bolden)
                 .setWidthPercent(100)

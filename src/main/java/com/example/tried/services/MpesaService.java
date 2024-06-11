@@ -5,7 +5,7 @@ import com.example.tried.dto.express.MpesaTransaction;
 
 public interface MpesaService {
 
-    public int saveTransaction(MpesaTransaction mpesaTransaction);
+    int saveTransaction(MpesaTransaction mpesaTransaction);
 
-    public int updateTransaction(MpesaTransaction mpesaTransaction);
+    int updateTransaction(MpesaTransaction mpesaTransaction);
 }

@@ -7,6 +7,7 @@ import com.example.tried.auth.member.RequestChurchDetails;
 import com.example.tried.auth.member.RequestChurchDetailsResponse;
 import com.example.tried.auth.personnel.reports.non_trust_funds.MembersItem;
 import com.example.tried.services.AuthApi;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -75,7 +76,8 @@ public class LocalNonTrustFundReport {
 
     public void nonTrustFundSummaryReport(HttpServletResponse response, String phone_number,
                                           String start_date, String end_date, List<HashMap<String, Object>> membersItems,
-                                          HashMap<String, Integer> churchFunds) throws IOException {
+                                          HashMap<String, Integer> churchFunds, String personnel_name, String church_name,
+                                          String district_name, String conference_name) throws IOException , NullPointerException{
 
         // Load Resource Fonts
         Resource REGULAR = resourceLoader.getResource("classpath:fonts/trebuc.ttf");
@@ -121,18 +123,6 @@ public class LocalNonTrustFundReport {
 
         pdfDocument.setDefaultPageSize(PageSize.A1);
 
-        // Member Profile Details
-        MemberProfile profile = new MemberProfile();
-        Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
-        profilepayload.setFromWithin(true);
-
-        profile.setProfilepayload(profilepayload);
-
-        MemberProfileResponse response1 = authApi.getMemberDetails(profile);
-
-        String church_name = response1.getPayload().getChurchName();
-
 
         // Adding Image
         Table image = new Table(1);
@@ -141,7 +131,7 @@ public class LocalNonTrustFundReport {
         // Adding Header Data
         Table table = new Table(1);
         table.setBorder(Border.NO_BORDER);
-        addHeaderData(table,response1,phone_number);
+        addHeaderData(table,church_name, district_name, conference_name);
 
         // Horizontal Header
         Table invoice_header = new Table(1);
@@ -154,12 +144,12 @@ public class LocalNonTrustFundReport {
         getTrustFundSummaryReport(summary_report,membersItems,keys);
 
 
-        float width [] = {100,170,100,170};
+        float[] width = {100,170,100,170};
         Table signature = new Table(width);
         getSignature(signature);
 
         Table footer = new Table(1);
-        accountSummaryFooter(footer, response1);
+        accountSummaryFooter(footer, personnel_name);
 
 
         document.add(image);
@@ -195,18 +185,8 @@ public class LocalNonTrustFundReport {
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
 
-    private void addHeaderData(Table table, MemberProfileResponse response,String phoneNumber) {
-        // Member Church Details Response
-        RequestChurchDetails churchDetails = new RequestChurchDetails();
-        churchDetails.setChurchCode(response.getPayload().getChurchCode());
-        churchDetails.setAccessNumber(phoneNumber);
-        churchDetails.setMobileServiceProvider("Safaricom");
-
-
-        RequestChurchDetailsResponse response1 = authApi.getMemberChurchDetails(churchDetails);
-
+    private void addHeaderData(Table table,String church_name,String district_name, String conference_name) throws JsonProcessingException {
         table.setWidthPercent(10);
-
         table.addCell(new Cell().add("Seventh Day Adventist")
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                 .setVerticalAlignment(VerticalAlignment.TOP)
@@ -214,7 +194,7 @@ public class LocalNonTrustFundReport {
                 .setBold()
                 .setFontSize(font_size));
 
-        table.addCell(new Cell().add(response.getPayload().getChurchName())
+        table.addCell(new Cell().add(church_name)
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                 .setVerticalAlignment(VerticalAlignment.TOP)
                 .setBorder(Border.NO_BORDER)
@@ -238,7 +218,7 @@ public class LocalNonTrustFundReport {
                 .setBold()
                 .setFontSize(font_size));
 
-        table.addCell(new Cell().add(response1.getDistrictName())
+        table.addCell(new Cell().add(district_name)
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                 .setVerticalAlignment(VerticalAlignment.TOP)
                 .setBorder(Border.NO_BORDER)
@@ -246,7 +226,7 @@ public class LocalNonTrustFundReport {
                 .setBold()
                 .setFontSize(font_size));
 
-        table.addCell(new Cell().add(response.getPayload().getConferenceName())
+        table.addCell(new Cell().add(conference_name)
                 .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                 .setVerticalAlignment(VerticalAlignment.TOP)
                 .setBorder(Border.NO_BORDER)
@@ -279,9 +259,6 @@ public class LocalNonTrustFundReport {
     }
 
     private void getTrustFundSummaryReport(Table summaryReport, List<HashMap<String, Object>> membersItems, List<String> keys) {
-
-
-
         summaryReport.addCell(new Cell().add("Receipt Number")).setFontSize(6)
                 .setFont(bolden)
                 .setTextAlignment(TextAlignment.CENTER)
@@ -550,9 +527,9 @@ public class LocalNonTrustFundReport {
     }
 
 
-    private void accountSummaryFooter(Table accountSum, MemberProfileResponse profile){
+    private void accountSummaryFooter(Table accountSum, String personnel_name){
 
-        accountSum.addCell(new Cell().add("Statement generated by "+profile.getPayload().getMemberName() + ", " + new Date())
+        accountSum.addCell(new Cell().add("Statement generated by "+ personnel_name + ", " + new Date())
                 .setFontSize(8)
                 .setFont(bolden)
                 .setWidthPercent(100)

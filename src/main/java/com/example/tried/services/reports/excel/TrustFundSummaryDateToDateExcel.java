@@ -27,10 +27,10 @@ import java.util.List;
 
 public class TrustFundSummaryDateToDateExcel {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
-    private PersonnelApi personnelApi;
+    private final PersonnelApi personnelApi;
 
     public TrustFundSummaryDateToDateExcel(PersonnelApi personnelApi) {
         this.personnelApi = personnelApi;

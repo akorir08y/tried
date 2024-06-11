@@ -50,11 +50,13 @@ import com.example.tried.config.AuthConfiguration;
 import com.example.tried.utils.HelperUtility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -64,8 +66,9 @@ import java.util.*;
 import static com.example.tried.utils.Constants.JSON_MEDIA_TYPE;
 
 @Service
-@Slf4j
 public class PersonnelApiImpl implements PersonnelApi {
+
+    Logger log = LogManager.getLogger(AuthApiImpl.class);
 
     private final AuthConfiguration authConfiguration;
     private final OkHttpClient client;
@@ -78,7 +81,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public CashReceiptingResponse getCashReceipting(CashReceipting receipting) throws JsonProcessingException {
+    public CashReceiptingResponse getCashReceipting(CashReceipting receipting) throws JsonProcessingException, NullPointerException {
         receipting.setFunction("cashTransactionConfirmation");
         String requested = objectMapper.writeValueAsString(receipting);
 
@@ -98,7 +101,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not complete Cash Receipting Process -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), CashReceiptingResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), CashReceiptingResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -107,7 +110,7 @@ public class PersonnelApiImpl implements PersonnelApi {
 
     // Edit Cash Receipting
     @Override
-    public EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException {
+    public EditCashReceiptingResponse editCashReceipt(EditCashReceipting receipting) throws JsonProcessingException, NullPointerException {
         receipting.setFunction("cashTransactionConfirmation");
         receipting.setFunctionType("edit");
         String requested = objectMapper.writeValueAsString(receipting);
@@ -128,7 +131,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not complete Cash Receipting Editing Process -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), EditCashReceiptingResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), EditCashReceiptingResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -137,7 +140,7 @@ public class PersonnelApiImpl implements PersonnelApi {
 
     // Create Local Church Accounts
     @Override
-    public CreateLocalChurchAccountResponse createLocalChurchAccount(CreateLocalChurchAccount localChurchAccount) throws JsonProcessingException {
+    public CreateLocalChurchAccountResponse createLocalChurchAccount(CreateLocalChurchAccount localChurchAccount) throws JsonProcessingException, NullPointerException {
         Authentication authentication = new Authentication();
         authentication.setPassword("Dn0guQtrJc9j0nbF7y8evw==");
         authentication.setUserName("7Zu2pBUFgsaTOuMOvfqNpg==");
@@ -164,7 +167,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not complete Create Local Church Account -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), CreateLocalChurchAccountResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), CreateLocalChurchAccountResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -172,7 +175,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public UpdateLocalChurchAccountResponse updateLocalChurchAccount(UpdateLocalChurchAccount localChurchAccount) throws JsonProcessingException {
+    public UpdateLocalChurchAccountResponse updateLocalChurchAccount(UpdateLocalChurchAccount localChurchAccount) throws JsonProcessingException, NullPointerException {
         com.example.tried.auth.personnel.accounts.update_account.Authentication authentication = new
                 com.example.tried.auth.personnel.accounts.update_account.Authentication();
         authentication.setPassword("Dn0guQtrJc9j0nbF7y8evw==");
@@ -200,7 +203,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not complete Update Local Church Account -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), UpdateLocalChurchAccountResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), UpdateLocalChurchAccountResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -208,7 +211,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript) throws JsonProcessingException {
+    public TrustFundTranscriptResponse getTrustFundTranscript(TrustFundTranscript transcript) throws JsonProcessingException, NullPointerException {
         transcript.setFunction("getLocalChurchTrustFundTranscript");
         String requested = objectMapper.writeValueAsString(transcript);
 
@@ -228,7 +231,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not get Trust Fund Transcript -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), TrustFundTranscriptResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), TrustFundTranscriptResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -237,7 +240,7 @@ public class PersonnelApiImpl implements PersonnelApi {
 
 
     @Override
-    public TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript) throws JsonProcessingException {
+    public TrustFundTranscriptResponse getTrustFundTranscriptAll(TrustFundTranscript1 transcript) throws JsonProcessingException, NullPointerException {
         transcript.setFunction("getLocalChurchTrustFundTranscript");
         String requested = objectMapper.writeValueAsString(transcript);
 
@@ -257,7 +260,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not get Trust Fund Transcript -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), TrustFundTranscriptResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), TrustFundTranscriptResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -265,7 +268,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public LocalChurchAccountsSelectResponse selectLocalChurchAccounts(LocalChurchAccounts selectAccounts) throws JsonProcessingException {
+    public LocalChurchAccountsSelectResponse selectLocalChurchAccounts(LocalChurchAccounts selectAccounts) throws JsonProcessingException, NullPointerException {
         com.example.tried.auth.personnel.accounts.Authentication authentication =
                 new com.example.tried.auth.personnel.accounts.Authentication();
         authentication.setUserName("Dn0guQtrJc9j0nbF7y8evw==");
@@ -293,7 +296,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not get Trust Fund Transcript -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchAccountsSelectResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchAccountsSelectResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -301,7 +304,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public ListLocalChurchPaymentAccountsResponse selectChurchPaymentAccounts(ListLocalChurchPaymentAccounts selectAccounts) throws JsonProcessingException {
+    public ListLocalChurchPaymentAccountsResponse selectChurchPaymentAccounts(ListLocalChurchPaymentAccounts selectAccounts) throws JsonProcessingException, NullPointerException {
         selectAccounts.setFunction("getLocalChurchPaymentAccounts");
         String requested = objectMapper.writeValueAsString(selectAccounts);
 
@@ -321,7 +324,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not get the Local Church Payment Accounts -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), ListLocalChurchPaymentAccountsResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), ListLocalChurchPaymentAccountsResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -329,7 +332,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public SpecificOfferingStatementResponse getSpecificMemberOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException {
+    public SpecificOfferingStatementResponse getSpecificMemberOfferingStatement(SpecificOfferingStatement statement) throws JsonProcessingException, NullPointerException {
         statement.setFunction("getMemberSpecificOfferingStatement");
         String requested = objectMapper.writeValueAsString(statement);
 
@@ -350,7 +353,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not generate Specific Offering Statement -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), SpecificOfferingStatementResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), SpecificOfferingStatementResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -358,7 +361,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public LocalChurchSpecificAccountSummaryResponse getLocalChurchSpecificAccountSummary(LocalChurchSpecificAccountSummary specificAccountSummary) throws JsonProcessingException {
+    public LocalChurchSpecificAccountSummaryResponse getLocalChurchSpecificAccountSummary(LocalChurchSpecificAccountSummary specificAccountSummary) throws JsonProcessingException, NullPointerException {
         specificAccountSummary.setFunction("getLocalChurchSpecificAccountSummary");
         String requested = objectMapper.writeValueAsString(specificAccountSummary);
 
@@ -379,7 +382,7 @@ public class PersonnelApiImpl implements PersonnelApi {
         } catch (Exception e) {
             log.error(String.format("Could not get Local Church Specific Account Summary -> %s", e.getLocalizedMessage()));
             try {
-                return objectMapper.readValue(e.getLocalizedMessage().toString(), LocalChurchSpecificAccountSummaryResponse.class);
+                return objectMapper.readValue(e.getLocalizedMessage(), LocalChurchSpecificAccountSummaryResponse.class);
             } catch (JsonProcessingException ex) {
                 throw new RuntimeException(ex);
             }
@@ -387,7 +390,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public HashMap<String, Object> getLocalChurchAccounts(HashMap<String, Object> jsonObject) throws JsonProcessingException {
+    public HashMap<String, Object> getLocalChurchAccounts(HashMap<String, Object> jsonObject) throws JsonProcessingException, NullPointerException {
 
         String requested = objectMapper.writeValueAsString(jsonObject);
 
@@ -409,7 +412,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public DepartmentResponse getDepartmentAccounts(DepartmentRequest departmentRequest) throws JsonProcessingException {
+    public DepartmentResponse getDepartmentAccounts(DepartmentRequest departmentRequest) throws JsonProcessingException, NullPointerException {
         departmentRequest.setFunction("getDepartmentalAccountCreationMetaData");
         String requested = objectMapper.writeValueAsString(departmentRequest);
 
@@ -432,7 +435,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public LocalChurchOfferingStatementResponse getLocalChurchOfferingStatement(LocalChurchOfferingStatement statement) throws JsonProcessingException {
+    public LocalChurchOfferingStatementResponse getLocalChurchOfferingStatement(LocalChurchOfferingStatement statement) throws JsonProcessingException, NullPointerException {
         statement.setFunction("getLocalChurchOfferingStatement");
         String requested = objectMapper.writeValueAsString(statement);
 
@@ -455,7 +458,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public SelectTrustFundsResponse getTrustFundsforTransfer(SelectTrustFunds trustFunds) throws JsonProcessingException {
+    public SelectTrustFundsResponse getTrustFundsforTransfer(SelectTrustFunds trustFunds) throws JsonProcessingException, NullPointerException {
         trustFunds.setFunction("getTrustFunds");
         String requested = objectMapper.writeValueAsString(trustFunds);
 
@@ -479,7 +482,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public TransactionTracingMemberResponse getTransactionTracingByPhone(TransactionTracingMember tracing) throws JsonProcessingException {
+    public TransactionTracingMemberResponse getTransactionTracingByPhone(TransactionTracingMember tracing) throws JsonProcessingException, NullPointerException {
         tracing.setFunction("getMemberPaymentTraceReport");
         String requested = objectMapper.writeValueAsString(tracing);
 
@@ -505,7 +508,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public TransactionTracingMemberReceiptResponse getTransactionTracingByReceipt(TransactionTracingMemberReceipt receipt) throws JsonProcessingException {
+    public TransactionTracingMemberReceiptResponse getTransactionTracingByReceipt(TransactionTracingMemberReceipt receipt) throws JsonProcessingException, NullPointerException {
         receipt.setFunction("getReceiptPaymentTraceReport");
         String requested = objectMapper.writeValueAsString(receipt);
 
@@ -529,7 +532,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public LocalChurchSpecificAccountSummaryResponse getSpecificAccountSummary(LocalChurchSpecificAccountSummary localChurchSpecificAccountSummary) throws JsonProcessingException {
+    public LocalChurchSpecificAccountSummaryResponse getSpecificAccountSummary(LocalChurchSpecificAccountSummary localChurchSpecificAccountSummary) throws JsonProcessingException, NullPointerException {
         localChurchSpecificAccountSummary.setFunction("getLocalChurchSpecificAccountSummary");
         String requested = objectMapper.writeValueAsString(localChurchSpecificAccountSummary);
 
@@ -553,7 +556,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public HashMap<String, Object> getCashReceiptingTransactions(SelectCashReceipting transactions) throws JsonProcessingException {
+    public HashMap<String, Object> getCashReceiptingTransactions(SelectCashReceipting transactions) throws JsonProcessingException, NullPointerException {
         transactions.setFunction("cashTransactionConfirmation");
         transactions.setFunctionType("select");
         String requested = objectMapper.writeValueAsString(transactions);
@@ -579,7 +582,7 @@ public class PersonnelApiImpl implements PersonnelApi {
 
 
     @Override
-    public SMSResponse sendRegistrationMessage(SMS requested_sms) throws JsonProcessingException {
+    public SMSResponse sendRegistrationMessage(SMS requested_sms) throws JsonProcessingException, NullPointerException {
         System.out.println("SMS Request: "+ Objects.requireNonNull(HelperUtility.toJSON(requested_sms)));
 
         String requested = objectMapper.writeValueAsString(requested_sms);
@@ -601,7 +604,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public TrustFundDateToDateResponse getTrustFromDateToDate(TrustFundDateToDate dateToDate) throws JsonProcessingException {
+    public TrustFundDateToDateResponse getTrustFromDateToDate(TrustFundDateToDate dateToDate) throws JsonProcessingException, NullPointerException {
         dateToDate.setFunction("getLocalChurchDateToDateTrustFundsSummary");
         System.out.println("Trust Fund Date to Date: "+ Objects.requireNonNull(HelperUtility.toJSON(dateToDate)));
         String requested = objectMapper.writeValueAsString(dateToDate);
@@ -624,7 +627,7 @@ public class PersonnelApiImpl implements PersonnelApi {
 
     @Override
     public TrustFundsSummaryWithPaymentModeResponse getTrustFundSummaryWithPaymentMode(TrustFundsSummaryWithPaymentMode trustFundsPayment)
-            throws JsonProcessingException {
+            throws JsonProcessingException, NullPointerException {
         trustFundsPayment.setFunction("getLocalChurchTrustFundsSummaryWithPaymentModeDetails");
         System.out.println("Trust Fund With Payment Mode: "+ Objects.requireNonNull(HelperUtility.toJSON(trustFundsPayment)));
         String requested = objectMapper.writeValueAsString(trustFundsPayment);
@@ -646,7 +649,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public TrustFundSummaryDateToDatePaymentModeResponse getTrustFundSummaryDateByDateWithPaymentMode(TrustFundSummaryDateToDatePaymentMode dateToDatePaymentMode) throws JsonProcessingException {
+    public TrustFundSummaryDateToDatePaymentModeResponse getTrustFundSummaryDateByDateWithPaymentMode(TrustFundSummaryDateToDatePaymentMode dateToDatePaymentMode) throws JsonProcessingException, NullPointerException {
         System.out.println("Trust Fund With Date to Date Payment Mode: "+ Objects.requireNonNull(HelperUtility.toJSON( dateToDatePaymentMode)));
         dateToDatePaymentMode.setFunction("getLocalChurchDateToDateTrustFundsSummaryWithPaymentModeDetails");
         String requested = objectMapper.writeValueAsString( dateToDatePaymentMode);
@@ -668,7 +671,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public MobileReceiveFundsTransferResponse getFundsTransfertoConference(MobileReceiveFundsTransfer fundsTransfer) throws JsonProcessingException {
+    public MobileReceiveFundsTransferResponse getFundsTransfertoConference(MobileReceiveFundsTransfer fundsTransfer) throws JsonProcessingException, NullPointerException {
         fundsTransfer.setFunction("mobileReceiveFunds");
         System.out.println("Funds Transfer: "+ Objects.requireNonNull(HelperUtility.toJSON(fundsTransfer)));
 
@@ -691,7 +694,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException {
+    public DeleteCashReceiptingResponse deleteCashReceipt(DeleteCashReceipting cashReceipting) throws JsonProcessingException, NullPointerException {
         cashReceipting.setFunction("cashTransactionConfirmation");
         cashReceipting.setFunctionType("delete");
 
@@ -716,7 +719,7 @@ public class PersonnelApiImpl implements PersonnelApi {
     }
 
     @Override
-    public SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException {
+    public SelectNonTrustFundsResponse getNonTrustFunds(SelectNonTrustFunds nonTrustFunds) throws JsonProcessingException, NullPointerException {
         nonTrustFunds.setFunction("getNonTrustFunds");
         System.out.println("Get Non Trust Funds: "+ HelperUtility.toJSON(nonTrustFunds));
 

@@ -1,9 +1,8 @@
 package com.example.tried.auth.personnel.department;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
+
 public class DepartmentRequest{
 
 	@JsonProperty("function")
@@ -11,4 +10,28 @@ public class DepartmentRequest{
 
 	@JsonProperty("authentication")
 	private Authentication authentication;
+
+	public DepartmentRequest() {
+	}
+
+	public DepartmentRequest(String function, Authentication authentication) {
+		this.function = function;
+		this.authentication = authentication;
+	}
+
+	public String getFunction() {
+		return function;
+	}
+
+	public void setFunction(String function) {
+		this.function = function;
+	}
+
+	public Authentication getAuthentication() {
+		return authentication;
+	}
+
+	public void setAuthentication(Authentication authentication) {
+		this.authentication = authentication;
+	}
 }

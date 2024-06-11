@@ -24,4 +24,18 @@ public class FundDistribution{
 
 	@JsonProperty("trustFundsSourceAccountBalances")
 	private TrustFundsSourceAccountBalances trustFundsSourceAccountBalances;
+
+	public FundDistribution() {
+	}
+
+	public FundDistribution(AccountDetails accountDetails, AccountabilityStatus accountabilityStatus, TrustFundsLocalChurchBalances trustFundsLocalChurchBalances, TrustFunds trustFunds, TransferDuration transferDuration, DocumentLinks documentLinks, TrustFundsSourceAccountBalances trustFundsSourceAccountBalances) {
+		this.accountDetails = accountDetails;
+		this.accountabilityStatus = accountabilityStatus;
+		this.trustFundsLocalChurchBalances = trustFundsLocalChurchBalances;
+		this.trustFunds = trustFunds;
+		this.transferDuration = transferDuration;
+		this.documentLinks = documentLinks;
+		this.trustFundsSourceAccountBalances = trustFundsSourceAccountBalances;
+	}
+
 }

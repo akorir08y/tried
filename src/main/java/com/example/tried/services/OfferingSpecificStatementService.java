@@ -209,7 +209,7 @@ public class OfferingSpecificStatementService {
                 .setVerticalAlignment(VerticalAlignment.TOP).setBorder(Border.NO_BORDER));
     }
 
-    private void addHeaderData(Table table, MemberProfileResponse response,String phoneNumber) {
+    private void addHeaderData(Table table, MemberProfileResponse response,String phoneNumber) throws JsonProcessingException {
         // Member Church Details Response
         RequestChurchDetails churchDetails = new RequestChurchDetails();
         churchDetails.setChurchCode(response.getPayload().getChurchCode());
@@ -494,7 +494,7 @@ public class OfferingSpecificStatementService {
                     .setBackgroundColor(Color.WHITE));
 
 
-            Statement.addCell(new Cell().add("("+String.valueOf(mem.getBalance())+")")
+            Statement.addCell(new Cell().add("("+ mem.getBalance() +")")
                         .setFontSize(10)
                         .setFont(bolden)
                         .setWidthPercent(10)

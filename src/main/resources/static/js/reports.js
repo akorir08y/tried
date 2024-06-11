@@ -39,7 +39,7 @@ function TrustFundReportExcel(){
 
 function TrustFundDateToDateReportPDF(){
     var start_date = document.getElementById("from-date").value;
-    var end_date = document.getElementById("end-date").value;
+    var end_date = document.getElementById("to-date").value;
     document.getElementById("pdf_date_input").value = "PDF";
 
     if (start_date == "") {
@@ -54,7 +54,8 @@ function TrustFundDateToDateReportPDF(){
 }
 
 function TrustFundDateToDateReportExcel(){
-    var start_date = document.getElementById("select_month").value;
+    var start_date = document.getElementById("from-date").value;
+    var end_date = document.getElementById("to-date").value;
     var all_accounts = document.getElementById("all_accounts").value;
     document.getElementById("pdf_date_input").value = "Excel";
 
@@ -204,6 +205,20 @@ function specificAccountSummaryExcel(){
     $("#specific_account_summary").submit();
 }
 
+
+function specificAccountSummary{
+    var start_date = document.getElementById("from-date-specific").value;
+    var end_date = document.getElementById("to-date-specific").value;
+    document.getElementById("input_specific").value = "PDF";
+
+    if (start_date == "" || end_date == "") {
+        alert("All Dates Must be Filled Out");
+        return false;
+    }
+
+    $("#specific_account_summary").submit();
+}
+
 // Local Church Offering Report In Excel
 function getLocalChurchOfferingReportExcel(){
     var from_date = document.getElementById("from-date-offering").value;
@@ -222,10 +237,6 @@ function getLocalChurchOfferingReportExcel(){
 function getLocalChurchOfferingReportPDF(){
     var start_date = document.getElementById("from-date-offering").value;
     var end_date = document.getElementById("to-date-offering").value;
-    // var username = document.getElementById("username_offering").value;
-    // var password = document.getElementById("password_offering").value;
-    // var phone_number = document.getElementById("phone_number_offering").value;
-    // var means = document.getElementById("account_name_offering").value;
     document.getElementById("input_offering").value = "PDF";
 
     if (start_date == "" || end_date == "") {

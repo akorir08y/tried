@@ -59,4 +59,19 @@ public class Constants {
     public static final String REF_NO = "Invoice Test";
 
     public static final String QR_CODE_SIZE = "300";
+
+    public Constants() {
+
+    }
+
+
+    public static MediaType getJsonMediaType() {
+        return JSON_MEDIA_TYPE;
+    }
+
+    public static void setJsonMediaType(MediaType jsonMediaType) {
+        JSON_MEDIA_TYPE = jsonMediaType;
+    }
+
+
 }

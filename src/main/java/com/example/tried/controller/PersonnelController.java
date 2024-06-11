@@ -62,7 +62,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,8 +79,9 @@ import static java.util.stream.Collectors.toMap;
 
 @RestController
 @RequestMapping("/personnel")
-@Slf4j
 public class PersonnelController {
+
+    Logger log = LogManager.getLogger(PersonnelController.class);
 
     @Autowired
     AuthApi authApi;
@@ -104,7 +107,8 @@ public class PersonnelController {
     }
 
     @PostMapping(path="/profile")
-    public HashMap<String, String> getMemberProfile(@RequestParam("phone_number")String phoneNumber) throws JsonProcessingException {
+    public HashMap<String, String> getMemberProfile(@RequestParam("phone_number")String phoneNumber) throws JsonProcessingException
+            , NullPointerException {
 
         if (phoneNumber.contains("+")) {
             phoneNumber = phoneNumber;
@@ -145,12 +149,11 @@ public class PersonnelController {
     // Activate Deactivated Member
     // Get the Profile Items to Save Registration MemberRegisterUpdateResponse
     @PostMapping(path="/activate-member")
-    public MemberRegisterUpdateResponse ActivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException {
+    public MemberRegisterUpdateResponse ActivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException
+            , NullPointerException {
 
-        if (phone.contains("+")) {
-            phone = phone;
-        }else{
-            phone = String.format("%s%s", "+",phone);
+        if (phone.startsWith("+254")) {
+            phone = phone.substring(1);
         }
 
         // Register Profile
@@ -163,23 +166,18 @@ public class PersonnelController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        if (phone.contains("+")) {
-            payload.setMobileNumber(phone);
-        }else{
-            payload.setMobileNumber("+" + phone);
-        }
+        payload.setMobileNumber(String.format("%s%s", "+", phone));
         profiler.setProfilepayload(payload);
 
         // Profile Info
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
-
 
         // Update RPayload
         AuthMemberRegister updatepayload = new AuthMemberRegister();
         updatepayload.setFullNames(profile.getPayload().getMemberName());
         updatepayload.setEmail("any@gmail.com");
         if(phone.contains("+")){
-            phone = phone.substring(1,phone.length());
+            phone = phone.substring(1);
             updatepayload.setMobileNumber(phone);
         }else{
             updatepayload.setMobileNumber(phone);
@@ -189,15 +187,14 @@ public class PersonnelController {
         updatepayload.setPhoneNumberPrivacy("Normal");
         updatepayload.setResidence("Any");
         updatepayload.setPhoneOwner(true);
+        updatepayload.setStatus(1);
         updatepayload.setIsMember("true");
         updatepayload.setGivingReceiptedTo("Self");
         updatepayload.setMembershipNumber(profile.getPayload().getMembershipNumber());
-        updatepayload.setOtherPhoneNumber("+254");
+        updatepayload.setOtherPhoneNumber("+");
         updatepayload.setSessionNumber(rand);
 
         authMemberRegister.setUpdatepayload(updatepayload);
-
-
         MemberRegisterUpdateResponse responsed = authApi.getMemberRegistrationUpdate(authMemberRegister);
         return responsed;
     }
@@ -206,8 +203,12 @@ public class PersonnelController {
     // Activate Deactivated Member
     // Get the Profile Items to Save Registration MemberRegisterUpdateResponse
     @PostMapping(path="/deactivate-member")
-    public MemberRegisterUpdateResponse DeactivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException {
+    public MemberRegisterUpdateResponse DeactivateMemberDetails(@RequestParam("phone") String phone) throws JsonProcessingException
+            , NullPointerException {
 
+        if(phone.startsWith("+254")){
+            phone = phone.substring(1);
+        }
         // Register Profile
         MemberRegistrationUpdate authMemberRegister = new MemberRegistrationUpdate();
 
@@ -218,16 +219,11 @@ public class PersonnelController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        if (phone.contains("+")) {
-            payload.setMobileNumber(phone);
-        }else{
-            payload.setMobileNumber("+" + phone);
-        }
+        payload.setMobileNumber(String.format("%s%s", "+", phone));
         profiler.setProfilepayload(payload);
 
         // Profile Info
         MemberProfileResponse profile = authApi.getMemberDetails(profiler);
-
 
         // Update RPayload
         AuthMemberRegister updatepayload = new AuthMemberRegister();
@@ -238,16 +234,17 @@ public class PersonnelController {
         updatepayload.setPreferredLanguage(profile.getPayload().getPreferredLanguage());
         updatepayload.setPhoneNumberPrivacy("Normal");
         updatepayload.setResidence("Any");
-        updatepayload.setPhoneOwner(true);
-        updatepayload.setIsMember("false");
+        updatepayload.setPhoneOwner(false);
+        updatepayload.setStatus(0);
+        updatepayload.setIsMember("true");
         updatepayload.setGivingReceiptedTo("Self");
         updatepayload.setMembershipNumber(profile.getPayload().getMembershipNumber());
-        updatepayload.setOtherPhoneNumber("+254");
+        updatepayload.setOtherPhoneNumber("+");
         updatepayload.setSessionNumber(rand);
 
         authMemberRegister.setUpdatepayload(updatepayload);
 
-        System.out.println("Update RPayload: " + updatepayload.toString());
+        System.out.println("Update RPayload: " + updatepayload);
         System.out.println("Auth Member Registration: "+ HelperUtility.toJSON(authMemberRegister));
         MemberRegisterUpdateResponse responsed = authApi.getMemberRegistrationUpdate(authMemberRegister);
         return responsed;
@@ -257,8 +254,11 @@ public class PersonnelController {
     @GetMapping(path="/church-members")
     public ListMembersResponse getMembers(@RequestParam("username") String username,
                                           @RequestParam("password") String password,
-                                          @RequestParam("phone_number") String phone_number) throws JsonProcessingException{
-
+                                          @RequestParam("phone_number") String phone_number) throws JsonProcessingException
+            , NullPointerException{
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Session Numbers
         final long rand = (int) ((Math.random() * 900000000) + 100000000);
@@ -267,7 +267,7 @@ public class PersonnelController {
         MemberProfile profiler = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone_number);
+        payload.setMobileNumber(String.format("%s%s", "+", phone_number));
         profiler.setProfilepayload(payload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profiler);
@@ -314,14 +314,18 @@ public class PersonnelController {
                                                                      @RequestParam("status")String status,
                                                                      @RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
+                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException
+            , NullPointerException{
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%ss","+" ,phone_number));
         profile.setProfilepayload(profilepayload);
 
         //Get the Member Profile Response
@@ -374,15 +378,18 @@ public class PersonnelController {
     @GetMapping("/select-account")
     public LocalChurchAccountsSelectResponse selectLocalChurchAccount(@RequestParam("username")String username,
                                                                       @RequestParam("password")String password,
-                                                                      @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
-
+                                                                      @RequestParam("phone_number")String phone_number)  throws JsonProcessingException
+            , NullPointerException{
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profile.setProfilepayload(profilepayload);
 
         //Get the Member Profile Response
@@ -432,14 +439,19 @@ public class PersonnelController {
                                                                      @RequestParam("status")String status,
                                                                      @RequestParam("username")String username,
                                                                      @RequestParam("password")String password,
-                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException{
+                                                                     @RequestParam("phone_number")String phone_number)  throws JsonProcessingException
+            , NullPointerException{
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" ,phone_number));
         profile.setProfilepayload(profilepayload);
 
         //Get the Member Profile Response
@@ -489,11 +501,15 @@ public class PersonnelController {
     }
 
     @GetMapping("/trust_fund_transcript")
-    public TrustFundTranscriptResponse getTrustFundTranscript() throws JsonProcessingException {
+    public TrustFundTranscriptResponse getTrustFundTranscript() throws JsonProcessingException, NullPointerException {
         // Credentials
         String username = "mwakesho";
         String password = "0389";
         String phone_number = "254786439659";
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
@@ -501,7 +517,7 @@ public class PersonnelController {
         // Profile Information
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profilepayload.setFromWithin(true);
         memberProfile.setProfilepayload(profilepayload);
 
@@ -550,7 +566,7 @@ public class PersonnelController {
     }
 
     @GetMapping("/tracing")
-    public LocalChurchTransactionTracingResponse getLocalTransactionTracing()  throws JsonProcessingException{
+    public LocalChurchTransactionTracingResponse getLocalTransactionTracing()  throws JsonProcessingException, NullPointerException{
         // Credentials
         String username = "mwakesho";
         String password = "0389";
@@ -558,13 +574,17 @@ public class PersonnelController {
         String start_date = "2024-3-1";
         String end_date = "2024-3-31";
 
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
+
         // Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         // Profile Information
         MemberProfile memberProfile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+",phone_number));
         profilepayload.setFromWithin(true);
         memberProfile.setProfilepayload(profilepayload);
 
@@ -622,7 +642,8 @@ public class PersonnelController {
                                @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonProcessingException
+            , NullPointerException {
 
         if(phone_number.contains("+")){
             phone_number = phone_number;
@@ -780,7 +801,8 @@ public class PersonnelController {
                                                    @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                                    @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                                    @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonProcessingException
+            , NullPointerException {
 
         if(phone_number.contains("+")){
             phone_number = phone_number;
@@ -939,7 +961,8 @@ public class PersonnelController {
                                                @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                                @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                                @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+                                               @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonProcessingException
+            , NullPointerException {
         if(phone_number.contains("+")){
             phone_number = phone_number;
         }else{
@@ -1098,7 +1121,8 @@ public class PersonnelController {
                                                    @RequestParam(value = "non_trust_funds[]", required = false) String[] non_trust_funds,
                                                    @RequestParam(value = "fund_amount1[]", required = false) int[] fund_amount1,
                                                    @RequestParam(value = "special_trust_funds[]", required = false) String[] special_trust_funds,
-                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonParseException, JsonProcessingException {
+                                                   @RequestParam(value = "fund_amount2[]", required = false) int[] fund_amount2) throws JsonProcessingException
+            , NullPointerException {
 
         if(phone_number.contains("+")){
             phone_number = phone_number;
@@ -1242,17 +1266,21 @@ public class PersonnelController {
     }
 
     @GetMapping("/accounts")
-    public ListLocalChurchPaymentAccountsResponse getPaymentAccounts() throws JsonProcessingException {
+    public ListLocalChurchPaymentAccountsResponse getPaymentAccounts() throws JsonProcessingException, NullPointerException {
         String phone_number = "254797705390";
         String username = "cmk";
         String password = "cfms2024";
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         final long session_number = (long) ((Math.random() * 900000000) + 100000000);
 
         // Profile RPayload
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" ,phone_number));
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
@@ -1288,14 +1316,18 @@ public class PersonnelController {
 
 
     @PostMapping(path="/check-accounts")
-    public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phoneNumber) throws JsonProcessingException {
+    public RequestChurchDetailsResponse getMemberChurchAccounts(@RequestParam("phone_number")String phone_number) throws JsonProcessingException
+            , NullPointerException {
 
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phoneNumber);
+        payload.setMobileNumber(String.format("%s%s","+" ,phone_number));
         profile.setProfilepayload(payload);
 
         MemberProfileResponse response1 = authApi.getMemberDetails(profile);
@@ -1304,7 +1336,7 @@ public class PersonnelController {
         requestCode.setChurchCode(response1.getPayload().getChurchCode());
         requestCode.setAccessPoint("Web App");
         requestCode.setConnectionPurpose("Registration");
-        requestCode.setAccessNumber(phoneNumber);
+        requestCode.setAccessNumber(phone_number);
         requestCode.setMobileServiceProvider("Safaricom");
 
         List<String> account_names = new ArrayList<String>();
@@ -1355,7 +1387,6 @@ public class PersonnelController {
         System.out.println("Account Names List Size: "+ account_names.size());
         System.out.println("Account Details List Size:"+ account_number.size());
 
-
         for(int i=0; i<account_names.size(); i++){
             System.out.println("Account: "+ account_names.get(i) + " - " + account_number.get(i));
         }
@@ -1367,16 +1398,16 @@ public class PersonnelController {
     @GetMapping("/export/local_church_offering_report/excel")
     public void getLocalChurchOfferingReportExcel( String username, String password, String phone_number,
                                              String start_date, String end_date, String means_of_payment, String input,
-                                             HttpServletResponse Outresponse) throws IOException {
+                                             HttpServletResponse Outresponse) throws IOException, NullPointerException {
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
@@ -1437,18 +1468,18 @@ public class PersonnelController {
     // Get Local Church Offering Report PDF
     @GetMapping("/export/local_church_offering_report/pdf")
     public void getLocalChurchOfferingReportPDF(String username, String password, String phone_number, String start_date,
-                                              String end_date, String means_of_payment, String input, HttpServletResponse Outresponse) throws IOException {
+                                              String end_date, String means_of_payment, String input, HttpServletResponse Outresponse) throws IOException
+            , NullPointerException {
 
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
-
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" ,phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
@@ -1464,6 +1495,11 @@ public class PersonnelController {
         // Member Personnel Response
         MemberPersonnelResponse response1 = authApi.loginMemberPersonnel(personnel);
 
+        String personnel_name = response1.getPayload().getPersonnelName();
+        String institution_name = response1.getPayload().getOrganisationName();
+        String institution_number = response1.getPayload().getOrganisationNumber();
+        String institution_level = response1.getPayload().getOrganisationLevel();
+
         LocalChurchOfferingSummary localChurchOfferingSummary = new LocalChurchOfferingSummary();
 
         // Session Number
@@ -1475,10 +1511,10 @@ public class PersonnelController {
         // Authentication
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
-        authentication.setInstututionName(response1.getPayload().getOrganisationName());
-        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
-        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setPersonnelName(personnel_name);
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setInstututionNumber(institution_number);
         authentication.setSessionNumber(session_number);
 
         // Local Church RPayload
@@ -1502,7 +1538,8 @@ public class PersonnelController {
 
         LocalChurchOfferingSummaryResponse responsed = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
         System.out.println(responsed);
-        localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed);
+        localChurchOfferingReport.LocalChurchSummaryReport(Outresponse,phone_number,start_date,end_date,responsed,
+                username, password, personnel_name, institution_name, institution_number, institution_level);
     }
 
     // Get Local Church Offering Report
@@ -1513,7 +1550,8 @@ public class PersonnelController {
                                                 @RequestParam("start_date") String start_date,
                                                 @RequestParam("end_date") String end_date,
                                                 @RequestParam("means") String means_of_payment,
-                                                @RequestParam("input") String input,HttpServletResponse Outresponse) throws IOException {
+                                                @RequestParam("input") String input,HttpServletResponse Outresponse) throws IOException
+            , NullPointerException {
 
         if(input.contains("PDF")){
             getLocalChurchOfferingReportPDF(username, password, phone_number, start_date, end_date, means_of_payment, input, Outresponse);
@@ -1530,17 +1568,17 @@ public class PersonnelController {
                                              @RequestParam("phone_number") String phone_number,
                                              @RequestParam("start_date") String start_date,
                                              @RequestParam("end_date") String end_date,
-                                             @RequestParam("means") String means_of_payment,HttpServletResponse Outresponse) throws IOException {
-
+                                             @RequestParam("means") String means_of_payment,HttpServletResponse Outresponse) throws IOException
+            , NullPointerException {
         // Get the Phone Number
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
@@ -1560,6 +1598,10 @@ public class PersonnelController {
 
         // Session Number
         final int session_number = (int) ((Math.random() * 900000000) + 100000000);
+        String personnnel_name = response1.getPayload().getPersonnelName();
+        String institution_name = response1.getPayload().getOrganisationName();
+        String institution_level = response1.getPayload().getOrganisationLevel();
+        String institution_number = response1.getPayload().getOrganisationNumber();
 
         com.example.tried.auth.personnel.reports.offering.Authentication authentication = new
                 com.example.tried.auth.personnel.reports.offering.Authentication();
@@ -1567,10 +1609,10 @@ public class PersonnelController {
         // Authentication
         authentication.setUser(username);
         authentication.setPassword(password);
-        authentication.setPersonnelName(response1.getPayload().getPersonnelName());
-        authentication.setInstututionName(response1.getPayload().getOrganisationName());
-        authentication.setInstututionLevel(response1.getPayload().getOrganisationLevel());
-        authentication.setInstututionNumber(response1.getPayload().getOrganisationNumber());
+        authentication.setPersonnelName(personnnel_name);
+        authentication.setInstututionName(institution_name);
+        authentication.setInstututionLevel(institution_level);
+        authentication.setInstututionNumber(institution_number);
         authentication.setSessionNumber(session_number);
 
         // Local Church RPayload
@@ -1587,7 +1629,7 @@ public class PersonnelController {
         localChurchOfferingSummary.setPayload(localChurchPayload);
 
         LocalChurchOfferingSummaryResponse response2 = authApi.getLocalChurchOfferingReports(localChurchOfferingSummary);
-        System.out.println(response2);
+        System.out.println(HelperUtility.toJSON(response2));
         return response2;
     }
 
@@ -1598,12 +1640,16 @@ public class PersonnelController {
         String username = "mwakesho";
         String password = "0389";
 
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
+
         // Get the Member Profile
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" ,phone_number));
         profile.setProfilepayload(profilepayload);
 
         //Get the Member Profile Response
@@ -1678,14 +1724,18 @@ public class PersonnelController {
     @PostMapping("/department-accounts")
     public DepartmentResponse getDepartments(@RequestParam("phone_number") String phone_number,
                                              @RequestParam("username") String username,
-                                             @RequestParam("password") String password) throws JsonProcessingException {
+                                             @RequestParam("password") String password) throws JsonProcessingException , NullPointerException{
+
+        if(phone_number.startsWith("+254")){
+            phone_number = phone_number.substring(1);
+        }
 
         // Member Profile
         MemberProfile profile = new MemberProfile();
 
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profile.setProfilepayload(profilepayload);
 
         final int rand = (int) ((Math.random() * 9000000) + 1000000);
@@ -1724,19 +1774,20 @@ public class PersonnelController {
                                                                                @RequestParam("end_date") String end_date,
                                                                                @RequestParam("username") String username,
                                                                                @RequestParam("password") String password,
-                                                                               @RequestParam("pin") String pin, HttpServletResponse response) throws IOException, JsonProcessingException {
+                                                                               @RequestParam("pin") String pin, HttpServletResponse response)
+            throws IOException, NullPointerException {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Get the Member Authentication Details
         MemberProfile profile = new MemberProfile();
         Profilepayload payload = new Profilepayload();
         payload.setFromWithin(true);
-        payload.setMobileNumber("+" + phone_number);
+        payload.setMobileNumber(String.format("%s%s","+",phone_number));
         profile.setProfilepayload(payload);
 
         MemberProfileResponse profile2 = authApi.getMemberDetails(profile);
@@ -1777,11 +1828,12 @@ public class PersonnelController {
                                                                                @RequestParam("end_date") String end_date,
                                                                                @RequestParam("username") String username,
                                                                                @RequestParam("password") String password,
-                                                                               @RequestParam("pin") String pin) throws JsonProcessingException{
+                                                                               @RequestParam("pin") String pin) throws JsonProcessingException
+            , NullPointerException{
         System.out.println("Get the Phone Number: " + phone_number);
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         System.out.println("Get the Phone Number: " + phone_number);
@@ -1833,13 +1885,14 @@ public class PersonnelController {
                                                                 @RequestParam("account_number") String account_number,
                                                                 @RequestParam("username") String username,
                                                                 @RequestParam("password") String password,
-                                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException{
+                                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException
+            , NullPointerException{
 
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }else{
             phone_number = phone_number;
         }
@@ -1887,12 +1940,13 @@ public class PersonnelController {
                                                         @RequestParam("account_number") String account_number,
                                                         @RequestParam("username") String username,
                                                         @RequestParam("password") String password,
-                                                        @RequestParam("phone_number") String phone_number) throws JsonProcessingException {
+                                                        @RequestParam("phone_number") String phone_number) throws JsonProcessingException
+            , NullPointerException {
         // Generate Session Number
         final int session_number = (int) ((Math.random() * 9000000) + 1000000);
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
             phone_number = phone_number.trim();
         }else{
             phone_number = phone_number;
@@ -1949,9 +2003,9 @@ public class PersonnelController {
                                                                               @RequestParam("password") String password,
                                                                               @RequestParam("phone_number") String phone_number,
                                                                          @RequestParam("associated_phone_number") String associated_phone_number
-    ) throws JsonProcessingException {
+    ) throws JsonProcessingException, NullPointerException {
     if(phone_number.startsWith("+254")){
-        phone_number = phone_number.substring(1, phone_number.length());
+        phone_number = phone_number.substring(1);
     }
 
 
@@ -2010,10 +2064,11 @@ public class PersonnelController {
                                                                                   @RequestParam("username") String username,
                                                                                   @RequestParam("password") String password,
                                                                                   @RequestParam("phone_number") String phone_number,
-                                                                                  @RequestParam("associated_receipt_number") String associated_receipt_number) throws JsonProcessingException {
+                                                                                  @RequestParam("associated_receipt_number") String associated_receipt_number)
+            throws JsonProcessingException, NullPointerException {
 
         if(phone_number.startsWith("+254")){
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         // Generate Session Number
@@ -2075,7 +2130,8 @@ public class PersonnelController {
     @GetMapping("/cash-receipts")
     public HashMap<String, Object> getReceiptedTransactions(@RequestParam("phone_number") String phone_number,
                                                             @RequestParam("start_date") String start_date,
-                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException {
+                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException
+            , NullPointerException {
         if(phone_number.contains("+")){
             phone_number = phone_number;
         }else{
@@ -2118,7 +2174,8 @@ public class PersonnelController {
     public HashMap<String, Object> getReceiptedTransactions(@RequestParam("cfms_member_number") String cfms_member_number,
                                                             @RequestParam("phone_number") String phone_number,
                                                             @RequestParam("start_date") String start_date,
-                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException {
+                                                            @RequestParam("end_date") String end_date) throws JsonProcessingException
+            , NullPointerException{
         if(phone_number.startsWith("+254")){
             phone_number = phone_number;
         }else{
@@ -2158,7 +2215,8 @@ public class PersonnelController {
     @PostMapping("/cash-receipted-delete")
     public DeleteCashReceiptingResponse deleteCashReceipt(@RequestParam("cfms_member_number") String cfms_member_number,
                                                           @RequestParam("phone_number") String phone_number,
-                                                          @RequestParam("receipt_number") String receipt_number) throws JsonProcessingException {
+                                                          @RequestParam("receipt_number") String receipt_number) throws JsonProcessingException
+            , NullPointerException {
         if(phone_number.startsWith("+254")){
             phone_number = phone_number;
         }else{
@@ -2193,22 +2251,23 @@ public class PersonnelController {
     public MemberOfferingResponse getSpecificOffering(@RequestParam("start_date")String start_date,@RequestParam("end_date") String end_date,
                                                       @RequestParam("member_name") String member_name, @RequestParam("member_number") String member_number,
                                                       @RequestParam("treasurer_pin") String treasurer_pin, @RequestParam("phone_number") String phone_number,
-                                                      @RequestParam("username") String username, @RequestParam("password") String password) throws JsonProcessingException {
+                                                      @RequestParam("username") String username, @RequestParam("password") String password)
+            throws JsonProcessingException, NullPointerException {
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
         // Member Profile Details
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+", phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profile);
 
         if(member_number.startsWith("+")) {
-            member_number = member_number.substring(1, member_number.length());
+            member_number = member_number.substring(1);
         }
 
         // Church Member Profile Details
@@ -2263,24 +2322,25 @@ public class PersonnelController {
     public String getSpecificOfferingPDF(@RequestParam("start_date_member")String start_date,@RequestParam("end_date_member") String end_date,
                                                       @RequestParam("member_name") String member_name, @RequestParam("member_number") String member_number,
                                                       @RequestParam("treasurer_pin") String treasurer_pin, @RequestParam("phone_number") String phone_number,
-                                                      @RequestParam("username") String username, @RequestParam("password") String password,HttpServletResponse response) throws IOException {
+                                                      @RequestParam("username") String username, @RequestParam("password") String password,HttpServletResponse response)
+            throws IOException, NullPointerException {
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
 
         // Member Profile Details
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
         profilepayload.setFromWithin(true);
         profile.setProfilepayload(profilepayload);
 
         MemberProfileResponse responser = authApi.getMemberDetails(profile);
 
         if(member_number.startsWith("+")) {
-            member_number = member_number.substring(1, member_number.length());
+            member_number = member_number.substring(1);
         }
 
         // Church Member Profile Details
@@ -2339,17 +2399,17 @@ public class PersonnelController {
 
     @GetMapping("/local_church_accounts")
     public String getLocalChurchPaymentAccounts(@RequestParam("username") String username, @RequestParam("password") String password,
-                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException {
+                                                @RequestParam("phone_number") String phone_number) throws JsonProcessingException, NullPointerException {
         final long session_number1 = (long) ((Math.random() * 900000000) + 100000000);
 
         if(phone_number.startsWith("+")){
-            phone_number = phone_number.substring(1,phone_number.length());
+            phone_number = phone_number.substring(1);
         }
 
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
-        profilepayload.setMobileNumber("+" + phone_number);
+        profilepayload.setMobileNumber(String.format("%s%s","+" , phone_number));
         profile.setProfilepayload(profilepayload);
 
         // Get Membership Number
@@ -2398,13 +2458,13 @@ public class PersonnelController {
             @RequestParam("start_date") String start_date, @RequestParam("account_name") String account_name, @RequestParam("account_number") String account_number,
             @RequestParam("end_date") String end_date,@RequestParam("username") String username, @RequestParam("password") String password, @RequestParam("phone_number") String phone_number,
             @RequestParam("total_amount") String total_amount,@RequestParam(value = "trust_funds[]", required = false) String[] trust_funds,
-            @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount) throws JsonProcessingException {
+            @RequestParam(value = "fund_amount[]", required = false) int[] fund_amount) throws JsonProcessingException, NullPointerException {
 
         MemberProfile profile = new MemberProfile();
         Profilepayload profilepayload = new Profilepayload();
         profilepayload.setFromWithin(true);
         if(phone_number.startsWith("+254")) {
-            phone_number = phone_number.substring(1, phone_number.length());
+            phone_number = phone_number.substring(1);
         }
         profilepayload.setMobileNumber(String.format("%s%s", "+", phone_number));
         profile.setProfilepayload(profilepayload);

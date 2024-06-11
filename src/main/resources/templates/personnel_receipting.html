@@ -491,6 +491,52 @@ $(document).ready(function(){
 
 				<!-- Reconciliation -->
 				<div id="cash_reconciliation" style="display:none;">
+					<div class="cardHeader">
+						<h2 style="text-align:center;margin-top:10px;margin-bottom:10px" id="recon_header">Reconciliation</h2>
+					</div>
+					<br>
+					<hr>
+					<table>
+						<tbody>
+						<tr>
+							<td colspan="2">Account Type</td>
+							<td colspan="2"><select name="account_type" id="account_type">
+								<option value="Cash">Cash</option>
+								<option value="Bank Deposits">Bank Deposits</option>
+							</select></td>
+						</tr>
+						<tr>
+							<td colspan="2"><button class="button" onclick="displayReconciliation()">Select Account</button></td>
+						</tr>
+						</tbody>
+					</table>
+					<div id="continue_reconciliation" style="display:none;">
+						<table>
+							<tbody>
+								<tr>
+									<td colspan="2">From</td>
+									<td colspan="2">To</td>
+								</tr>
+								<tr>
+									<td colspan="2"><input type="date" id="start_date_recon" name="start_date"></td>
+									<td colspan="2"><input type="date" id="end_date_recon" name="end_date"></td>
+								</tr>
+								<tr>
+									<td colspan="4">Actual Amount</td>
+								</tr>
+								<tr>
+									<td colspan="4"><input type="text" id="actual_amount" name="actual_amount" placeholder="0"></td>
+								</tr>
+								<tr>
+									<td colspan="2"><button class="button" onclick="getReconciliation()">Verify</button></td>
+									<td colspan="2"><button class="button">Reconcile</button></td>
+								</tr>
+								<tr>
+									<td colspan="4">Reverse a Reconciliation</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
 			

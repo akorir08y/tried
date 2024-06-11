@@ -9,4 +9,28 @@ public class ExtraData{
 
 	@JsonProperty("fundDistribution")
 	private FundDistribution fundDistribution;
+
+	public ExtraData() {
+	}
+
+	public ExtraData(Member member, FundDistribution fundDistribution) {
+		this.member = member;
+		this.fundDistribution = fundDistribution;
+	}
+
+	public Member getMember() {
+		return member;
+	}
+
+	public void setMember(Member member) {
+		this.member = member;
+	}
+
+	public FundDistribution getFundDistribution() {
+		return fundDistribution;
+	}
+
+	public void setFundDistribution(FundDistribution fundDistribution) {
+		this.fundDistribution = fundDistribution;
+	}
 }

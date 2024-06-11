@@ -25,7 +25,7 @@ import java.util.List;
 
 public class TestExcelForm {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     @Autowired

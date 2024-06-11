@@ -15,7 +15,6 @@ function getMemberProfile(phone_number){
         phone_number: phone_number
     };
 
-
     $.post(hosted_url + "/cfms-web/personnel/profile",dated ,function(data, status){
         all_members.style.display = "none";
         new_member.style.display = "none";
@@ -75,7 +74,7 @@ function getMemberProfile(phone_number){
         html += "<label class=\"label_input\" for=\"flexRadioDefault2\">Anonymous</label></td>";
         html += "<td><input type=\"text\" id=\"residence\" name=\"residence\" placeholder=\"Residence\"></td></tr><tr>";
         html += "<td><button type=\"button\" class=\"btn\" onclick=\"getBack()\" style=\"width:70%;\">Back</button></td>";
-        html += "<td><button type=\"button\" class=\"btn\" onclick=\"submitMemberProfile()\" style=\"width:70%;margin-left:-30px;\">Submit</button></td>";
+        html += "<td><button type=\"button\" class=\"btn\" onclick=\"submitMemberProfile()\" style=\"width:70%;margin-left:-30px;\">Update Member</button></td>";
         html += "<td><button type=\"button\" class=\"btn\" onclick=\"getChurchTransfer()\" style=\"width:100%;margin-left:-45px;\">Transfer Church</button></td>";
         html += "<td><button type=\"button\" class=\"right-blue-red\" onclick=\"deactivateMember("+phone_number+")\" style=\"width:100%;\">Deactivate</button></td>";
         html += "</tr></tbody></table>";
@@ -133,6 +132,8 @@ function submitMemberProfile(){
            receipt_to_value = receipt_to[i].value;
         }
     }
+
+    alert("Member Update in Progress");
 
     var profile_data = {
         fullname: fullname,
@@ -319,13 +320,14 @@ function registerUser(){
 function getChurchTransfer(){
     var transfer_church = document.getElementById("transfer_church");
     var member_profile = document.getElementById("member_profile");
+    var church_code = document.getElementById("church_code").value;
     var name = document.getElementById("fullname").value;
 
     member_profile.style.display = "none";
 
     var statement = "Transfer of "+ name +" from "+ church_code;
     if(confirm(statement) == true){
-         transfer_church.style.display = "block";
+        transfer_church.style.display = "block";
     }
 }
 
@@ -356,9 +358,10 @@ function TransferChurchMember(){
     if(church_code_transfer != church_code){
           $.post(hosted_url + "/cfms-web/auth/member-transfer", content ,function(data, status){
                alert("Transfer Successful");
+               window.location.reload();
           });
     }else if(church_code_transfer === church_code){
-        alert("You are already Registered to this Church");
+        alert("You are already Registered to this Church. Change the Church Code");
     }
 }
 

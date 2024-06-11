@@ -25,12 +25,12 @@ import java.util.List;
 
 public class TrustFundSummaryExcel {
 
-    private XSSFWorkbook workbook;
+    private final XSSFWorkbook workbook;
     private XSSFSheet sheet;
 
     private AuthApi authApi;
 
-    private PersonnelApi personnelApi;
+    private final PersonnelApi personnelApi;
 
     public TrustFundSummaryExcel(PersonnelApi personnelApi) {
         this.personnelApi = personnelApi;
